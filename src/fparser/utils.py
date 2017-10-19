@@ -185,7 +185,7 @@ def specs_split_comma(line, item = None, upper=False):
             specs.append(spec)
     return specs
 
-def parse_bind(line, item = None):
+def parse_bind(line, item=None):
     if not line.lower().startswith('bind'):
         return None, line
     if item is not None:
@@ -195,7 +195,7 @@ def parse_bind(line, item = None):
         newitem = None
     newline = newline[4:].lstrip()
     i = newline.find(')')
-    assert i!=-1,`newline`
+    assert i != -1, 'newline'
     args = []
     for a in specs_split_comma(newline[1:i].strip(), newitem, upper=True):
         args.append(a)
@@ -204,14 +204,14 @@ def parse_bind(line, item = None):
         rest = newitem.apply_map(rest)
     return args, rest
 
-def parse_result(line, item = None):
+def parse_result(line, item=None):
     if not line.lower().startswith('result'):
         return None, line
     line = line[6:].lstrip()
     i = line.find(')')
-    assert i != -1,`line`
+    assert i != -1, 'line'
     name = line[1:i].strip()
-    assert is_name(name),`name`
+    assert is_name(name), 'name'
     return name, line[i+1:].lstrip()
 
 def filter_stmts(content, classes):
