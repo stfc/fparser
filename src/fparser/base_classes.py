@@ -77,7 +77,7 @@ import logging
 from six import with_metaclass
 from .readfortran import Line, Comment
 from .utils import split_comma, specs_split_comma, is_int_literal_constant
-from .utils import classes
+from .utils import classes, AnalyzeError
 from functools import reduce
 
 logger = logging.getLogger('fparser')
@@ -738,7 +738,7 @@ class BeginStatement(Statement):
 
     def process_subitem(self, item):
         """
-        Check is item is blocks start statement, if it is, read the block.
+        Check if item is blocks start statement, if it is, read the block.
 
         Return True to stop adding items to given block.
         """
@@ -830,16 +830,20 @@ class BeginStatement(Statement):
         return
 
     def handle_unknown_item(self, item):
-        message = item.reader.format_message(\
-                        'WARNING',
-                        'no parse pattern found for "%s" in %r block.'\
-                        % (item.get_line(),self.__class__.__name__),
-                        item.span[0], item.span[1])
+        '''Called when process_subitem does not find a start or end of block.
+        It adds the item (which is an instance of Line) to the content, but
+        then raises an AnalyzeError. An instance of Line in content typically
+        results in other errors later (e.g. because Line has no analyze
+        method).
+        '''
+        message = item.reader.format_message(
+            'WARNING',
+            'no parse pattern found for "%s" in %r block.'
+            % (item.get_line(), self.__class__.__name__),
+            item.span[0], item.span[1])
         logger.warning(message)
-        # self.show_message(message)
         self.content.append(item)
-        #sys.exit()
-        return
+        raise AnalyzeError(message)
 
     def analyze(self):
         for stmt in self.content:

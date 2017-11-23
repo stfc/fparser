@@ -796,14 +796,15 @@ class FortranReaderBase(object):
         r = ['While processing %r (mode=%r)..' % (self.id, self.mode)]
         for i in range(max(1,startlineno-back_index),startlineno):
             r.append('%5d:%s' % (i,self.source_lines[i-1]))
-        for i in range(startlineno,min(endlineno+back_index,len(self.source_lines))+1):
-            if i==0 and not self.source_lines:
+        for i in range(startlineno, min(endlineno+back_index,
+                                        len(self.source_lines))+1):
+            if i == 0 and not self.source_lines:
                 break
             linenostr = '%5d:' % (i)
-            if i==endlineno:
+            if i == endlineno:
                 sourceline = self.source_lines[i-1]
                 l0 = linenostr+sourceline[:startcolno]
-                if endcolno==-1:
+                if endcolno == -1:
                     l1 = sourceline[startcolno:]
                     l2 = ''
                 else:
@@ -811,35 +812,39 @@ class FortranReaderBase(object):
                     l2 = sourceline[endcolno:]
                 r.append('%s%s%s <== %s' % (l0,l1,l2,message))
             else:
-                r.append(linenostr+ self.source_lines[i-1])
+                r.append(linenostr + self.source_lines[i-1])
         return '\n'.join(r)
 
     def format_error_message(self, message, startlineno, endlineno,
                              startcolno=0, endcolno=-1):
-        return self.format_message('ERROR',message, startlineno,
+        '''Create a string with an error message.'''
+        return self.format_message('ERROR', message, startlineno,
                                    endlineno, startcolno, endcolno)
 
     def format_warning_message(self, message, startlineno, endlineno,
                                startcolno=0, endcolno=-1):
-        return self.format_message('WARNING',message, startlineno,
+        '''Create a string with a warning message. '''
+        return self.format_message('WARNING', message, startlineno,
                                    endlineno, startcolno, endcolno)
 
     def info(self, message, item=None):
-        if item is None:            
+        if item is None:
             m = self.format_message('INFORMATION',
-                                      message,
-                                      len(self.source_lines)-2, len(self.source_lines))
+                                    message,
+                                    len(self.source_lines)-2,
+                                    len(self.source_lines))
         else:
             m = self.format_message('INFORMATION',
-                                      message,
-                                      item.span[0], item.span[1])
+                                    message,
+                                    item.span[0], item.span[1])
         logger.info(m)
         # self.show_message(m, sys.stderr)
         return
 
     def error(self, message, item=None):
         if item is None:
-            m = self.format_error_message(message, len(self.source_lines)-2, len(self.source_lines))
+            m = self.format_error_message(message, len(self.source_lines)-2,
+                                          len(self.source_lines))
         else:
             m = self.format_error_message(message, item.span[0], item.span[1])
         logger.error(m)

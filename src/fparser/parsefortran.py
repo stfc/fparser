@@ -65,14 +65,12 @@
 
 """Provides FortranParser.
 """
-#Author: Pearu Peterson <pearu@cens.ioc.ee>
-#Created: May 2006
+# Author: Pearu Peterson <pearu@cens.ioc.ee>
+# Created: May 2006
 
 __autodoc__ = ['FortranParser']
 __all__ = ['FortranParser']
 
-import re
-import sys
 import traceback
 import logging
 
@@ -106,7 +104,7 @@ class FortranParser(object):
 
     def get_item(self):
         try:
-            item = self.reader.next(ignore_comments = self.ignore_comments)
+            item = self.reader.next(ignore_comments=self.ignore_comments)
             return item
         except StopIteration:
             pass
@@ -117,26 +115,29 @@ class FortranParser(object):
         return
 
     def parse(self):
+        '''Parses the program specified in the reader object.'''
         if self.block is not None:
             return
         try:
-            block = self.block = BeginSource(self)
+            self.block = BeginSource(self)
         except KeyboardInterrupt:
             raise
-        except:
+        except Exception as error:
             reader = self.reader
             while reader is not None:
-                message = reader.format_message('FATAL ERROR',
-                                                'while processing line',
-                                                reader.linecount, reader.linecount)
+                message = \
+                    reader.format_message('FATAL ERROR',
+                                          'while processing line',
+                                          reader.linecount, reader.linecount)
                 logger.critical(message)
                 # reader.show_message(message, sys.stderr)
                 reader = reader.reader
-            logger.debug(''.join(('Traceback\n',''.join( traceback.format_stack() ))))
+            logger.debug(''.join(('Traceback\n',
+                                  ''.join(traceback.format_stack()))))
             # traceback.print_exc(file=sys.stderr)
             logger.critical('STOPPED PARSING')
             # self.reader.show_message('STOPPED PARSING', sys.stderr)
-            return
+            raise error
         return
 
     def analyze(self):
