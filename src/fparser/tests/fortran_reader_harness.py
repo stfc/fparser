@@ -37,12 +37,12 @@
 # Modified M.Hambley, UK Met Office
 ##############################################################################
 
-import StringIO
+import io
 import fparser.readfortran
 
 class ReaderHarness(fparser.readfortran.FortranReaderBase):
     def __init__( self, fileContent ):
-      pseudoFile = StringIO.StringIO( fileContent )
+      pseudoFile = io.BytesIO( fileContent )
       super(ReaderHarness, self).__init__( pseudoFile, True, True )
 
       self.id = 'readerharness'
