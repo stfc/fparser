@@ -37,52 +37,12 @@
 # Modified M.Hambley, UK Met Office
 ##############################################################################
 
-import logging
-
-import fortran_reader_harness
-
-import fparser.base_classes
+import StringIO
 import fparser.readfortran
 
-class StatementHarness(fparser.base_classes.Statement):
-  def __init__( self ):
-      reader = fortran_reader_harness.ReaderHarness( 'First line of code' )
-      reader.get_next_line() # Charge the internal buffers.
-      line = fparser.readfortran.Line( 'Some line of code', (1,1),
-                                       None, None, reader )
-      super(StatementHarness, self).__init__( None, line )
+class ReaderHarness(fparser.readfortran.FortranReaderBase):
+    def __init__( self, fileContent ):
+      pseudoFile = StringIO.StringIO( fileContent )
+      super(ReaderHarness, self).__init__( pseudoFile, True, True )
 
-  def process_item( self ):
-    pass
-
-class CaptureLoggingHandler(logging.Handler):
-    def __init__(self, *args, **kwargs):
-        super(CaptureLoggingHandler, self).__init__(*args, **kwargs)
-        self.reset()
-
-    def emit(self, record):
-        self.messages[record.levelname.lower()].append(record.getMessage())
-
-    def reset(self):
-        self.messages = {'debug': [],
-                         'info': [],
-                         'warning': [],
-                         'error': [],
-                         'critical': []}
-
-def test_statement():
-    logger = logging.getLogger( 'fparser' )
-    log = CaptureLoggingHandler()
-    logger.addHandler( log )
-
-    unit_under_test = StatementHarness()
-
-    unit_under_test.error( 'Scary biscuits' )
-    expected = "While processing 'readerharness' (mode='pyf')..\n    1:First line of code <== Scary biscuits"
-    assert( log.messages['error'][0] == expected )
-    assert( log.messages == {'debug': [],
-                             'info': [],
-                             'warning': [],
-                             'error': [expected],
-                             'critical': []} )
-
+      self.id = 'readerharness'
