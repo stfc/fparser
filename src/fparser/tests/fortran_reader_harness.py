@@ -42,7 +42,7 @@ import fparser.readfortran
 
 class ReaderHarness(fparser.readfortran.FortranReaderBase):
     def __init__( self, fileContent ):
-      pseudoFile = io.BytesIO( fileContent )
+      pseudoFile = io.BytesIO( fileContent.encode( 'ascii' ) )
       super(ReaderHarness, self).__init__( pseudoFile, True, True )
 
       self.id = 'readerharness'
