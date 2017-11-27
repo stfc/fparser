@@ -38,7 +38,7 @@
 ##############################################################################
 
 import logging
-import logging_utils
+import fparser.tests.logging_utils
 
 import fparser.base_classes
 import fparser.parsefortran
@@ -70,7 +70,7 @@ class StatementHarness(fparser.base_classes.Statement):
 
 def test_statement():
     logger = logging.getLogger( 'fparser' )
-    log = logging_utils.CaptureLoggingHandler()
+    log = fparser.tests.logging_utils.CaptureLoggingHandler()
     logger.addHandler( log )
 
     unit_under_test = StatementHarness()
