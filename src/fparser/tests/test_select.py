@@ -85,7 +85,7 @@ def print_wrapper(arg):
 
 def test_case():
     ''' Basic tests for parsing of individual case statements '''
-    from test_parser import parse
+    from fparser.tests.test_parser import parse
     from fparser.block_statements import Case
     assert parse(Case, 'case (1)') == 'CASE ( 1 )'
     assert parse(Case, 'case (1:)') == 'CASE ( 1 : )'
