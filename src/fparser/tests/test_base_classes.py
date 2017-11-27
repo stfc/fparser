@@ -38,6 +38,7 @@
 ##############################################################################
 
 import logging
+import logging_utils
 
 import fparser.base_classes
 import fparser.parsefortran
@@ -59,21 +60,6 @@ class PretendReader(fparser.readfortran.FortranReaderBase):
     super(PretendReader, self).__init__( SourceFile(), True, True )
     self.id = 'pretend source file'
 
-class CaptureLoggingHandler(logging.Handler):
-    def __init__(self, *args, **kwargs):
-        super(CaptureLoggingHandler, self).__init__(*args, **kwargs)
-        self.reset()
-
-    def emit(self, record):
-        self.messages[record.levelname.lower()].append(record.getMessage())
-
-    def reset(self):
-        self.messages = {'debug': [],
-                         'info': [],
-                         'warning': [],
-                         'error': [],
-                         'critical': []}
-
 class StatementHarness(fparser.base_classes.Statement):
   def __init__( self ):
     parser = fparser.parsefortran.FortranParser( PretendReader() )
@@ -82,9 +68,9 @@ class StatementHarness(fparser.base_classes.Statement):
   def process_item( self ):
     pass
 
-def test_statement(monkeypatch):
+def test_statement():
     logger = logging.getLogger( 'fparser' )
-    log = CaptureLoggingHandler()
+    log = logging_utils.CaptureLoggingHandler()
     logger.addHandler( log )
 
     unit_under_test = StatementHarness()
