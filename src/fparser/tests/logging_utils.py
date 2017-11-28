@@ -36,18 +36,43 @@
 ##############################################################################
 # Modified M.Hambley, UK Met Office
 ##############################################################################
-
+'''
+Helps with testing methods which write to the standard logger.
+'''
 import logging
 
 class CaptureLoggingHandler(logging.Handler):
+    '''
+    Records logged output for later examination.
+
+    This class is a standard handler for the built-in Python logging system.
+    To make use of it simply register an instance with the logger using a
+    command such as
+    "logging.getLogger(__class__).addHandler( CaptureLoggingHandler() )"
+
+    Any log message raised while this handler is in use will be recorded to
+    a memory buffer for later use. This object has attributes 'debug', 'info',
+    'warning', 'error' and 'critical', each of which is a list of logged
+    messages. Only the message text is recorded, everything else is lost.
+    '''
     def __init__(self, *args, **kwargs):
+        '''
+        Constructs this object. Takes only the parameters accepted by
+        logging.Handler.
+        '''
         super(CaptureLoggingHandler, self).__init__(*args, **kwargs)
         self.reset()
 
     def emit(self, record):
+        '''
+        Handles a logged event. The event is recorded for future inspection.
+        '''
         self.messages[record.levelname.lower()].append(record.getMessage())
 
     def reset(self):
+        '''
+        Empties the log of previous messages.
+        '''
         self.messages = {'debug': [],
                          'info': [],
                          'warning': [],
