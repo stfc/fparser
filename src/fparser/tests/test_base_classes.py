@@ -44,36 +44,17 @@ import fparser.base_classes
 import fparser.parsefortran
 import fparser.readfortran
 
-class SourceFile(object):
-  def __init__( self ):
-    self._read = False
+def test_statement( monkeypatch ):
+    reader = fparser.readfortran.FortranStringReader( "dummy = 1" )
+    parser = fparser.parsefortran.FortranParser( reader )
 
-  def next( self ):
-    if self._read:
-      raise StopIteration
-    else:
-      self._read = True
-      return "The only line"
-
-class PretendReader(fparser.readfortran.FortranReaderBase):
-  def __init__( self ):
-    super(PretendReader, self).__init__( SourceFile(), True, True )
-    self.id = 'pretend source file'
-
-class StatementHarness(fparser.base_classes.Statement):
-  def __init__( self ):
-    parser = fparser.parsefortran.FortranParser( PretendReader() )
-    super(StatementHarness, self).__init__( parser, None )
-
-  def process_item( self ):
-    pass
-
-def test_statement():
     logger = logging.getLogger( 'fparser' )
     log = fparser.tests.logging_utils.CaptureLoggingHandler()
     logger.addHandler( log )
 
-    unit_under_test = StatementHarness()
+    monkeypatch.setattr( fparser.base_classes.Statement,
+                         'process_item', lambda x: None, raising=False )
+    unit_under_test = fparser.base_classes.Statement( parser, None )
 
     unit_under_test.error( 'Scary biscuits' )
     expected = "Scary biscuits"

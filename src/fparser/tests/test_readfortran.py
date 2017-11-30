@@ -43,21 +43,18 @@ import pytest
 
 import fparser.readfortran
 
-class FaultyReader(object):
-    def next( self ):
-        raise Exception( 'None shall pass' )
-
-class FortranReaderBaseHarness(fparser.readfortran.FortranReaderBase):
-    def __init__( self ):
-        super(FortranReaderBaseHarness, self).__init__( FaultyReader, True, True )
-        self.id = 'harness reader'
-
 def test_FortranReaderBase(monkeypatch):
     logger = logging.getLogger( 'fparser' )
     log = fparser.tests.logging_utils.CaptureLoggingHandler()
     logger.addHandler( log )
 
-    unit_under_test = FortranReaderBaseHarness()
+    class BrokenFile():
+      def next():
+        raise Exception( 'None shall pass' )
+
+    monkeypatch.setattr( fparser.readfortran.FortranReaderBase,
+                         'id', lambda x: None, raising=False )
+    unit_under_test = fparser.readfortran.FortranReaderBase( BrokenFile(), True, True )
     with pytest.raises(StopIteration):
         unit_under_test.next()
 
