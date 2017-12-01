@@ -46,7 +46,7 @@ class CaptureLoggingHandler(logging.Handler):
     '''
     Records logged output for later examination.
 
-    This class is a standard handler for the built-in Python logging system.
+    This is a standard handler for the built-in Python logging system.
     To make use of it simply register an instance with the logger using a
     command such as
     "logging.getLogger(__class__).addHandler( CaptureLoggingHandler() )"
@@ -58,15 +58,18 @@ class CaptureLoggingHandler(logging.Handler):
     '''
     def __init__(self, *args, **kwargs):
         '''
-        Constructs this object. Takes only the parameters accepted by
-        logging.Handler.
+        Constructs an instance of CaptureLoggingHandler using the arguments
+        accepted by logging.Handler.
         '''
         super(CaptureLoggingHandler, self).__init__(*args, **kwargs)
         self.reset()
 
     def emit(self, record):
         '''
-        Handles a logged event. The event is recorded for future inspection.
+        Handles a logged event. The event is passed from the logging system
+        and recorded for future inspection.
+
+        :param :py:class:`logging.LogRecord` record The event being logged.
         '''
         self.messages[record.levelname.lower()].append(record.getMessage())
 
