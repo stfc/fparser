@@ -41,6 +41,7 @@ Helps with testing methods which write to the standard logger.
 '''
 import logging
 
+
 class CaptureLoggingHandler(logging.Handler):
     '''
     Records logged output for later examination.

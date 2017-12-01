@@ -36,7 +36,9 @@
 ##############################################################################
 # Modified M.Hambley, UK Met Office
 ##############################################################################
-
+'''
+Test battery associated with fparser.base_classes package.
+'''
 import logging
 import fparser.tests.logging_utils
 
@@ -44,22 +46,27 @@ import fparser.base_classes
 import fparser.parsefortran
 import fparser.readfortran
 
-def test_statement( monkeypatch ):
-    reader = fparser.readfortran.FortranStringReader( "dummy = 1" )
-    parser = fparser.parsefortran.FortranParser( reader )
 
-    logger = logging.getLogger( 'fparser' )
+def test_statement(monkeypatch):
+    '''
+    Tests the Statement class.
+
+    Only exercises the logging functionality at the moment.
+    '''
+    reader = fparser.readfortran.FortranStringReader("dummy = 1")
+    parser = fparser.parsefortran.FortranParser(reader)
+
+    logger = logging.getLogger('fparser')
     log = fparser.tests.logging_utils.CaptureLoggingHandler()
-    logger.addHandler( log )
+    logger.addHandler(log)
 
-    monkeypatch.setattr( fparser.base_classes.Statement,
-                         'process_item', lambda x: None, raising=False )
-    unit_under_test = fparser.base_classes.Statement( parser, None )
+    monkeypatch.setattr(fparser.base_classes.Statement,
+                        'process_item', lambda x: None, raising=False)
+    unit_under_test = fparser.base_classes.Statement(parser, None)
 
-    unit_under_test.error( 'Scary biscuits' )
-    expected = "Scary biscuits"
-    assert( log.messages == {'critical': [],
-                             'debug':    [],
-                             'error':    ['Scary biscuits'],
-                             'info':     [],
-                             'warning':  []} )
+    unit_under_test.error('Scary biscuits')
+    assert(log.messages == {'critical': [],
+                            'debug':    [],
+                            'error':    ['Scary biscuits'],
+                            'info':     [],
+                            'warning':  []})

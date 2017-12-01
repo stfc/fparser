@@ -36,26 +36,40 @@
 ##############################################################################
 # Modified M.Hambley, UK Met Office
 ##############################################################################
-
+'''
+Test battery associated with fparser.readfortran package.
+'''
 import logging
+import fparser.readfortran
 import fparser.tests.logging_utils
 import pytest
 
-import fparser.readfortran
 
-def test_FortranReaderBase(monkeypatch):
-    logger = logging.getLogger( 'fparser' )
+def test_fortranreaderbase(monkeypatch):
+    '''
+    Tests the FortranReaderBase class.
+
+    Currently only tests logging functionality.
+    '''
+    logger = logging.getLogger('fparser')
     log = fparser.tests.logging_utils.CaptureLoggingHandler()
-    logger.addHandler( log )
+    logger.addHandler(log)
 
-    class BrokenFile():
-      def next():
-        raise Exception( 'None shall pass' )
+    class BrokenFile(object):
+        '''
+        A file-like object which unexpectedly fails.
+        '''
+        def next(self):
+            '''
+            Failing method.
+            '''
+            raise Exception('None shall pass')
 
-    monkeypatch.setattr( fparser.readfortran.FortranReaderBase,
-                         'id', lambda x: None, raising=False )
-    unit_under_test = fparser.readfortran.FortranReaderBase( BrokenFile(), True, True )
+    monkeypatch.setattr(fparser.readfortran.FortranReaderBase,
+                        'id', lambda x: None, raising=False)
+    unit_under_test = fparser.readfortran.FortranReaderBase(BrokenFile(),
+                                                            True, True)
     with pytest.raises(StopIteration):
         unit_under_test.next()
 
-    assert( 'STOPPED READING' in log.messages['critical'] )
+    assert 'STOPPED READING' in log.messages['critical']
