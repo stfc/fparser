@@ -7435,6 +7435,10 @@ items : ({'INTENT', 'OPTIONAL', 'SAVE'}, Intent_Spec)
             return 'INTENT', Intent_Spec(line[1:-1].strip())
         if len(string)==8 and string.upper()=='OPTIONAL':
             return 'OPTIONAL', None
+        if len(string)==7 and string.upper()=='POINTER':
+            return 'POINTER', None
+        if len(string)==9 and string.upper()=='PROTECTED':
+            return 'PROTECTED', None
         if len(string)==4 and string.upper()=='SAVE':
             return 'SAVE', None
 
