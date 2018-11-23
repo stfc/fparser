@@ -365,4 +365,21 @@ def test_get_source_info_wrong():
     with pytest.raises(ValueError):
         _source_info = get_source_info(['one'])  # Less obviously wrong
 
-##############################################################################
+
+def test_non_utf8_char():
+    ''' '''
+    string = (u"program funny_chars\n"
+              u"! Vertical volume fluxesÊ\n"
+              u"end program funny_chars\n")
+    handle, filename = tempfile.mkstemp(suffix='.f90')#, text=True)
+    os.close(handle)
+    with open(filename, 'wb') as fortran_file:
+        fortran_file.write(bytes(string))
+    get_source_info(filename) # "dynadv_ubs.F90")
+#    reader = fparser.common.readfortran.FortranFileReader(filename,
+#                                                          ignore_comments=False)
+#    for item in reader:
+#        print(str(item))
+#    assert 0
+#    reader = fparser.common.readfortran.FortranStringReader(
+#        string, ignore_comments=False)
