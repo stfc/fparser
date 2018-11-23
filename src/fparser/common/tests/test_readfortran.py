@@ -597,3 +597,19 @@ cComment
     assert reader.format.mode == 'fix', repr(reader.format.mode)
     for item in reader:
         assert str(item) == expected.pop(0)
+
+
+def test_non_utf8_char():
+    ''' '''
+    string = ("program funny_chars\n"
+              "! Vertical volume fluxesÊ\n"
+              "end program funny_chars\n")
+    handle, filename = tempfile.mkstemp(suffix='.f90', text=True)
+    os.close(handle)
+    with open(filename, 'w') as fortran_file:
+        print(string, file=fortran_file)
+    reader = fparser.common.readfortran.FortranFileReader(filename)
+    for item in reader:
+        print(str(item))
+    reader = fparser.common.readfortran.FortranStringReader(
+        string, ignore_comments=False)
