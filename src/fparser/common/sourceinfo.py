@@ -228,7 +228,10 @@ def get_source_info_str(source):
 
     firstline = lines[0].lstrip()
     if _HAS_F_HEADER(firstline):
-        return FortranFormat(False, True)
+        # Although this file has a header indicating that it is fixed format
+        # Fortran, we take that with a pinch of salt (since it is not part of
+        # the Fortran standard) and set the 'strict' mode to False.
+        return FortranFormat(is_free=False, is_strict=False)
     if _HAS_FIX_HEADER(firstline):
         return FortranFormat(False, False)
     if _HAS_FREE_HEADER(firstline):

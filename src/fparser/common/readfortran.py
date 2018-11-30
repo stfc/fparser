@@ -730,8 +730,14 @@ class FortranReaderBase(object):
                     message = '{!r} not found in {!r}. ' \
                               + 'INLCUDE line treated as comment line.'
                     reader.warning(message.format(filename, dirs), item)
-                    item = self.next(ignore_comments)
-                    return item
+                    # Create a comment from the include statement
+                    # TODO fix bugs so that we don't need this and/or
+                    # support 'include' in fparser2 AST.
+                    cmt = Comment("!UNTREATED " + item.line, item.span,
+                                  item.reader)
+                    return cmt
+                    #item = self.next(ignore_comments)
+                    #return item
                 reader.info('including file %r' % (path), item)
                 self.reader = FortranFileReader(
                     path,
