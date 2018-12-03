@@ -153,6 +153,11 @@ class Comment(Base):
         :return: this comment as a string
         :rtype: str
         '''
+        # Put back any commented-out INCLUDE statements
+        # TODO rm the next two lines once fparser2 reliably handles
+        # include files.
+        if self.items[0].upper().startswith("!UNTREATED INCLUDE"):
+            return str(self.items[0][11:])
         return str(self.items[0])
 
     def restore_reader(self, reader):
