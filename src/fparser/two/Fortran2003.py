@@ -432,7 +432,7 @@ class Specification_Stmt(Base):  # R212
 class Executable_Construct(Base):  # R213
     """
     <executable-construct> = <action-stmt>
-                             | <associate-stmt>
+                             | <associate-construct>
                              | <case-construct>
                              | <do-construct>
                              | <forall-construct>
@@ -441,7 +441,7 @@ class Executable_Construct(Base):  # R213
                              | <where-construct>
     """
     subclass_names = [
-        'Action_Stmt', 'Associate_Stmt', 'Case_Construct', 'Comment',
+        'Action_Stmt', 'Associate_Construct', 'Case_Construct', 'Comment',
         'Do_Construct', 'Forall_Construct', 'If_Construct',
         'Select_Type_Construct', 'Where_Construct']
 
@@ -4268,9 +4268,9 @@ class Expr(BinaryOpBase):  # R722
     match = staticmethod(match)
 
 
-class Defined_Unary_Op(STRINGBase):  # R723
+class Defined_Binary_Op(STRINGBase): # R723
     """
-    <defined-unary-op> = . <letter> [ <letter> ]... .
+    <defined-binary-op> = . <letter> [ <letter> ]... .
     """
     subclass_names = ['Defined_Op']
 
@@ -4732,13 +4732,13 @@ class Forall_Header(Base):  # R754
             return
         line, repmap = string_replace_map(string[1:-1].strip())
         lst = line.rsplit(',', 1)
-        if len(lst) != 2:
+        if len(lst)==1:
+            return Forall_Triplet_Spec_List(repmap(line)), None
+        elif len(lst)==2:
+            return (Forall_Triplet_Spec_List(repmap(lst[0].rstrip())),
+                    Scalar_Mask_Expr(repmap(lst[1].lstrip())))
+        else:
             return
-        if ':' not in lst[1]:
-            return Forall_Triplet_Spec_List(
-                repmap(lst[0].rstrip())), \
-                Scalar_Mask_Expr(repmap(lst[1].lstrip()))
-        return Forall_Triplet_Spec_List(repmap(line)), None
 
     def tostr(self):
         if self.items[1] is None:
@@ -4820,7 +4820,7 @@ class Forall_Stmt(StmtBase):  # R759
         if string[:6].upper() != 'FORALL':
             return
         line, repmap = string_replace_map(string[6:].lstrip())
-        if not line.startswith(')'):
+        if not line.startswith('('):
             return
         i = line.find(')')
         if i == -1:
@@ -4831,7 +4831,7 @@ class Forall_Stmt(StmtBase):  # R759
         line = repmap(line[i+1:].lstrip())
         if not line:
             return
-        return Forall_Header(header), Forall_Assignment_Stmt(line)
+        return Forall_Header("("+header+")"), Forall_Assignment_Stmt(line)
 
     def tostr(self): return 'FORALL %s %s' % self.items
 
@@ -7963,6 +7963,18 @@ items : (Procedure_Name_List, )
 
     def tostr(self):
         return 'MODULE PROCEDURE %s' % (self.items[0])
+
+
+class Defined_Operator(STRINGBase):  # R311
+    """
+    <defined-operator> is <defined-unary-op>
+                       or <defined-binary-op>
+                       or <extended-intrinsic-op>
+    """
+    subclass_names = []
+    def match(string):
+        return STRINGBase.match(pattern.abs_defined_operator, string)
+    match = staticmethod(match)
 
 
 class Generic_Spec(Base):  # R1207
