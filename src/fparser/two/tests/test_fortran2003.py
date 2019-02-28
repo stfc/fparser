@@ -109,7 +109,7 @@ def test_specification_part():
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'INTEGER :: a'
     assert (repr(obj) == "Specification_Part(Type_Declaration_Stmt("
-            "Intrinsic_Type_Spec('INTEGER', None), None, "
+            "Intrinsic_Type_Spec('integer', None), None, "
             "Entity_Decl(Name('a'), None, None, None)))")
 
     obj = tcls(get_reader('''\
@@ -554,7 +554,7 @@ def test_end_type_stmt():  # R433
     obj = tcls('end type')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'END TYPE'
-    assert repr(obj) == "End_Type_Stmt('TYPE', None)"
+    assert repr(obj) == "End_Type_Stmt('end type', None)"
 
     obj = tcls('end type  a')
     assert isinstance(obj, tcls), repr(obj)
@@ -720,7 +720,7 @@ def test_final_binding():  # R454
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'FINAL :: a, b'
     assert (repr(obj) ==
-            "Final_Binding('FINAL', Final_Subroutine_Name_List(',', "
+            "Final_Binding('final', Final_Subroutine_Name_List(',', "
             "(Name('a'), Name('b'))))")
 
     obj = tcls('final::a')
@@ -907,7 +907,7 @@ def test_ac_spec():  # R466
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'INTEGER ::'
     assert (repr(obj) ==
-            "Ac_Spec(Intrinsic_Type_Spec('INTEGER', None), None)")
+            "Ac_Spec(Intrinsic_Type_Spec('integer', None), None)")
 
     obj = tcls('integer :: a,b')
     assert isinstance(obj, tcls), repr(obj)
@@ -973,7 +973,7 @@ def test_type_declaration_stmt():  # R501
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'INTEGER :: a'
     assert (repr(obj) ==
-            "Type_Declaration_Stmt(Intrinsic_Type_Spec('INTEGER', None), "
+            "Type_Declaration_Stmt(Intrinsic_Type_Spec('integer', None), "
             "None, Entity_Decl(Name('a'), None, None, None))")
 
     obj = tcls('integer ,dimension(2):: a*3')
@@ -984,7 +984,7 @@ def test_type_declaration_stmt():  # R501
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'REAL :: a'
     assert (repr(obj) ==
-            "Type_Declaration_Stmt(Intrinsic_Type_Spec('REAL', None), "
+            "Type_Declaration_Stmt(Intrinsic_Type_Spec('real', None), "
             "None, Entity_Decl(Name('a'), None, None, None))")
 
     obj = tcls('REAL A( LDA, * ), B( LDB, * )')
@@ -1197,7 +1197,7 @@ def test_access_stmt():  # R518
     obj = tcls('private')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'PRIVATE'
-    assert repr(obj) == "Access_Stmt('PRIVATE', None)"
+    assert repr(obj) == "Access_Stmt('private', None)"
 
     obj = tcls('public a,b')
     assert isinstance(obj, tcls), repr(obj)
@@ -1281,13 +1281,13 @@ def test_optional_stmt():  # R537
     obj = tcls('optional :: a')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'OPTIONAL :: a'
-    assert repr(obj) == "Optional_Stmt('OPTIONAL', Name('a'))"
+    assert repr(obj) == "Optional_Stmt('optional', Name('a'))"
 
     obj = tcls('optional :: a, b, c')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'OPTIONAL :: a, b, c'
     assert (repr(obj) ==
-            "Optional_Stmt('OPTIONAL', Dummy_Arg_Name_List(',', (Name('a'), "
+            "Optional_Stmt('optional', Dummy_Arg_Name_List(',', (Name('a'), "
             "Name('b'), Name('c'))))")
 
 
@@ -1327,7 +1327,7 @@ def test_pointer_stmt():  # R540
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'POINTER :: a(:), b'
     assert (repr(obj) ==
-            "Pointer_Stmt('POINTER', Pointer_Decl_List(',', (Pointer_Decl("
+            "Pointer_Stmt('pointer', Pointer_Decl_List(',', (Pointer_Decl("
             "Name('a'), Deferred_Shape_Spec(None, None)), Name('b'))))")
 
 
@@ -1352,13 +1352,13 @@ def test_protected_stmt():  # R542
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'PROTECTED :: a, b'
     assert (repr(obj) ==
-            "Protected_Stmt('PROTECTED', Entity_Name_List(',', (Name('a'), "
+            "Protected_Stmt('protected', Entity_Name_List(',', (Name('a'), "
             "Name('b'))))")
 
     obj = tcls('protected ::a')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'PROTECTED :: a'
-    assert repr(obj) == "Protected_Stmt('PROTECTED', Name('a'))"
+    assert repr(obj) == "Protected_Stmt('protected', Name('a'))"
 
 
 def test_save_stmt():  # R543
@@ -1367,19 +1367,19 @@ def test_save_stmt():  # R543
     obj = tcls('save')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'SAVE'
-    assert repr(obj) == "Save_Stmt('SAVE', None)"
+    assert repr(obj) == "Save_Stmt('save', None)"
 
     obj = tcls('save a, b')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'SAVE :: a, b'
-    assert (repr(obj) == "Save_Stmt('SAVE', "
+    assert (repr(obj) == "Save_Stmt('save', "
             "Saved_Entity_List(',', (Name('a'), Name('b'))))")
 
     obj = tcls('save :: /a/ , b')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'SAVE :: /a/, b'
     assert (repr(obj) ==
-            "Save_Stmt('SAVE', Saved_Entity_List(',', (Saved_Entity('/', "
+            "Save_Stmt('save', Saved_Entity_List(',', (Saved_Entity('/', "
             "Name('a'), '/'), Name('b'))))")
 
 
@@ -1457,7 +1457,7 @@ def test_implicit_spec():  # R550
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'INTEGER(A - Z)'
     assert (repr(obj) ==
-            "Implicit_Spec(Intrinsic_Type_Spec('INTEGER', None), "
+            "Implicit_Spec(Intrinsic_Type_Spec('integer', None), "
             "Letter_Spec('A', 'Z'))")
 
     obj = tcls('double  complex (r,d-g)')
@@ -1496,7 +1496,7 @@ def test_equivalence_stmt():  # R554
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'EQUIVALENCE(a, b, z)'
     assert (repr(obj) ==
-            "Equivalence_Stmt('EQUIVALENCE', Equivalence_Set(Name('a'), "
+            "Equivalence_Stmt('equivalence', Equivalence_Set(Name('a'), "
             "Equivalence_Object_List(',', (Name('b'), Name('z')))))")
 
     obj = tcls('equivalence (a, b ,z),(b,l)')
@@ -3892,7 +3892,7 @@ def test_function_subprogram():  # R1223
     assert str(obj) == 'FUNCTION foo()\nEND FUNCTION foo'
     assert (repr(obj) ==
             "Function_Subprogram(Function_Stmt(None, Name('foo'), None, None),"
-            " End_Function_Stmt('FUNCTION', Name('foo')))")
+            " End_Function_Stmt('end function', Name('foo')))")
 
     reader = get_reader('''\
     pure real function foo(a) result(b) bind(c)
@@ -4039,7 +4039,7 @@ def test_subroutine_subprogram():  # R1231
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'SUBROUTINE foo\nEND SUBROUTINE foo'
     assert (repr(obj) == "Subroutine_Subprogram(Subroutine_Stmt(None, "
-            "Name('foo'), None, None), End_Subroutine_Stmt('SUBROUTINE', "
+            "Name('foo'), None, None), End_Subroutine_Stmt('end subroutine', "
             "Name('foo')))")
 
     reader = get_reader('''\
@@ -4106,7 +4106,7 @@ def test_end_subroutine_stmt():  # R1234
     obj = tcls('end subroutine foo')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'END SUBROUTINE foo'
-    assert repr(obj) == "End_Subroutine_Stmt('SUBROUTINE', Name('foo'))"
+    assert repr(obj) == "End_Subroutine_Stmt('end subroutine', Name('foo'))"
 
     obj = tcls('end')
     assert isinstance(obj, tcls), repr(obj)

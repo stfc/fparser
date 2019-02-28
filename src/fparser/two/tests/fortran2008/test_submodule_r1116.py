@@ -47,10 +47,16 @@
 
 '''
 
+import textwrap
+
 import pytest
 from fparser.api import get_reader
 from fparser.two.utils import NoMatchError
 from fparser.two.Fortran2008 import Submodule
+
+
+def prep_expected(expected):
+    return textwrap.dedent(expected).strip()
 
 
 def test_submodule(f2008_create):
@@ -93,11 +99,14 @@ def test_submodule_msp(f2008_create):
       end
       ''')
     ast = Submodule(reader)
-    assert "SUBMODULE (foobar) bar\n" \
-        "  CONTAINS\n" \
-        "  SUBROUTINE info\n" \
-        "  END SUBROUTINE info\n" \
-        "END SUBMODULE bar" in str(ast)
+    expected = """
+        SUBMODULE (foobar) bar
+          CONTAINS
+          SUBROUTINE info
+          END SUBROUTINE info
+        END SUBMODULE bar
+    """
+    assert prep_expected(expected) == str(ast)
 
 
 def test_submodule_both(f2008_create):
@@ -114,12 +123,15 @@ def test_submodule_both(f2008_create):
       end
       ''')
     ast = Submodule(reader)
-    assert "SUBMODULE (foobar) bar\n" \
-        "  USE empty\n" \
-        "  CONTAINS\n" \
-        "  SUBROUTINE info\n" \
-        "  END SUBROUTINE info\n" \
-        "END SUBMODULE bar" in str(ast)
+    expected = """
+        SUBMODULE (foobar) bar
+          USE empty
+          CONTAINS
+          SUBROUTINE info
+          END SUBROUTINE info
+        END SUBMODULE bar
+    """
+    assert prep_expected(expected) == str(ast)
 
 # constraint C1112 format statement
 

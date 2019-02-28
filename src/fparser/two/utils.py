@@ -355,7 +355,6 @@ class Base(ComparableMixin):
 
     def init(self, *items):
         self.items = items
-        return
 
     def torepr(self):
         return '%s(%s)' % (self.__class__.__name__, ', '.join(map(repr,
@@ -599,7 +598,6 @@ content : tuple
 
     def init(self, content):
         self.content = content
-        return
 
     def _cmpkey(self):
         """ Provides a key of objects to be used for comparing.
@@ -664,7 +662,6 @@ class SequenceBase(Base):
     def init(self, separator, items):
         self.separator = separator
         self.items = items
-        return
 
     def tostr(self):
         s = self.separator
@@ -1056,7 +1053,6 @@ string
 
     def init(self, string):
         self.string = string
-        return
 
     def tostr(self):
         return str(self.string)
@@ -1179,35 +1175,52 @@ class EndStmtBase(StmtBase):
     """
     @staticmethod
     def match(stmt_type, stmt_name, string, require_stmt_type=False):
-        start = string[:3].upper()
-        if start != 'END':
+        if string[:3].upper() != 'END':
             return
+
+        # Get the full string minus the leading "END" word.
         line = string[3:].lstrip()
-        start = line[:len(stmt_type)].upper()
-        if start:
-            if start.replace(' ', '') != stmt_type.replace(' ', ''):
+
+        # Now pull out the statement type we are looking for.
+        stmt_type_part = line[:len(stmt_type)]
+
+        if stmt_type_part:
+            # Stop if the statement part doesn't match the statement we
+            # were looking for.
+            if stmt_type_part.replace(' ', '').upper() != stmt_type.replace(' ', ''):
                 return
-            line = line[len(stmt_type):].lstrip()
+
+            # Get hold of the actual "END <stmt>" part so that we can return it.
+            end_statement = string[:string.index(stmt_type_part)+len(stmt_type)]
+
+            # Move the line on to the name part.
+            name_part = line[len(stmt_type):].lstrip()
         else:
+            end_statement = string[:3]
             if require_stmt_type:
                 return
-            line = ''
-        if line:
+            name_part = ''
+
+        if name_part:
             if stmt_name is None:
                 return
-            return stmt_type, stmt_name(line)
-        return stmt_type, None
+            return end_statement, stmt_name(name_part)
+
+        return end_statement, None
 
     def init(self, stmt_type, stmt_name):
         self.items = [stmt_type, stmt_name]
-        self.type, self.name = stmt_type, stmt_name
-        return
+        self.extra_context = {}
 
     def get_name(self):
-        return self.items[1]
+        # Try getting hold of the extra context name.
+        name = self.extra_context.get('name', None)
+        if name is None:
+            name = self.items[1]
+        return name
 
     def get_type(self):
-        return self.items[0]
+        return self.stmt_type
 
     def set_name(self, name):
         from fparser.two.Fortran2003 import Name
@@ -1216,17 +1229,21 @@ class EndStmtBase(StmtBase):
                 'item already has name %r, changing it to %r' %
                 (self.items[1], name))
         if isinstance(name, Name):
-            self.items[1] = name
+            self.extra_context['name'] = name
         else:
-            self.items[1] = Name(name)
+            self.extra_context['name'] = Name(name)
 
     def tostr(self):
-        if self.items[1] is not None:
-            return 'END %s %s' % tuple(self.items)
-        return 'END %s' % (self.items[0])
+        name = self.get_name()
+        if name is None:
+            return 'END {}'.format(self.stmt_type)
+        else:
+            return 'END {} {}'.format(self.stmt_type, name)
 
     def torepr(self):
-        return '%s(%r, %r)' % (self.__class__.__name__, self.type, self.name)
+        # NOTE: extra_context is not used in the repr.
+        return '{}({!r}, {!r})'.format(
+            self.__class__.__name__, self.items[0], self.items[1])
 
     def get_end_name(self):
         name = self.items[1]
@@ -1277,12 +1294,13 @@ class WORDClsBase(Base):
             line = string.lstrip()
             if line[:len(pattern)].upper() != pattern.upper():
                 return
+            match = line[:len(pattern)]
             line = line[len(pattern):]
             if not line:
                 if require_cls:
                     # no text found but it is required
                     return
-                return pattern, None
+                return match, None
             if isalnum(line[0]):
                 return
             line = line.lstrip()
@@ -1291,10 +1309,10 @@ class WORDClsBase(Base):
             if not line:
                 if require_cls:
                     return
-                return pattern, None
+                return match, None
             if cls is None:
                 return
-            return pattern, cls(line)
+            return match, cls(line)
         m = pattern.match(string)
         if m is None:
             return
@@ -1327,11 +1345,11 @@ class WORDClsBase(Base):
 
         '''
         if self.items[1] is None:
-            return str(self.items[0])
+            return str(self.items[0]).upper()
         s = str(self.items[1])
         if s and s[0] in '(*':
-            return '%s%s' % (self.items[0], s)
-        return '%s %s' % (self.items[0], s)
+            return '%s%s' % (self.items[0].upper(), s)
+        return '%s %s' % (self.items[0].upper(), s)
 
     def tostr_a(self):
         '''Convert the class into Fortran, adding in "::".
@@ -1342,8 +1360,8 @@ class WORDClsBase(Base):
 
         '''
         if self.items[1] is None:
-            return str(self.items[0])
-        return '%s :: %s' % (self.items[0], self.items[1])
+            return str(self.items[0].upper())
+        return '%s :: %s' % (self.items[0].upper(), self.items[1])
 
 
 class Type_Declaration_StmtBase(StmtBase):

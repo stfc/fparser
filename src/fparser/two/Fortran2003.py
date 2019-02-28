@@ -832,6 +832,7 @@ class Intrinsic_Type_Spec(WORDClsBase):  # R403
     subclass_names = []
     use_names = ['Kind_Selector', 'Char_Selector']
 
+    @staticmethod
     def match(string):
         for w, cls in [('INTEGER', Kind_Selector),
                        ('REAL', Kind_Selector),
@@ -848,7 +849,6 @@ class Intrinsic_Type_Spec(WORDClsBase):  # R403
             if obj is not None:
                 return obj
         return
-    match = staticmethod(match)
 
 
 class Kind_Selector(Base):  # R404
@@ -1473,6 +1473,7 @@ class End_Type_Stmt(EndStmtBase):  # R433
     """
     subclass_names = []
     use_names = ['Type_Name']
+    stmt_type = "TYPE"
 
     @staticmethod
     def match(string):
@@ -2289,6 +2290,7 @@ class End_Enum_Stmt(EndStmtBase):  # R464
     <end-enum-stmt> = END ENUM
     """
     subclass_names = []
+    stmt_type = "ENUM"
 
     def match(string):
         return EndStmtBase.match('ENUM', None, string, require_stmt_type=True)
@@ -5009,6 +5011,7 @@ class End_Where_Stmt(EndStmtBase):  # R751
     """
     subclass_names = []
     use_names = ['Where_Construct_Name']
+    stmt_type = "WHERE"
 
     @staticmethod
     def match(string):
@@ -5178,6 +5181,7 @@ class End_Forall_Stmt(EndStmtBase):  # R758
     """
     subclass_names = []
     use_names = ['Forall_Construct_Name']
+    stmt_type = "FORALL"
 
     @staticmethod
     def match(string):
@@ -5387,6 +5391,7 @@ class Else_Stmt(StmtBase):  # R805
     """
     subclass_names = []
     use_names = ['If_Construct_Name']
+    stmt_type = "ELSE"
 
     @staticmethod
     def match(string):
@@ -5414,6 +5419,7 @@ class End_If_Stmt(EndStmtBase):  # R806
     """
     subclass_names = []
     use_names = ['If_Construct_Name']
+    stmt_type = "IF"
 
     @staticmethod
     def match(string):
@@ -5550,6 +5556,7 @@ class End_Select_Stmt(EndStmtBase):  # R811
     """
     subclass_names = []
     use_names = ['Case_Construct_Name']
+    stmt_type = "SELECT"
 
     @staticmethod
     def match(string):
@@ -5676,6 +5683,7 @@ class End_Associate_Stmt(EndStmtBase):  # R820
     """
     subclass_names = []
     use_names = ['Associate_Construct_Name']
+    stmt_type = "ASSOCIATE"
 
     @staticmethod
     def match(string):
@@ -5806,6 +5814,7 @@ class End_Select_Type_Stmt(EndStmtBase):  # R824
     """
     subclass_names = []
     use_names = ['Select_Construct_Name']
+    stmt_type = "SELECT"
 
     @staticmethod
     def match(string):
@@ -6119,6 +6128,7 @@ class End_Do_Stmt(EndStmtBase):  # pylint: disable=invalid-name
     """
     subclass_names = []
     use_names = ['Do_Construct_Name']
+    stmt_type = "DO"
 
     @staticmethod
     def match(string):
@@ -8469,6 +8479,7 @@ class End_Program_Stmt(EndStmtBase):  # R1103
     """
     subclass_names = []
     use_names = ['Program_Name']
+    stmt_type = "PROGRAM"
 
     @staticmethod
     def match(string):
@@ -8499,6 +8510,7 @@ class Module_Stmt(StmtBase, WORDClsBase):  # R1105
     """
     subclass_names = []
     use_names = ['Module_Name']
+    stmt_type = "MODULE"
 
     @staticmethod
     def match(string):
@@ -8515,6 +8527,7 @@ class End_Module_Stmt(EndStmtBase):  # R1106
     """
     subclass_names = []
     use_names = ['Module_Name']
+    stmt_type = "MODULE"
 
     @staticmethod
     def match(string):
@@ -8789,6 +8802,7 @@ class Block_Data_Stmt(StmtBase):  # R1117
     """
     subclass_names = []
     use_names = ['Block_Data_Name']
+    stmt_type = "BLOCK DATA"
 
     @staticmethod
     def match(string):
@@ -8818,6 +8832,7 @@ class End_Block_Data_Stmt(EndStmtBase):  # R1118
     """
     subclass_names = []
     use_names = ['Block_Data_Name']
+    stmt_type = "BLOCK DATA"
 
     @staticmethod
     def match(string):
@@ -8899,6 +8914,7 @@ items : (Generic_Spec, )
     """
     subclass_names = []
     use_names = ['Generic_Spec']
+    stmt_type = "INTERFACE"
 
     def match(string):
         return EndStmtBase.match(
@@ -9210,11 +9226,11 @@ class Intrinsic_Stmt(StmtBase, WORDClsBase):  # R1216
     subclass_names = []
     use_names = ['Intrinsic_Procedure_Name_List']
 
+    @staticmethod
     def match(string):
         return WORDClsBase.match(
             'INTRINSIC', Intrinsic_Procedure_Name_List,
             string, check_colons=True, require_cls=True)
-    match = staticmethod(match)
     tostr = WORDClsBase.tostr_a
 
 
@@ -9504,6 +9520,7 @@ class End_Function_Stmt(EndStmtBase):  # R1230
     """
     subclass_names = []
     use_names = ['Function_Name']
+    stmt_type = "FUNCTION"
 
     def match(string):
         return EndStmtBase.match('FUNCTION', Function_Name, string)
@@ -9602,6 +9619,7 @@ class End_Subroutine_Stmt(EndStmtBase):  # R1234
     """
     subclass_names = []
     use_names = ['Subroutine_Name']
+    stmt_type = "SUBROUTINE"
 
     @staticmethod
     def match(string):

@@ -75,15 +75,15 @@ def test_include(f2003_create):
     result = BlockBase.match(startcls, subclasses, endcls, reader)
     assert (
         "([Include_Stmt(Include_Filename('1')), Comment('! comment1'), "
-        "Program_Stmt('PROGRAM', Name('test')), Specification_Part("
+        "Program_Stmt('program', Name('test')), Specification_Part("
         "Implicit_Part(Include_Stmt(Include_Filename('2')), Comment("
-        "'! comment2')), Type_Declaration_Stmt(Intrinsic_Type_Spec('INTEGER'"
+        "'! comment2')), Type_Declaration_Stmt(Intrinsic_Type_Spec('integer'"
         ", None), None, Entity_Decl(Name('i'), None, None, None)), "
         "Implicit_Part(Include_Stmt(Include_Filename('3')), Comment("
         "'! comment3'))), Execution_Part(Assignment_Stmt(Name('i'), '=', "
         "Int_Literal_Constant('1', None)), Include_Stmt(Include_Filename('4'))"
         ", Comment('! comment4')), Internal_Subprogram_Part(Contains_Stmt("
         "'CONTAINS'), Include_Stmt(Include_Filename('5')), Comment("
-        "'! comment5')), End_Program_Stmt('PROGRAM', Name('test'))],)") \
+        "'! comment5')), End_Program_Stmt('end program', Name('test'))],)") \
         in str(result)
     assert "should" not in str(result)

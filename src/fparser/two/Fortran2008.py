@@ -320,6 +320,7 @@ class End_Submodule_Stmt(EndStmtBase):  # R1119
     '''
     subclass_names = []
     use_names = ['Submodule_Name']
+    stmt_type = "SUBMODULE"
 
     @staticmethod
     def match(fstring):
@@ -333,18 +334,6 @@ class End_Submodule_Stmt(EndStmtBase):  # R1119
 
         '''
         return EndStmtBase.match('SUBMODULE', Submodule_Name, fstring)
-
-    def get_name(self):  # C1114
-        '''Fortran 2008 constraint C1114 return the submodule name as
-        specified by the end submodule statement or `None` if one is
-        not specified. This is used by the base class to check whether
-        this name matches the submodule name.
-
-        :return: the name of the submodule stored in a Name class
-        :return type: :py:class:`fparser.two.Fortran2003.Name` or `None`
-
-        '''
-        return self.items[1]
 
 
 class Parent_Identifier(Base):  # R1118 (C1113)

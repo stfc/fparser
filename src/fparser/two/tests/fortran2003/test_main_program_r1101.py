@@ -59,15 +59,15 @@ def test_valid(f2003_create):
     obj = Main_Program(get_reader("program a\nend"))
     assert isinstance(obj, Main_Program)
     assert str(obj) == 'PROGRAM a\nEND PROGRAM a'
-    assert repr(obj) == ("Main_Program(Program_Stmt('PROGRAM', Name('a')), "
-                         "End_Program_Stmt('PROGRAM', None))")
+    assert repr(obj) == ("Main_Program(Program_Stmt('program', Name('a')), "
+                         "End_Program_Stmt('end', None))")
 
     # name matching
     obj = Main_Program(get_reader("program a\nend program a"))
     assert isinstance(obj, Main_Program)
     assert str(obj) == 'PROGRAM a\nEND PROGRAM a'
-    assert repr(obj) == ("Main_Program(Program_Stmt('PROGRAM', Name('a')), "
-                         "End_Program_Stmt('PROGRAM', Name('a')))")
+    assert repr(obj) == ("Main_Program(Program_Stmt('program', Name('a')), "
+                         "End_Program_Stmt('end program', Name('a')))")
 
     # mixed case name matching
     obj = Main_Program(get_reader("program a\nend program A"))

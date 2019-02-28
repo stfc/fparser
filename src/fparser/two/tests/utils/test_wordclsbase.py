@@ -74,7 +74,7 @@ def test_wordclsbase():
     # token only, mixed case match
     text = "ToKeN"
     result = WORDClsBase.match(token, Name, text)
-    assert str(result) == "('{0}', None)".format(token)
+    assert str(result) == "('{0}', None)".format(text)
 
     # token only, spaces match
     text = "  {0}  ".format(token)

@@ -52,7 +52,7 @@ def test_cray_pointer_stmt(f2003_create):
         '''Internal helper function to avoid code replication.'''
         ast = Cray_Pointer_Stmt(reader)
         assert "POINTER(a, b)" in str(ast)
-        assert repr(ast) == ("Cray_Pointer_Stmt('POINTER', Cray_Pointer_Decl"
+        assert repr(ast) == ("Cray_Pointer_Stmt('pointer', Cray_Pointer_Decl"
                              "(Name('a'), Name('b')))")
 
     line = "pointer (a, b)"

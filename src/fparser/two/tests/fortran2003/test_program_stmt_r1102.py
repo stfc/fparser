@@ -48,7 +48,7 @@ def test_valid(f2003_create):
     obj = Program_Stmt("program a")
     assert isinstance(obj, Program_Stmt)
     assert str(obj) == 'PROGRAM a'
-    assert repr(obj) == "Program_Stmt('PROGRAM', Name('a'))"
+    assert repr(obj) == "Program_Stmt('program', Name('a'))"
 
 
 def test_invalid(f2003_create):
