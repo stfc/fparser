@@ -320,9 +320,10 @@ class End_Submodule_Stmt(EndStmtBase):  # R1119
     '''
     subclass_names = []
     use_names = ['Submodule_Name']
+    stmt_type = "SUBMODULE"
 
-    @staticmethod
-    def match(fstring):
+    @classmethod
+    def match(cls, fstring):
         '''Check whether the input matches the rule
 
         param string fstring : contains the Fortran that we are trying
@@ -332,7 +333,7 @@ class End_Submodule_Stmt(EndStmtBase):  # R1119
         is a match or `None` if there is no match
 
         '''
-        return EndStmtBase.match('SUBMODULE', Submodule_Name, fstring)
+        return EndStmtBase.match(cls.stmt_type, Submodule_Name, fstring)
 
     def get_name(self):  # C1114
         '''Fortran 2008 constraint C1114 return the submodule name as

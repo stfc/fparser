@@ -1473,10 +1473,11 @@ class End_Type_Stmt(EndStmtBase):  # R433
     """
     subclass_names = []
     use_names = ['Type_Name']
+    stmt_type = "TYPE"
 
-    @staticmethod
-    def match(string):
-        return EndStmtBase.match('TYPE', Type_Name, string,
+    @classmethod
+    def match(cls, string):
+        return EndStmtBase.match(cls.stmt_type, Type_Name, string,
                                  require_stmt_type=True)
 
 
@@ -2289,10 +2290,12 @@ class End_Enum_Stmt(EndStmtBase):  # R464
     <end-enum-stmt> = END ENUM
     """
     subclass_names = []
+    stmt_type = "ENUM"
 
-    def match(string):
-        return EndStmtBase.match('ENUM', None, string, require_stmt_type=True)
-    match = staticmethod(match)
+    @classmethod
+    def match(cls, string):
+        return EndStmtBase.match(
+            cls.stmt_type, None, string, require_stmt_type=True)
 
 
 class Array_Constructor(BracketBase):  # R465
@@ -5009,11 +5012,13 @@ class End_Where_Stmt(EndStmtBase):  # R751
     """
     subclass_names = []
     use_names = ['Where_Construct_Name']
+    stmt_type = "WHERE"
 
-    @staticmethod
-    def match(string):
+    @classmethod
+    def match(cls, string):
         return EndStmtBase.match(
-            'WHERE', Where_Construct_Name, string, require_stmt_type=True)
+            cls.stmt_type, Where_Construct_Name, string,
+            require_stmt_type=True)
 
 
 class Forall_Construct(BlockBase):  # R752
@@ -5178,11 +5183,13 @@ class End_Forall_Stmt(EndStmtBase):  # R758
     """
     subclass_names = []
     use_names = ['Forall_Construct_Name']
+    stmt_type = "FORALL"
 
-    @staticmethod
-    def match(string):
+    @classmethod
+    def match(cls, string):
         return EndStmtBase.match(
-            'FORALL', Forall_Construct_Name, string, require_stmt_type=True)
+            cls.stmt_type, Forall_Construct_Name, string,
+            require_stmt_type=True)
 
 
 class Forall_Stmt(StmtBase):  # pylint: disable=invalid-name
@@ -5414,11 +5421,12 @@ class End_If_Stmt(EndStmtBase):  # R806
     """
     subclass_names = []
     use_names = ['If_Construct_Name']
+    stmt_type = "IF"
 
-    @staticmethod
-    def match(string):
+    @classmethod
+    def match(cls, string):
         return EndStmtBase.match(
-            'IF', If_Construct_Name, string, require_stmt_type=True)
+            cls.stmt_type, If_Construct_Name, string, require_stmt_type=True)
 
 
 class If_Stmt(StmtBase):  # R807
@@ -5550,11 +5558,13 @@ class End_Select_Stmt(EndStmtBase):  # R811
     """
     subclass_names = []
     use_names = ['Case_Construct_Name']
+    stmt_type = "SELECT"
 
-    @staticmethod
-    def match(string):
+    @classmethod
+    def match(cls, string):
         return EndStmtBase.match(
-            'SELECT', Case_Construct_Name, string, require_stmt_type=True)
+            cls.stmt_type, Case_Construct_Name, string,
+            require_stmt_type=True)
 
 
 class Case_Expr(Base):  # R812
@@ -5676,11 +5686,12 @@ class End_Associate_Stmt(EndStmtBase):  # R820
     """
     subclass_names = []
     use_names = ['Associate_Construct_Name']
+    stmt_type = 'ASSOCIATE'
 
-    @staticmethod
-    def match(string):
+    @classmethod
+    def match(cls, string):
         return EndStmtBase.match(
-            'ASSOCIATE', Associate_Construct_Name, string,
+            cls.stmt_type, Associate_Construct_Name, string,
             require_stmt_type=True)
 
 
@@ -5806,11 +5817,12 @@ class End_Select_Type_Stmt(EndStmtBase):  # R824
     """
     subclass_names = []
     use_names = ['Select_Construct_Name']
+    stmt_type = "SELECT"
 
-    @staticmethod
-    def match(string):
+    @classmethod
+    def match(cls, string):
         return EndStmtBase.match(
-            'SELECT', Select_Construct_Name, string, require_stmt_type=True)
+            cls.stmt_type, Select_Construct_Name, string, require_stmt_type=True)
 
 
 class Do_Construct(Base):  # pylint: disable=invalid-name
@@ -6119,15 +6131,16 @@ class End_Do_Stmt(EndStmtBase):  # pylint: disable=invalid-name
     """
     subclass_names = []
     use_names = ['Do_Construct_Name']
+    stmt_type = "DO"
 
-    @staticmethod
-    def match(string):
+    @classmethod
+    def match(cls, string):
         '''
         :param str string: Fortran code to check for a match
         :return: code line matching the "END DO" statement
         :rtype: string
         '''
-        return EndStmtBase.match('DO', Do_Construct_Name, string,
+        return EndStmtBase.match(cls.stmt_type, Do_Construct_Name, string,
                                  require_stmt_type=True)
 
 
@@ -8469,10 +8482,11 @@ class End_Program_Stmt(EndStmtBase):  # R1103
     """
     subclass_names = []
     use_names = ['Program_Name']
+    stmt_type = "PROGRAM"
 
-    @staticmethod
-    def match(string):
-        return EndStmtBase.match('PROGRAM', Program_Name, string)
+    @classmethod
+    def match(cls, string):
+        return EndStmtBase.match(cls.stmt_type, Program_Name, string)
 
 
 class Module(BlockBase):  # R1104
@@ -8515,10 +8529,11 @@ class End_Module_Stmt(EndStmtBase):  # R1106
     """
     subclass_names = []
     use_names = ['Module_Name']
+    stmt_type = "MODULE"
 
-    @staticmethod
-    def match(string):
-        return EndStmtBase.match('MODULE', Module_Name, string)
+    @classmethod
+    def match(cls, string):
+        return EndStmtBase.match(cls.stmt_type, Module_Name, string)
 
 
 class Module_Subprogram_Part(BlockBase):  # R1107
@@ -8818,10 +8833,11 @@ class End_Block_Data_Stmt(EndStmtBase):  # R1118
     """
     subclass_names = []
     use_names = ['Block_Data_Name']
+    stmt_type = "BLOCK DATA"
 
-    @staticmethod
-    def match(string):
-        return EndStmtBase.match('BLOCK DATA', Block_Data_Name, string)
+    @classmethod
+    def match(cls, string):
+        return EndStmtBase.match(cls.stmt_type, Block_Data_Name, string)
 
 
 #
@@ -8899,11 +8915,12 @@ items : (Generic_Spec, )
     """
     subclass_names = []
     use_names = ['Generic_Spec']
+    stmt_type = "INTERFACE"
 
-    def match(string):
+    @classmethod
+    def match(cls, string):
         return EndStmtBase.match(
-            'INTERFACE', Generic_Spec, string, require_stmt_type=True)
-    match = staticmethod(match)
+            cls.stmt_type, Generic_Spec, string, require_stmt_type=True)
 
 
 class Function_Body(BlockBase):
@@ -9504,10 +9521,11 @@ class End_Function_Stmt(EndStmtBase):  # R1230
     """
     subclass_names = []
     use_names = ['Function_Name']
+    stmt_type = "FUNCTION"
 
-    def match(string):
-        return EndStmtBase.match('FUNCTION', Function_Name, string)
-    match = staticmethod(match)
+    @classmethod
+    def match(cls, string):
+        return EndStmtBase.match(cls.stmt_type, Function_Name, string)
 
 
 class Subroutine_Subprogram(BlockBase):  # R1231
@@ -9602,10 +9620,11 @@ class End_Subroutine_Stmt(EndStmtBase):  # R1234
     """
     subclass_names = []
     use_names = ['Subroutine_Name']
+    stmt_type = "SUBROUTINE"
 
-    @staticmethod
-    def match(string):
-        return EndStmtBase.match('SUBROUTINE', Subroutine_Name, string)
+    @classmethod
+    def match(cls, string):
+        return EndStmtBase.match(cls.stmt_type, Subroutine_Name, string)
 
 
 class Entry_Stmt(StmtBase):  # R1235
