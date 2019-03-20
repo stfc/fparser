@@ -34,11 +34,13 @@
 
 ''' File containing unit tests for the BlockBase baseclass in utils.py '''
 
+import textwrap
 from fparser.two.utils import BlockBase
+from fparser.common.graph_tools import LineAnnotator
+
 
 # TODO #179: full testing of this class. We currently only test the
 # comment and include support.
-
 
 def test_include(f2003_create):
     '''Test the BlockBase match method supports include statements and
@@ -54,36 +56,47 @@ def test_include(f2003_create):
     subclasses = [Specification_Part, Execution_Part,
                   Internal_Subprogram_Part]
     endcls = End_Program_Stmt
-    reader = get_reader((
-        "include '1'\n"
-        "! comment1\n"
-        "program test\n"
-        "include '2'\n"
-        "! comment2\n"
-        "integer :: i\n"
-        "include '3'\n"
-        "! comment3\n"
-        "i=1\n"
-        "include '4'\n"
-        "! comment4\n"
-        "contains\n"
-        "include '5'\n"
-        "! comment5\n"
-        "end program test\n"
-        "! I should be ignored"
-        "include 'so should I'"), ignore_comments=False)
+
+    expected = textwrap.dedent("""
+      ! t: Include_Stmt
+      INCLUDE '1'
+      ! t: Comment
+      ! comment1
+      ! t: Program_Stmt
+      PROGRAM test
+          ! t: Include_Stmt
+          INCLUDE '2'
+          ! t: Comment
+          ! comment2
+        ! t: Type_Declaration_Stmt
+        INTEGER :: i
+          ! t: Include_Stmt
+          INCLUDE '3'
+          ! t: Comment
+          ! comment3
+        ! t: Assignment_Stmt
+        i = 1
+        ! t: Include_Stmt
+        INCLUDE '4'
+        ! t: Comment
+        ! comment4
+        ! t: Contains_Stmt
+        CONTAINS
+        ! t: Include_Stmt
+        INCLUDE '5'
+        ! t: Comment
+        ! comment5
+      ! t: End_Program_Stmt
+      END PROGRAM test
+    """).strip()
+
+    # The source is every-other line (i.e. with no "type" comments)
+    source = '\n'.join(expected.split('\n')[1::2]) + """
+      ! I should be ignored (as I am after END PROGRAM)
+      include 'so should I'
+    """.strip()
+
+    reader = get_reader(source, ignore_comments=False)
     result = BlockBase.match(startcls, subclasses, endcls, reader)
-    assert (
-        "([Include_Stmt(Include_Filename('1')), Comment('! comment1'), "
-        "Program_Stmt('PROGRAM', Name('test')), Specification_Part("
-        "Implicit_Part(Include_Stmt(Include_Filename('2')), Comment("
-        "'! comment2')), Type_Declaration_Stmt(Intrinsic_Type_Spec('INTEGER'"
-        ", None), None, Entity_Decl(Name('i'), None, None, None)), "
-        "Implicit_Part(Include_Stmt(Include_Filename('3')), Comment("
-        "'! comment3'))), Execution_Part(Assignment_Stmt(Name('i'), '=', "
-        "Int_Literal_Constant('1', None)), Include_Stmt(Include_Filename('4'))"
-        ", Comment('! comment4')), Internal_Subprogram_Part(Contains_Stmt("
-        "'CONTAINS'), Include_Stmt(Include_Filename('5')), Comment("
-        "'! comment5')), End_Program_Stmt('PROGRAM', Name('test'))],)") \
-        in str(result)
-    assert "should" not in str(result)
+
+    assert expected == LineAnnotator(result).content
