@@ -100,7 +100,7 @@ Description:
   %prog parses Fortran code.''')
     parser.add_option('--task',
                       default = 'show',
-                      choices = ['show', 'none'],
+                      choices = ['show', 'repr', 'none'],
                       help = 'Specify parsing result task. Default: %default.'
                       )
     parser.add_option('--std',

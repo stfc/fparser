@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Modified work Copyright (c) 2017-2018 Science and Technology
+# Modified work Copyright (c) 2017-2019 Science and Technology
 # Facilities Council
 # Original work Copyright (c) 1999-2008 Pearu Peterson
 
@@ -93,7 +93,6 @@ def runner(_, options, args):
         try:
             f2003_parser = ParserFactory().create()
             program = f2003_parser(reader)
-            print (program)
         except FortranSyntaxError as msg:
             print ("Syntax error: {0}".format(str(msg)))
             try:
@@ -106,6 +105,17 @@ def runner(_, options, args):
             raise SystemExit(1)
         except InternalError as msg:
             print ("Internal error in fparser: {0}".format(str(msg)))
+            raise SystemExit(1)
+
+        if options.task == 'repr':
+            print (repr(program))
+        elif options.task == 'show':
+            print (program)
+        elif options.task == 'none':
+            pass
+        else:
+            print ("Internal error in fparser2.py: task command line "
+                   "option '{0}' is not supported.".format(options.task))
             raise SystemExit(1)
 
 
