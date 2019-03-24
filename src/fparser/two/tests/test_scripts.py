@@ -1,4 +1,4 @@
-# Copyright (c) 2018 Science and Technology Facilities Council
+# Copyright (c) 2018-2019 Science and Technology Facilities Council
 #
 # All rights reserved.
 #
@@ -49,6 +49,7 @@ import pytest
 class DummyArgs(object):
     ''' dummy object pretending to be the argument options '''
     mode = "auto"
+    task = "show"
 
 
 def test_runner_no_files(capsys):
@@ -88,6 +89,8 @@ def test_runner_set_mode(tmpdir, capsys):
     class DummyArgsFree(object):
         ''' dummy object pretending to be the argument options '''
         mode = "free"
+        task = "show"
+
     # run the relevant script method (runner())
     fparser2.runner(None, DummyArgsFree(), [my_file.strpath])
     # capture the output and check that the code has been output
