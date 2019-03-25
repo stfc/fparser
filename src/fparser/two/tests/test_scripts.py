@@ -38,7 +38,9 @@
 
 # pylint: disable=too-few-public-methods
 
+import sys
 import pytest
+from fparser.scripts import fparser2
 
 # fparser2.py script function runner()
 
@@ -47,14 +49,19 @@ import pytest
 
 
 class DummyArgs(object):
-    ''' dummy object pretending to be the argument options '''
+    '''Dummy object pretending to be the argument options.
+    
+    :param str task: Optional argument which sets the value of the \
+    internal task variable. Defaults to "show".
+
+    '''
     mode = "auto"
-    task = "show"
+    def __init__(self, task="show"):
+        self.task = task
 
 
 def test_runner_no_files(capsys):
     '''Test that the script deals with no files provided as expected.'''
-    from fparser.scripts import fparser2
     # run the relevant script method (runner())
     with pytest.raises(SystemExit) as excinfo:
         fparser2.runner(None, DummyArgs(), [])
@@ -69,7 +76,6 @@ def test_runner_non_existant_file(capsys):
     provided does not exist.
 
     '''
-    from fparser.scripts import fparser2
     # run the relevant script method (runner())
     fparser2.runner(None, DummyArgs(), ["idontexist.txt"])
     # capture the output and check that the appropriate error has been reported
@@ -79,7 +85,6 @@ def test_runner_non_existant_file(capsys):
 
 def test_runner_set_mode(tmpdir, capsys):
     '''Test that the script can change mode.'''
-    from fparser.scripts import fparser2
     # Create a temporary file containing Fortran code to pass into runner()
     my_file = tmpdir.mkdir("sub").join("hello.f90")
     my_file.write("program hello\nend program hello\n")
@@ -100,7 +105,6 @@ def test_runner_set_mode(tmpdir, capsys):
 
 def test_runner_syntax_error(tmpdir, capsys):
     '''Test that the script deals with code with an invalid syntax.'''
-    from fparser.scripts import fparser2
     # Create a temporary file containing Fortran code to pass into runner()
     my_file = tmpdir.mkdir("sub").join("hello.f90")
     my_file.write("prog error\nend program error\n")
@@ -122,7 +126,6 @@ def test_runner_syntax_error_2(tmpdir, capsys):
     works.
 
     '''
-    from fparser.scripts import fparser2
     # Create a temporary file containing Fortran code to pass into runner()
     my_file = tmpdir.mkdir("sub").join("hello.f90")
     my_file.write("program error\nif (.true.) then\nend if label\n"
@@ -140,7 +143,6 @@ def test_runner_syntax_error_2(tmpdir, capsys):
 
 def test_runner_internal_error(tmpdir, monkeypatch, capsys):
     '''Test that the script deals with an internal error as expected.'''
-    from fparser.scripts import fparser2
     # Create a temporary file containing Fortran code to pass into runner()
     my_file = tmpdir.mkdir("sub").join("hello.f90")
     my_file.write("program hello\nend program hello\n")
@@ -163,17 +165,49 @@ def test_runner_internal_error(tmpdir, monkeypatch, capsys):
     assert "Internal error in fparser: '{0}'".format(error_string) in stdout
 
 
-def test_runner_output(tmpdir, capsys):
-    '''Test that the script outputs the code it has parsed '''
-    from fparser.scripts import fparser2
+def test_runner_task(tmpdir, capsys):
+    '''Test that the script outputs what is expected when the task option
+    is to its various options.
+
+    '''
     # Create a temporary file containing Fortran code to pass into runner()
     my_file = tmpdir.mkdir("sub").join("hello.f90")
     my_file.write("program hello\nend program hello\n")
-    # run the relevant script method (runner())
+
+    # run the relevant script method (runner()) without setting task
     fparser2.runner(None, DummyArgs(), [my_file.strpath])
     # capture the output and check that the code has been output
     stdout, _ = capsys.readouterr()
     assert "PROGRAM hello\nEND PROGRAM hello\n" in stdout
+
+    # run the relevant script method (runner()) setting task to 'show'
+    fparser2.runner(None, DummyArgs(task="show"), [my_file.strpath])
+    # capture the output and check that the code has been output
+    stdout, _ = capsys.readouterr()
+    assert "PROGRAM hello\nEND PROGRAM hello\n" in stdout
+
+    # run the relevant script method (runner()) setting task to 'repr'
+    fparser2.runner(None, DummyArgs(task="repr"), [my_file.strpath])
+    # capture the output and check that the code has been output
+    stdout, _ = capsys.readouterr()
+    assert stdout == ("Program(Main_Program(Program_Stmt('PROGRAM', "
+                      "Name('hello')), End_Program_Stmt('PROGRAM', "
+                      "Name('hello'))))\n")
+
+    # run the relevant script method (runner()) setting task to 'none'
+    fparser2.runner(None, DummyArgs(task="none"), [my_file.strpath])
+    # capture the output and check that the code has been output
+    stdout, _ = capsys.readouterr()
+    assert stdout == ""
+
+    # run the relevant script method (runner()) setting task to an
+    # invalid value
+    with pytest.raises(SystemExit) as excinfo:
+        fparser2.runner(None, DummyArgs(task="unknown"), [my_file.strpath])
+    assert str(excinfo.value) == "1"
+    stdout, _ = capsys.readouterr()
+    assert stdout == ("Internal error in fparser2.py: task command line option "
+                      "'unknown' is not supported.\n")
 
 
 def test_runner_multi_output(tmpdir, capsys):
@@ -181,7 +215,6 @@ def test_runner_multi_output(tmpdir, capsys):
     multiple files specified
 
     '''
-    from fparser.scripts import fparser2
     # Create a temporary file containing Fortran code to pass into runner()
     my_file = tmpdir.mkdir("sub").join("hello.f90")
     my_file.write("program hello\nend program hello\n")
@@ -197,8 +230,6 @@ def test_runner_multi_output(tmpdir, capsys):
 
 def test_main_output(tmpdir, capsys, monkeypatch):
     '''Test that the script main() function outputs the code it has parsed'''
-    from fparser.scripts import fparser2
-    import sys
     # Create a temporary file containing Fortran code to pass into runner()
     my_file = tmpdir.mkdir("sub").join("hello.f90")
     my_file.write("program hello\nend program hello\n")
@@ -209,3 +240,24 @@ def test_main_output(tmpdir, capsys, monkeypatch):
     # capture the output and check that the code has been output
     stdout, _ = capsys.readouterr()
     assert "PROGRAM hello\nEND PROGRAM hello\n" in stdout
+
+
+def test_main_task_error(tmpdir, capsys, monkeypatch):
+    '''Test that the script main() function raises an exception if the
+    task command line argument has an unsupported value.
+
+    '''
+    # Create a temporary file containing Fortran code to pass into runner()
+    my_file = tmpdir.mkdir("sub").join("hello.f90")
+    my_file.write("program hello\nend program hello\n")
+    # Use monkeypatch to spoof the command-line argument
+    monkeypatch.setattr(sys, "argv", ["fparser2", "--task=unknown",
+                                      my_file.strpath])
+    # run the relevant script method (main())
+    with pytest.raises(SystemExit) as excinfo:
+        fparser2.main()
+    assert str(excinfo.value) == "2"
+    # capture the output and check that the code has been output
+    _, stderr = capsys.readouterr()
+    assert ("fparser2: error: option --task: invalid choice: 'unknown' "
+            "(choose from 'show', 'repr', 'none')") in stderr

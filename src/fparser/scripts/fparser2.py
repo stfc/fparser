@@ -114,8 +114,8 @@ def runner(_, options, args):
         elif options.task == 'none':
             pass
         else:
-            print ("Internal error in fparser2.py: task command line "
-                   "option '{0}' is not supported.".format(options.task))
+            print ("Internal error in fparser2.py: task command line option "
+                   "'{0}' is not supported.".format(options.task))
             raise SystemExit(1)
 
 
