@@ -192,10 +192,7 @@ class Declaration_Construct_C1112(Declaration_Construct):  # C1112
     subclass_names = Declaration_Construct.subclass_names[:]
     subclass_names.remove('Format_Stmt')
     subclass_names.remove('Entry_Stmt')
-    # Commented out Stmt_Function_Stmt as it can falsely match an
-    # access to an array or function. Reintroducing statement
-    # functions is captured in issue #202.
-    # subclass_names.remove('Stmt_Function_Stmt')
+    subclass_names.remove('Stmt_Function_Stmt')
 
 
 class Submodule(BlockBase):  # R1116 [C1112,C1114]
