@@ -443,7 +443,7 @@ class Declaration_Construct(Base):  # R207
     subclass_names = ['Derived_Type_Def', 'Entry_Stmt', 'Enum_Def',
                       'Format_Stmt', 'Interface_Block', 'Parameter_Stmt',
                       'Procedure_Declaration_Stmt', 'Specification_Stmt',
-                      'Type_Declaration_Stmt']
+                      'Type_Declaration_Stmt', 'Stmt_Function_Stmt']
 
 
 class Execution_Part(BlockBase):  # R208
