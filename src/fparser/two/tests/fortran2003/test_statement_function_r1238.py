@@ -38,9 +38,9 @@
 
 
 import pytest
-from fparser.two.utils import InternalError
+from fparser.two.utils import InternalError, NoMatchError
 from fparser.api import get_reader
-from fparser.two.Fortran2003 import Stmt_Function_Stmt, Program
+from fparser.two.Fortran2003 import Stmt_Function_Stmt, Assignment_Stmt, Program
 
 def test_statement_function_simple(f2003_create):
     """
@@ -90,3 +90,55 @@ def test_statement_function_subroutine(f2003_create):
   INTEGER :: mymax
   mymax (x, y) = MAX(x, y)
 END SUBROUTINE""" in str(ast)
+
+
+def test_statement_function_array_aliasing(f2003_create):
+    """
+    Test that we can parse a statement function
+    """
+    code = """
+    subroutine test()
+      integer :: x, y
+      integer :: myarray(x, y)
+      integer :: myfunc
+
+      ! Stmt function in declaration space
+      myfunc(x, y) = MAX(x, y)
+
+      ! ----------------------
+
+      ! Array assignment in execution space
+      myarray(x, y) = 1.
+    end subroutine
+    """
+    reader = get_reader(code)
+    ast = Program(reader)
+
+    ast_spec = ast.content[0].content[1]
+    assert type(ast_spec.content[3]) is Stmt_Function_Stmt
+    assert type(ast_spec.content[4]) is Assignment_Stmt
+
+
+def test_statement_function_array_aliasing_fail(f2003_create):
+    """
+    Test that we can parse a statement function
+    """
+    code = """
+    subroutine test()
+      integer :: x, y
+      integer :: myarray(x, y)
+      integer :: myfunc
+
+      ! ----------------------
+
+      ! Array assignment means execution space starts
+      myarray(x, y) = 1.
+
+      ! Stmt function in execution space => FAIL!
+      myfunc(x, y) = MAX(x, y)
+
+    end subroutine
+    """
+    with pytest.raises(NoMatchError) as excinfo:
+        reader = get_reader(code)
+        ast = Program(reader)
