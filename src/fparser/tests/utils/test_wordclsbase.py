@@ -35,8 +35,8 @@
 ''' File containing unit tests for the WORDClsBase baseclass in utils.py '''
 
 import pytest
-from fparser.two.utils import WORDClsBase, NoMatchError
-from fparser.two.Fortran2003 import Name
+from fparser.utils import WORDClsBase, NoMatchError
+from fparser.Fortran2003 import Name
 
 # test WORDClsBase
 

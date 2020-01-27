@@ -38,8 +38,8 @@ format specification.
 '''
 
 import pytest
-from fparser.two.Fortran2003 import Format_Specification
-from fparser.two.utils import NoMatchError
+from fparser.Fortran2003 import Format_Specification
+from fparser.utils import NoMatchError
 
 
 def test_single(f2003_create):
@@ -96,7 +96,7 @@ def test_hollerith(f2003_create, monkeypatch):
     the associated classes.
 
     '''
-    from fparser.two import utils
+    from fparser import utils
     monkeypatch.setattr(utils, "EXTENSIONS", ["hollerith"])
     my_input = ("(2H,,)")
     ast = Format_Specification(my_input)
@@ -113,7 +113,7 @@ def test_c1002(f2003_create, monkeypatch):
     # Comma is optional between a P edit descriptor and an immediately
     # following F, E, EN, ES, D, or G edit descriptor, possibly
     # preceded by a repeat specifier.
-    from fparser.two import utils
+    from fparser import utils
     monkeypatch.setattr(utils, "EXTENSIONS", ["hollerith"])
     for specifier in ['F', 'E', 'EN', 'ES', 'D', 'G']:
         # Without repeat specifier.

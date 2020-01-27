@@ -38,8 +38,8 @@ Data_Ref class.
 '''
 
 import pytest
-from fparser.two.utils import NoMatchError
-from fparser.two.Fortran2003 import Data_Ref, Part_Ref, Name
+from fparser.utils import NoMatchError
+from fparser.Fortran2003 import Data_Ref, Part_Ref, Name
 
 
 def test_valid_sequence(f2003_create):

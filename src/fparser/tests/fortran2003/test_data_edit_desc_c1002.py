@@ -38,8 +38,8 @@ descriptors that conform to (the first clause in) constraint C1002.
 '''
 
 import pytest
-from fparser.two.Fortran2003 import Data_Edit_Desc_C1002
-from fparser.two.utils import NoMatchError, InternalError
+from fparser.Fortran2003 import Data_Edit_Desc_C1002
+from fparser.utils import NoMatchError, InternalError
 
 
 def test_wd(f2003_create):

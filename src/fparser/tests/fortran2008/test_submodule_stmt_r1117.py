@@ -38,8 +38,8 @@
 
 '''
 import pytest
-from fparser.two.utils import NoMatchError
-from fparser.two.Fortran2008 import Submodule_Stmt
+from fparser.utils import NoMatchError
+from fparser.Fortran2008 import Submodule_Stmt
 
 
 def test_simple(f2008_create):

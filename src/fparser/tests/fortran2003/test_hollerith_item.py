@@ -42,13 +42,13 @@ Fortran95. However, Fortran compilers still support it.
 '''
 
 import pytest
-from fparser.two.Fortran2003 import Hollerith_Item
-from fparser.two.utils import NoMatchError, InternalError
+from fparser.Fortran2003 import Hollerith_Item
+from fparser.utils import NoMatchError, InternalError
 
 
 def test_hollerith(f2003_create, monkeypatch):
     '''Check that a valid hollerith string is parsed correctly.'''
-    from fparser.two import utils
+    from fparser import utils
     monkeypatch.setattr(utils, "EXTENSIONS", ["hollerith"])
     for myinput in ["2Hab", "  2Hab", "1h ", "7h1234567", " 1 1 H01234567890"]:
         ast = Hollerith_Item(myinput)
@@ -64,7 +64,7 @@ def test_repr(f2003_create, monkeypatch):
     result.
 
     '''
-    from fparser.two import utils
+    from fparser import utils
     monkeypatch.setattr(utils, "EXTENSIONS", ["hollerith"])
     myinput = "2Hab"
     ast = Hollerith_Item(myinput)
@@ -76,7 +76,7 @@ def test_syntaxerror(f2003_create, monkeypatch):
     invalid.
 
     '''
-    from fparser.two import utils
+    from fparser import utils
     monkeypatch.setattr(utils, "EXTENSIONS", ["hollerith"])
     for myinput in [None, "", "  ", "0H", "1H", "2Hx" "2Hxxx", "H20", "xH"]:
         with pytest.raises(NoMatchError):
@@ -88,7 +88,7 @@ def test_internal_error1(f2003_create, monkeypatch):
     list is not 1 as the str() method assumes that it is.
 
     '''
-    from fparser.two import utils
+    from fparser import utils
     monkeypatch.setattr(utils, "EXTENSIONS", ["hollerith"])
     myinput = "2Hab"
     ast = Hollerith_Item(myinput)
@@ -104,7 +104,7 @@ def test_internal_error2(f2003_create, monkeypatch):
     a string with content.
 
     '''
-    from fparser.two import utils
+    from fparser import utils
     monkeypatch.setattr(utils, "EXTENSIONS", ["hollerith"])
     myinput = "2hab"
     ast = Hollerith_Item(myinput)
@@ -121,7 +121,7 @@ def test_invalid_hollerith(f2003_create, monkeypatch):
     exception if it is not named as a valid extension.
 
     '''
-    from fparser.two import utils
+    from fparser import utils
     monkeypatch.setattr(utils, "EXTENSIONS", [])
     myinput = "2Hab"
     with pytest.raises(NoMatchError) as excinfo:

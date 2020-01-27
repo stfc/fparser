@@ -73,7 +73,7 @@ import re
 import logging
 import six
 from fparser.common.splitline import string_replace_map
-from fparser.two import pattern_tools as pattern
+from fparser import pattern_tools as pattern
 from fparser.common.readfortran import FortranReaderBase
 
 
@@ -298,9 +298,9 @@ class Base(ComparableMixin):
             sometimes the list of elements itself contains a list or tuple.)
 
             :param parent_node: the parent of the nodes listed in `items`.
-            :type parent_node: sub-class of :py:class:`fparser.two.utils.Base`
+            :type parent_node: sub-class of :py:class:`fparser.utils.Base`
             :param items: list or tuple of nodes for which to set the parent.
-            :type items: list or tuple of :py:class:`fparser.two.utils.Base` \
+            :type items: list or tuple of :py:class:`fparser.utils.Base` \
                          or `str` or `list` or `tuple` or NoneType.
             '''
             for item in items:
@@ -411,7 +411,7 @@ class Base(ComparableMixin):
         Gets the node at the root of the parse tree to which this node belongs.
 
         :returns: the node at the root of the parse tree.
-        :rtype: :py:class:`fparser.two.utils.Base`
+        :rtype: :py:class:`fparser.utils.Base`
 
         '''
         current = self
@@ -432,7 +432,7 @@ class Base(ComparableMixin):
 
         :returns: the immediate children of this node.
         :rtype: list or tuple containing zero or more of \
-                :py:class:`fparser.two.utils.Base` or NoneType or str
+                :py:class:`fparser.utils.Base` or NoneType or str
 
         '''
         child_list = getattr(self, 'content', None)
@@ -445,7 +445,7 @@ class Base(ComparableMixin):
         Store the supplied list of nodes in the `items` list of this node.
 
         :param items: the children of this node.
-        :type items: tuple of :py:class:`fparser.two.utils.Base`
+        :type items: tuple of :py:class:`fparser.utils.Base`
 
         '''
         self.items = items
@@ -533,7 +533,7 @@ content : tuple
         :return: instance of startcls or None if no match is found
         :rtype: startcls
         '''
-        from fparser.two.Fortran2003 import Comment, Include_Stmt, \
+        from fparser.Fortran2003 import Comment, Include_Stmt, \
             add_comments_includes
         assert isinstance(reader, FortranReaderBase), repr(reader)
         content = []
@@ -639,7 +639,7 @@ content : tuple
                 # Return to start of classes list now that we've matched.
                 i = 0
             if enable_if_construct_hook:
-                from fparser.two.Fortran2003 import Else_If_Stmt, Else_Stmt, \
+                from fparser.Fortran2003 import Else_If_Stmt, Else_Stmt, \
                     End_If_Stmt
                 if isinstance(obj, Else_If_Stmt):
                     # Got an else-if so go back to start of possible
@@ -649,21 +649,21 @@ content : tuple
                     # Found end-if
                     enable_if_construct_hook = False
             if enable_where_construct_hook:
-                from fparser.two.Fortran2003 import Masked_Elsewhere_Stmt, \
+                from fparser.Fortran2003 import Masked_Elsewhere_Stmt, \
                     Elsewhere_Stmt, End_Where_Stmt
                 if isinstance(obj, Masked_Elsewhere_Stmt):
                     i = 0
                 if isinstance(obj, (Elsewhere_Stmt, End_Where_Stmt)):
                     enable_where_construct_hook = False
             if enable_select_type_construct_hook:
-                from fparser.two.Fortran2003 import Type_Guard_Stmt, \
+                from fparser.Fortran2003 import Type_Guard_Stmt, \
                     End_Select_Type_Stmt
                 if isinstance(obj, Type_Guard_Stmt):
                     i = 1
                 if isinstance(obj, End_Select_Type_Stmt):
                     enable_select_type_construct_hook = False
             if enable_case_construct_hook:
-                from fparser.two.Fortran2003 import Case_Stmt, \
+                from fparser.Fortran2003 import Case_Stmt, \
                     End_Select_Stmt
                 if isinstance(obj, Case_Stmt):
                     i = 1
@@ -702,7 +702,7 @@ content : tuple
         Initialise the `content` attribute with the list of child nodes.
 
         :param content: list of nodes that are children of this one.
-        :type content: list of :py:class:`fparser.two.utils.Base` or NoneType
+        :type content: list of :py:class:`fparser.utils.Base` or NoneType
 
         '''
         self.content = content
@@ -766,13 +766,13 @@ class SequenceBase(Base):
         string.
         :param subcls: an fparser2 object representing the rule that \
         should be matched.
-        :type subcls: subclass of :py:class:`fparser.two.utils.Base`
+        :type subcls: subclass of :py:class:`fparser.utils.Base`
         :param str string: the input string to match.
 
         :returns: a tuple containing 1) the separator and 2) the \
         matched objects in a tuple, or None if there is no match.
         :rtype: (str, (Subclass of \
-        :py:class:`fparser.two.utils.Base`)) or NoneType
+        :py:class:`fparser.utils.Base`)) or NoneType
 
         :raises InternalError: if the separator or string arguments \
         are not the expected type.
@@ -805,7 +805,7 @@ class SequenceBase(Base):
 
         :param str separator: the separator used to split the supplied string.
         :param items: a tuple containing the matched objects.
-        :type items: tuple(Subclass of :py:class:`fparser.two.utils.Base`)
+        :type items: tuple(Subclass of :py:class:`fparser.utils.Base`)
 
         '''
         self.separator = separator
@@ -989,7 +989,7 @@ class KeywordValueBase(Base):
         # We can't just blindly check whether 'string' contains an '='
         # character as it could itself hold a string constant containing
         # an '=', e.g. FMT='("Hello = False")'
-        from fparser.two.Fortran2003 import Char_Literal_Constant
+        from fparser.Fortran2003 import Char_Literal_Constant
         if not Char_Literal_Constant.match(string) and "=" in string:
             lhs, rhs = string.split('=', 1)
             lhs = lhs.rstrip()
@@ -1035,7 +1035,7 @@ class BracketBase(Base):
         :param str brackets: the format of the left and right brackets \
         provided as a string, for example '()'
         :param cls: the class to match the content within the brackets \
-        :type cls: subclass of :py:class:`fparser.two.utils.Base`
+        :type cls: subclass of :py:class:`fparser.utils.Base`
         :param str string: the content to match
         :param bool require_cls: whether the class and associated \
         content is mandatory (True) or optional (False). The default \
@@ -1363,7 +1363,7 @@ class EndStmtBase(StmtBase):
 
         :param str stmt_type: the type of statement, e.g. 'PROGRAM'.
         :param stmt_name: the name associated with the statement or None.
-        :type stmt_name: :py:class:`fparser.two.Fortran2003.Name`
+        :type stmt_name: :py:class:`fparser.Fortran2003.Name`
 
         '''
         self.items = [stmt_type, stmt_name]
@@ -1429,11 +1429,11 @@ class WORDClsBase(Base):
         :param keyword: the pattern of the WORD to match. This can be \
             a Pattern, string, list or tuple, with a list or tuple \
             containing one or more Pattern, string, list or tuple.
-        :type keyword: :py:class:`fparser.two.pattern_tools.Pattern`, \
+        :type keyword: :py:class:`fparser.pattern_tools.Pattern`, \
             str, tuple of str/Pattern/tuple/list or list of \
             str/Pattern/tuple/list
         :param cls: the class to match.
-        :type cls: a subclass of :py:class:`fparser.two.utils.Base`
+        :type cls: a subclass of :py:class:`fparser.utils.Base`
         :param str string: Text that we are trying to match.
         :param bool colons: whether '::' is allowed as an optional \
             separator between between WORD and cls.
@@ -1583,7 +1583,7 @@ def walk(node_list, types=None, indent=0, debug=False):
     nodes with the specified type(s).
 
     :param node_list: node or list of nodes from which to walk.
-    :type node_list: (list of) :py:class:fparser.two.utils.Base
+    :type node_list: (list of) :py:class:fparser.utils.Base
     :param types: type or tuple of types of Node to return. (Default is to \
                   return all nodes.)
     :type types: type or tuple of types
@@ -1591,7 +1591,7 @@ def walk(node_list, types=None, indent=0, debug=False):
     :param bool debug: whether or not to write textual representation of AST \
                        to stdout.
     :returns: a list of nodes
-    :rtype: `list` of :py:class:`fparser.two.utils.Base`
+    :rtype: `list` of :py:class:`fparser.utils.Base`
     '''
     local_list = []
 
@@ -1619,12 +1619,12 @@ def get_child(node, node_type):
     the specified type.
 
     :param node: the node whose children will be searched.
-    :type node: :py:class:`fparser.two.utils.Base`
+    :type node: :py:class:`fparser.utils.Base`
     :param type node_type: the class of child node to search for.
 
     :returns: the first child node of type node_type that is encountered \
               or None.
-    :rtype: :py:class:`fparser.two.utils.Base`
+    :rtype: :py:class:`fparser.utils.Base`
 
     '''
     for child in node.children:

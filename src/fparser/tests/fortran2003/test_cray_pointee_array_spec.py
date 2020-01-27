@@ -38,8 +38,8 @@ Cray-pointee array specification.
 '''
 
 import pytest
-from fparser.two.Fortran2003 import Cray_Pointee_Array_Spec
-from fparser.two.utils import NoMatchError
+from fparser.Fortran2003 import Cray_Pointee_Array_Spec
+from fparser.utils import NoMatchError
 
 
 def test_cray_pointee_array_spec(f2003_create):

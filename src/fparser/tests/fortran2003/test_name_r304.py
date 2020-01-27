@@ -38,8 +38,8 @@ class.
 '''
 
 import pytest
-from fparser.two.utils import NoMatchError
-from fparser.two.Fortran2003 import Name
+from fparser.utils import NoMatchError
+from fparser.Fortran2003 import Name
 
 # Test the name class R304
 

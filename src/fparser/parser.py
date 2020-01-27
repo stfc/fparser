@@ -102,13 +102,13 @@ class ParserFactory(object):
         :param str std: the Fortran standard. Choices are 'f2003' or \
                         'f2008'. 'f2003' is the default.
         :return: a Program class (not object) for use with the Fortran reader
-        :rtype: :py:class:`fparser.two.Fortran2003.Program`
+        :rtype: :py:class:`fparser.Fortran2003.Program`
         :raises ValueError: if the supplied value for the std parameter \
                             is invalid
 
         For example:
 
-        >>> from fparser.two.parser import ParserFactory
+        >>> from fparser.parser import ParserFactory
         >>> f2003_parser = ParserFactory().create()
         >>> f2003_parser = ParserFactory().create(std='f2003')
         >>> f2008_parser = ParserFactory().create(std='f2008')
@@ -119,7 +119,7 @@ class ParserFactory(object):
         '''
         # find all relevant classes in our Fortran2003 file as we
         # always need these.
-        from fparser.two import Fortran2003
+        from fparser import Fortran2003
         f2003_cls_members = get_module_classes(Fortran2003)
         if not std:
             # default to f2003.
@@ -138,7 +138,7 @@ class ParserFactory(object):
             # i.e. where Fortran2008 extends Fortran2003 we return
             # Fortran2008.
             # First find all Fortran2008 classes.
-            from fparser.two import Fortran2008
+            from fparser import Fortran2008
             f2008_cls_members = get_module_classes(Fortran2008)
             # next add in Fortran2003 classes if they do not already
             # exist as a Fortran2008 class.
@@ -173,20 +173,20 @@ class ParserFactory(object):
         base_classes = {}
 
         import logging
-        import fparser.two.Fortran2003
-        class_type = type(fparser.two.Fortran2003.Base)
+        import fparser.Fortran2003
+        class_type = type(fparser.Fortran2003.Base)
 
         # Reset subclasses dictionary in case this function has been
         # called before. If this is not done then multiple calls to
         # the ParserFactory create method may not work correctly.
-        fparser.two.Fortran2003.Base.subclasses = {}
+        fparser.Fortran2003.Base.subclasses = {}
 
         for clsinfo in input_classes:
             clsname = "{0}.{1}".format(clsinfo[1].__module__, clsinfo[0])
             cls = eval(clsname)
             # ?? classtype is set to Base so why have issubclass?
             if isinstance(cls, class_type) and \
-               issubclass(cls, fparser.two.Fortran2003.Base) \
+               issubclass(cls, fparser.Fortran2003.Base) \
                and not cls.__name__.endswith('Base'):
                 base_classes[cls.__name__] = cls
                 if len(__autodoc__) < 10:
@@ -234,9 +234,9 @@ class ParserFactory(object):
                 logging.getLogger(__name__).debug(message)
                 continue
             try:
-                bits = fparser.two.Fortran2003.Base.subclasses[clsname]
+                bits = fparser.Fortran2003.Base.subclasses[clsname]
             except KeyError:
-                fparser.two.Fortran2003.Base.subclasses[clsname] = bits = []
+                fparser.Fortran2003.Base.subclasses[clsname] = bits = []
             for name in subclass_names:
                 if name in base_classes:
                     bits.append(base_classes[name])
@@ -247,7 +247,7 @@ class ParserFactory(object):
 
         if 1:
             for cls in list(base_classes.values()):
-                # subclasses = fparser.two.Fortran2003.Base.subclasses.get(
+                # subclasses = fparser.Fortran2003.Base.subclasses.get(
                 #     cls.__name__, [])
                 # subclasses_names = [c.__name__ for c in subclasses]
                 subclass_names = getattr(cls, 'subclass_names', [])

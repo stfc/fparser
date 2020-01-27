@@ -385,7 +385,7 @@ def make_clean_tmpfile(filename, skip_bad_input=True, encoding="utf8"):
     '''
     import tempfile
     import codecs
-    from fparser.two.utils import InternalError
+    from fparser.utils import InternalError
 
     if skip_bad_input not in [False, True]:
         raise InternalError(

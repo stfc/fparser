@@ -43,8 +43,8 @@ Fortran95. However, Fortran compilers still support it.
 '''
 
 import pytest
-from fparser.two.Fortran2003 import Format_Item_List
-from fparser.two.utils import NoMatchError
+from fparser.Fortran2003 import Format_Item_List
+from fparser.utils import NoMatchError
 
 
 def test_non_hollerith(f2003_create):
@@ -68,7 +68,7 @@ def test_mixed_hollerith_1(f2003_create, monkeypatch):
     format-item-list class to split items.
 
     '''
-    from fparser.two import utils
+    from fparser import utils
     monkeypatch.setattr(utils, "EXTENSIONS", ["hollerith"])
     myinput = "2Hab, 'HELLO'"
     ast = Format_Item_List(myinput)
@@ -84,7 +84,7 @@ def test_mixed_hollerith_2(f2003_create, monkeypatch):
     format-item-list class to split items.
 
     '''
-    from fparser.two import utils
+    from fparser import utils
     monkeypatch.setattr(utils, "EXTENSIONS", ["hollerith"])
     myinput = "'HELLO', 2hab"
     ast = Format_Item_List(myinput)
@@ -100,7 +100,7 @@ def test_hollerith_only(f2003_create, monkeypatch):
     format-item-list class to split items.
 
     '''
-    from fparser.two import utils
+    from fparser import utils
     monkeypatch.setattr(utils, "EXTENSIONS", ["hollerith"])
     myinput = "3Habc,2hab"
     ast = Format_Item_List(myinput)
@@ -117,7 +117,7 @@ def test_hollerith_only_spaces(f2003_create, monkeypatch):
     must be removed.
 
     '''
-    from fparser.two import utils
+    from fparser import utils
     monkeypatch.setattr(utils, "EXTENSIONS", ["hollerith"])
     myinput = "  3Habc  ,  2hab  "
     ast = Format_Item_List(myinput)
@@ -132,7 +132,7 @@ def test_errors(f2003_create, monkeypatch):
     the subclasses.
 
     '''
-    from fparser.two import utils
+    from fparser import utils
     monkeypatch.setattr(utils, "EXTENSIONS", ["hollerith"])
     for myinput in [None, "", "  ", "E2.2  2Hab", "E2.2, E2.2 E2.2",
                     "2Hab,2Ha,2Hab", "2Hab,2Hab x,2Hab", "2Hab,2Hab,2Ha",

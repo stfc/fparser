@@ -38,8 +38,8 @@ character literal constant.
 '''
 
 import pytest
-from fparser.two.Fortran2003 import Char_Literal_Constant
-from fparser.two.utils import NoMatchError, InternalError
+from fparser.Fortran2003 import Char_Literal_Constant
+from fparser.utils import NoMatchError, InternalError
 
 
 def test_match_valid():

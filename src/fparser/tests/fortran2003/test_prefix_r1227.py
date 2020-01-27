@@ -35,8 +35,8 @@
 '''Test Fortran 2003 rule R1227 : prefix.'''
 import pytest
 
-import fparser.two.Fortran2003 as f2003
-from fparser.two.utils import NoMatchError
+import fparser.Fortran2003 as f2003
+from fparser.utils import NoMatchError
 
 
 def test_prefix(f2003_create):

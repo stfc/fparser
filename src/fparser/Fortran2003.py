@@ -73,14 +73,14 @@
 import re
 import logging
 from fparser.common.splitline import string_replace_map
-from fparser.two import pattern_tools as pattern
+from fparser import pattern_tools as pattern
 from fparser.common.readfortran import FortranReaderBase
 
-from fparser.two.utils import Base, BlockBase, StringBase, WORDClsBase, \
+from fparser.utils import Base, BlockBase, StringBase, WORDClsBase, \
     NumberBase, STRINGBase, BracketBase, StmtBase, EndStmtBase, \
     BinaryOpBase, Type_Declaration_StmtBase, CALLBase, CallBase, \
     KeywordValueBase, SeparatorBase, SequenceBase, UnaryOpBase, walk
-from fparser.two.utils import NoMatchError, FortranSyntaxError, \
+from fparser.utils import NoMatchError, FortranSyntaxError, \
     InternalSyntaxError, InternalError, show_result, py2_encode_list_items
 
 #
@@ -310,7 +310,7 @@ class Include_Stmt(Base):  # pylint: disable=invalid-name
         :returns: a tuple of size 1 containing an Include_Filename \
         object with the matched filename if there is a match, or None \
         if there is not.
-        :rtype: (:py:class:`fparser.two.Fortran2003.Include_Filename`) \
+        :rtype: (:py:class:`fparser.Fortran2003.Include_Filename`) \
         or NoneType
 
         '''
@@ -897,7 +897,7 @@ class Kind_Selector(Base):  # R404
         of size 2 containing a '*' and an instance of classes that \
         have matched.
         :rtype: `NoneType` or ( str, [ MatchedClasses ], str) or ( \
-        str, :py:class:`fparser.two.Fortran2003.Char_Length`)
+        str, :py:class:`fparser.Fortran2003.Char_Length`)
 
         :raises InternalError: if None is passed instead of a \
         string. The parent rule should not pass None and the logic in \
@@ -1813,9 +1813,9 @@ class Proc_Component_Def_Stmt(StmtBase):  # R445
                   interface, the list of attributes and a list of procedure \
                   names or None.
         :rtype: NoneType or \
-           (:py:class:`fparser.two.Fortran2003.Proc_Interface`, \
-            :py:class:`fparser.two.Fortran2003.Proc_Component_Attr_Spec_List`,\
-            :py:class:`fparser.two.Fortran2003.Proc_Decl_List`)
+           (:py:class:`fparser.Fortran2003.Proc_Interface`, \
+            :py:class:`fparser.Fortran2003.Proc_Component_Attr_Spec_List`,\
+            :py:class:`fparser.Fortran2003.Proc_Decl_List`)
         '''
         if string[:9].upper() != 'PROCEDURE':
             return None
@@ -2582,7 +2582,7 @@ class Declaration_Type_Spec(Base):  # R502
         'TYPE' or 'CLASS' and a 'Derived_Type_Spec' instance if there \
         is a match or None if not.
         :rtype: (str, \
-        py:class:`fparser.two.Fortran2003.Derived_Type_Spec`,) or \
+        py:class:`fparser.Fortran2003.Derived_Type_Spec`,) or \
         NoneType
 
         '''
@@ -3400,7 +3400,7 @@ class Cray_Pointer_Stmt(StmtBase, WORDClsBase):  # pylint: disable=invalid-name
         :rtype: (str, Cray_Pointer_Decl_List) or None
 
         '''
-        from fparser.two.utils import EXTENSIONS
+        from fparser.utils import EXTENSIONS
         if 'cray-pointer' not in EXTENSIONS:
             return None
         return WORDClsBase.match('POINTER', Cray_Pointer_Decl_List, string,
@@ -5359,8 +5359,8 @@ class Forall_Stmt(StmtBase):  # pylint: disable=invalid-name
         containing an instance of the Forall_Header class followed by \
         an instance of the Forall_Assignment_Stmt class.
         :rtype: `None` or ( \
-        :py:class:`fparser.two.Fortran2003.Forall_Header`, \
-        :py:class:`fparser.two.Fortran2003.Forall_Assignment_Stmt`)
+        :py:class:`fparser.Fortran2003.Forall_Header`, \
+        :py:class:`fparser.Fortran2003.Forall_Assignment_Stmt`)
 
         '''
         strip_string = string.strip()
@@ -7524,7 +7524,7 @@ class Format_Item_List(SequenceBase):  # pylint: disable=invalid-name
         containing a list which itself contains the matched \
         format items.
         :rtype: (`str`, \
-        ([:py:class:`fparser.two.Fortran2003.Format_Item`s])) or `NoneType`
+        ([:py:class:`fparser.Fortran2003.Format_Item`s])) or `NoneType`
 
         '''
         if not string:
@@ -7609,8 +7609,8 @@ class Format_Specification(BracketBase):  # pylint: disable=invalid-name
         bracket. The second entry is either a Format_Item or a \
         Format_Item_List.
         :rtype: `NoneType` or ( `str`, \
-        :py:class:`fparser.two.Fortran2003.Format_Item` or \
-        :py:class:`fparser.two.Fortran2003.Format_Item_List`, `str` )
+        :py:class:`fparser.Fortran2003.Format_Item` or \
+        :py:class:`fparser.Fortran2003.Format_Item_List`, `str` )
 
         '''
         return BracketBase.match('()', Format_Item_List, string,
@@ -7684,12 +7684,12 @@ class Format_Item_C1002(Base):  # pylint: disable=invalid-name
         Format_Item classes depending on what has been matched.
 
         :rtype: `NoneType` or ( \
-        :py:class:`fparser.two.Control_Edit_Desc`, \
-        :py:class:`fparser.two.Format_Item` ) or \
-        (:py:class:`fparser.two.Format_Item`, \
-        :py:class:`fparser.two.Control_Edit_Desc`) or \
-        (:py:class:`fparser.two.Format_Item`, \
-        :py:class:`fparser.two.Format_Item`)
+        :py:class:`fparser.Control_Edit_Desc`, \
+        :py:class:`fparser.Format_Item` ) or \
+        (:py:class:`fparser.Format_Item`, \
+        :py:class:`fparser.Control_Edit_Desc`) or \
+        (:py:class:`fparser.Format_Item`, \
+        :py:class:`fparser.Format_Item`)
 
         '''
         if not string:
@@ -7816,7 +7816,7 @@ class Hollerith_Item(Base):  # pylint: disable=invalid-name
         :rtype: str
 
         '''
-        from fparser.two.utils import EXTENSIONS
+        from fparser.utils import EXTENSIONS
         if 'hollerith' not in EXTENSIONS:
             return None
         if not string:
@@ -7893,9 +7893,9 @@ class Format_Item(Base):  # pylint: disable=invalid-name
         containing an instance of the R class followed by an \
         instance of either the Format_Item_List or the Data_Edit_Desc \
         class.
-        :rtype: `None` or ( :py:class:`fparser.two.Fortran2003.R`, \
-        :py:class:`fparser.two.Fortran2003.Format_Item_List` or \
-        :py:class:`fparser.two.Fortran2003.Data_Edit_Desc`)
+        :rtype: `None` or ( :py:class:`fparser.Fortran2003.R`, \
+        :py:class:`fparser.Fortran2003.Format_Item_List` or \
+        :py:class:`fparser.Fortran2003.Data_Edit_Desc`)
 
         '''
         if not string:
@@ -8004,10 +8004,10 @@ class Data_Edit_Desc_C1002(Base):
         class instance, the third entry containing D class instance \
         and the fourth entry containing either None or an E class \
         instance.
-        :rtype: `NoneType`, (`str`, :py:class:`fparser.two.W`, \
-        :py:class:`fparser.two.D`, `NoneType`) or, (`str`, \
-        :py:class:`fparser.two.W`, :py:class:`fparser.two.D`, \
-        :py:class:`fparser.two.E`)
+        :rtype: `NoneType`, (`str`, :py:class:`fparser.W`, \
+        :py:class:`fparser.D`, `NoneType`) or, (`str`, \
+        :py:class:`fparser.W`, :py:class:`fparser.D`, \
+        :py:class:`fparser.E`)
 
         '''
         if not string:
@@ -8279,8 +8279,8 @@ class Control_Edit_Desc(Base):  # pylint: disable=invalid-name
         '$', an R class and a string containing '/' or a K class and a \
         string containing 'P'.
         :rtype: `NoneType`, (`NoneType`, `str`), \
-        (:py:class:`fparser.two.Fortran2003.R`, `str`), or \
-        (:py:class:`fparser.two.Fortran2003.K`, `str`)
+        (:py:class:`fparser.Fortran2003.R`, `str`), or \
+        (:py:class:`fparser.Fortran2003.K`, `str`)
 
         '''
         if not string:
@@ -8289,7 +8289,7 @@ class Control_Edit_Desc(Base):  # pylint: disable=invalid-name
         if not strip_string:
             return None
         if len(strip_string) == 1 and strip_string in '/:$':
-            from fparser.two.utils import EXTENSIONS
+            from fparser.utils import EXTENSIONS
             if strip_string == '$' and 'dollar-descriptor' not in EXTENSIONS:
                 return None
             return None, strip_string
@@ -8364,8 +8364,8 @@ class Position_Edit_Desc(Base):  # R1013
         or "TR", followed by an `N` class, or containing an `N` class, \
         or `None`, followed by an "X".
         :rtype: `NoneType`, (`str`, \
-        :py:class:`fparser.two.Fortran2003.N`), \
-        (:py:class:`fparser.two.Fortran2003.N`, `str`) or (`NoneType`, \
+        :py:class:`fparser.Fortran2003.N`), \
+        (:py:class:`fparser.Fortran2003.N`, `str`) or (`NoneType`, \
         `str`)
 
         '''
@@ -8393,7 +8393,7 @@ class Position_Edit_Desc(Base):  # R1013
             return start, number_obj
         if strip_string_upper[-1] == 'X':
             # We match *X
-            from fparser.two.utils import EXTENSIONS
+            from fparser.utils import EXTENSIONS
             if "x-format" in EXTENSIONS and len(strip_string_upper) == 1:
                 # The match just contains 'X' which is not valid
                 # fortran 2003 but is an accepted extension
@@ -8560,14 +8560,14 @@ class Main_Program(BlockBase):  # R1101 [C1101, C1102, C1103]
                   `Execution_Part` followed by an optional \
                   `Internal_Subprogram_Part`.
         :rtype: `NoneType` or \
-                ([:py:class:`fparser.two.Fortran2003.Program_Stmt`, \
+                ([:py:class:`fparser.Fortran2003.Program_Stmt`, \
                 optional \
-                :py:class:`fparser.two.Fortran2003.Specification_Part`, \
+                :py:class:`fparser.Fortran2003.Specification_Part`, \
                 optional \
-                :py:class:`fparser.two.Fortran2003.Execution_Part`, \
+                :py:class:`fparser.Fortran2003.Execution_Part`, \
                 optional \
-                :py:class:`fparser.two.Fortran2003.Internal_Subprogram_Part`, \
-                :py:class:`fparser.two.Fortran2003.End_Program_Stmt`])
+                :py:class:`fparser.Fortran2003.Internal_Subprogram_Part`, \
+                :py:class:`fparser.Fortran2003.End_Program_Stmt`])
 
         '''
         return BlockBase.match(
@@ -8626,7 +8626,7 @@ class Program_Stmt(StmtBase, WORDClsBase):  # R1102
                   string 'PROGRAM' and the second entry being a `Name` \
                   class containing the name of the program.
         :rtype: `NoneType` or ( `str`, \
-                :py:class:`fparser.two.Fortran2003.Name` )
+                :py:class:`fparser.Fortran2003.Name` )
 
         '''
         return WORDClsBase.match('PROGRAM', Program_Name, string,
@@ -9265,7 +9265,7 @@ class Import_Stmt(StmtBase, WORDClsBase):  # pylint: disable=invalid-name
             specified in the string or `None` if not.
 
         :rtype: None, or (str, \
-            :py:class:`fparser.two.Fortran2003.Import_Name_List`) or \
+            :py:class:`fparser.Fortran2003.Import_Name_List`) or \
             (str, None)
 
         '''
@@ -9683,8 +9683,8 @@ class Intrinsic_Function_Reference(CallBase):  # No explicit rule
         :return: a tuple of size 2 containing the name of the \
         intrinsic and its arguments if there is a match, or None if \
         there is not.
-        :rtype: (:py:class:`fparser.two.Fortran2003.Intrinsic_Name`, \
-        :py:class:`fparser.two.Fortran2003.Actual_Arg_Spec_List`) or \
+        :rtype: (:py:class:`fparser.Fortran2003.Intrinsic_Name`, \
+        :py:class:`fparser.Fortran2003.Actual_Arg_Spec_List`) or \
         NoneType
 
         :raises InternalSyntaxError: If the number of arguments \
@@ -9966,7 +9966,7 @@ class Prefix(SequenceBase):
         tuple containing one or more Prefix_Spec objects if there is a \
         match and None if not.
 
-        :rtype: (str, (:class:py:`fparser.two.Fortran2003.Prefix_Spec`,)) \
+        :rtype: (str, (:class:py:`fparser.Fortran2003.Prefix_Spec`,)) \
         or NoneType
 
         '''
@@ -10123,11 +10123,11 @@ def c1242_valid(prefix, binding_spec):
     subroutine-stmt."
 
     :param prefix: matching prefix instance if one exists.
-    :type: :py:class:`fparser.two.Fortran2003.Prefix` or `NoneType`
+    :type: :py:class:`fparser.Fortran2003.Prefix` or `NoneType`
     :param binding_spec: matching binding specification instance if \
         one exists.
     :type binding_spec: \
-        :py:class:`fparser.two.Fortran2003.Language_Binding_Spec` or
+        :py:class:`fparser.Fortran2003.Language_Binding_Spec` or
         `NoneType`
     :returns: False if prefix and binding-spec break constraint C1242, \
         otherwise True.

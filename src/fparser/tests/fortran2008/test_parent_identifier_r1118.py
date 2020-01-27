@@ -45,8 +45,8 @@
 
 '''
 import pytest
-from fparser.two.utils import NoMatchError
-from fparser.two.Fortran2008 import Parent_Identifier
+from fparser.utils import NoMatchError
+from fparser.Fortran2008 import Parent_Identifier
 
 
 def test_simple_1(f2008_create):

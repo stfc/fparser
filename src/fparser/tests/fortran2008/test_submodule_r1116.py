@@ -49,8 +49,8 @@
 
 import pytest
 from fparser.api import get_reader
-from fparser.two.utils import NoMatchError
-from fparser.two.Fortran2008 import Submodule
+from fparser.utils import NoMatchError
+from fparser.Fortran2008 import Submodule
 
 
 def test_submodule(f2008_create):

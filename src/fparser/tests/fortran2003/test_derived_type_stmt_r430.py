@@ -40,8 +40,8 @@ type, private, abstract :: my_type(b,c)
 '''
 
 import pytest
-from fparser.two.Fortran2003 import Derived_Type_Stmt
-from fparser.two.utils import NoMatchError, InternalError
+from fparser.Fortran2003 import Derived_Type_Stmt
+from fparser.utils import NoMatchError, InternalError
 
 
 def test_valid(f2003_create):

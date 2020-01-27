@@ -38,8 +38,8 @@ forall-header statement.
 '''
 
 import pytest
-from fparser.two.Fortran2003 import Forall_Header
-from fparser.two.utils import NoMatchError, InternalError
+from fparser.Fortran2003 import Forall_Header
+from fparser.utils import NoMatchError, InternalError
 
 
 def test_triplet_list(f2003_create):

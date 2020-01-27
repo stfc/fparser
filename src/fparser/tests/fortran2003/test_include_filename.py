@@ -45,8 +45,8 @@ space at the beginning and/or end of the filename, or an empty string.
 '''
 
 import pytest
-from fparser.two.Fortran2003 import Include_Filename
-from fparser.two.utils import NoMatchError
+from fparser.Fortran2003 import Include_Filename
+from fparser.utils import NoMatchError
 
 
 def test_valid_include_filename(f2003_create):

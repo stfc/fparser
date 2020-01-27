@@ -39,7 +39,7 @@
 
 import pytest
 from fparser.api import get_reader
-from fparser.two.Fortran2003 import Action_Term_Do_Construct, \
+from fparser.Fortran2003 import Action_Term_Do_Construct, \
     Nonblock_Do_Construct
 
 

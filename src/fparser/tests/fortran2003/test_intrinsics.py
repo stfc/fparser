@@ -35,9 +35,9 @@
 '''Test that Fortran 2003 intrinsic functions are parsed correctly.'''
 
 import pytest
-from fparser.two.Fortran2003 import Program, Intrinsic_Function_Reference, \
+from fparser.Fortran2003 import Program, Intrinsic_Function_Reference, \
     Intrinsic_Name
-from fparser.two.utils import FortranSyntaxError, NoMatchError, \
+from fparser.utils import FortranSyntaxError, NoMatchError, \
     InternalSyntaxError, walk
 from fparser.api import get_reader
 

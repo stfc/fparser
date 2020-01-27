@@ -38,8 +38,8 @@ import statement.
 '''
 
 import pytest
-from fparser.two.Fortran2003 import Import_Stmt
-from fparser.two.utils import NoMatchError
+from fparser.Fortran2003 import Import_Stmt
+from fparser.utils import NoMatchError
 
 
 @pytest.mark.usefixtures("f2003_create")

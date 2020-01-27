@@ -35,8 +35,8 @@
 '''Tests for a Fortran 2003 R1011 control edit descriptor.'''
 
 import pytest
-from fparser.two.Fortran2003 import Control_Edit_Desc
-from fparser.two.utils import NoMatchError, InternalError
+from fparser.Fortran2003 import Control_Edit_Desc
+from fparser.utils import NoMatchError, InternalError
 
 
 def test_descriptors_match(f2003_create):
@@ -70,7 +70,7 @@ def test_dollar_valid(f2003_create, monkeypatch):
     example with spaces.
 
     '''
-    from fparser.two import utils
+    from fparser import utils
     monkeypatch.setattr(utils, "EXTENSIONS", ["dollar-descriptor"])
     for my_input in ["$", " $ "]:
         ast = Control_Edit_Desc(my_input)
@@ -82,7 +82,7 @@ def test_dollar_invalid(f2003_create, monkeypatch):
     the 'dollar-format' extension is not in the EXTENSIONS list.
 
     '''
-    from fparser.two import utils
+    from fparser import utils
     monkeypatch.setattr(utils, "EXTENSIONS", [])
     for my_input in ["$", " $ "]:
         with pytest.raises(NoMatchError):

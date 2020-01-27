@@ -38,8 +38,8 @@ Position_Edit_Desc class.
 '''
 
 import pytest
-from fparser.two.utils import NoMatchError, InternalError
-from fparser.two.Fortran2003 import Position_Edit_Desc
+from fparser.utils import NoMatchError, InternalError
+from fparser.Fortran2003 import Position_Edit_Desc
 
 
 def test_invalid_descriptor():
@@ -79,7 +79,7 @@ def test_invalid_x_descriptor1(f2003_create, monkeypatch):
 
     '''
 
-    import fparser.two.utils as utils
+    import fparser.utils as utils
     monkeypatch.setattr(utils, "EXTENSIONS", [])
     for descriptor in ["X", "  X  ", "x"]:
         with pytest.raises(NoMatchError) as excinfo:
@@ -94,7 +94,7 @@ def test_valid_x_descriptor2(f2003_create, monkeypatch):
 
     '''
 
-    import fparser.two.utils as utils
+    import fparser.utils as utils
     monkeypatch.setattr(utils, "EXTENSIONS", ["x-format"])
     for descriptor in ["X", "  X  ", "x"]:
         result = Position_Edit_Desc(descriptor)

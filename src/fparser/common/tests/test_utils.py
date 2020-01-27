@@ -43,7 +43,7 @@ import pytest
 import six
 
 from fparser.common.utils import split_comma, ParseError, make_clean_tmpfile
-from fparser.two.utils import InternalError
+from fparser.utils import InternalError
 
 
 def test_split_comma():

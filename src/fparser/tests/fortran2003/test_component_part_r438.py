@@ -40,8 +40,8 @@
 
 import pytest
 from fparser.api import get_reader
-from fparser.two.Fortran2003 import Component_Part
-from fparser.two.utils import NoMatchError
+from fparser.Fortran2003 import Component_Part
+from fparser.utils import NoMatchError
 
 
 @pytest.mark.usefixtures("f2003_create")

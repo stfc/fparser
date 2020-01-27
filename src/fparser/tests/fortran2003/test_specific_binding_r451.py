@@ -39,8 +39,8 @@ part of a derived type.
 '''
 
 import pytest
-from fparser.two.utils import NoMatchError, InternalError
-from fparser.two.Fortran2003 import Specific_Binding
+from fparser.utils import NoMatchError, InternalError
+from fparser.Fortran2003 import Specific_Binding
 
 
 def test_valid(f2003_create):

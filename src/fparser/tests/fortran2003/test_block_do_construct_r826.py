@@ -38,7 +38,7 @@
 import pytest
 from fparser.api import get_reader
 from fparser.common.readfortran import FortranStringReader
-from fparser.two.Fortran2003 import Block_Label_Do_Construct, \
+from fparser.Fortran2003 import Block_Label_Do_Construct, \
     Block_Nonlabel_Do_Construct
 
 

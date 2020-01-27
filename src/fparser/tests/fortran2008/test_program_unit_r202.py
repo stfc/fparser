@@ -38,9 +38,9 @@ submodules in Fortran2008 for the Program-unit rule.
 '''
 
 import pytest
-from fparser.two.utils import NoMatchError
+from fparser.utils import NoMatchError
 from fparser.api import get_reader
-from fparser.two.Fortran2008 import Program_Unit
+from fparser.Fortran2008 import Program_Unit
 
 
 def test_other(f2008_create):

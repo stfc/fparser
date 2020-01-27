@@ -36,8 +36,8 @@
 
 import pytest
 from fparser.api import get_reader
-from fparser.two.utils import walk
-from fparser.two import Fortran2003
+from fparser.utils import walk
+from fparser import Fortran2003
 
 
 @pytest.mark.usefixtures("f2003_create")

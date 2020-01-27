@@ -42,8 +42,8 @@ in the Fortran parse tree and output it again.
 
 import pytest
 from fparser.api import get_reader
-from fparser.two.Fortran2003 import Include_Stmt, InternalError
-from fparser.two.utils import NoMatchError
+from fparser.Fortran2003 import Include_Stmt, InternalError
+from fparser.utils import NoMatchError
 
 
 def test_include_stmt(f2003_create):
@@ -118,7 +118,7 @@ def test_include_filename_error(f2003_create, monkeypatch):
 
     '''
 
-    monkeypatch.setattr("fparser.two.Fortran2003.Include_Filename",
+    monkeypatch.setattr("fparser.Fortran2003.Include_Filename",
                         lambda file_name: None)
     line = "include ' '"
     with pytest.raises(InternalError) as excinfo:

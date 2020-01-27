@@ -38,8 +38,8 @@ Cray-pointer declaration.
 '''
 
 import pytest
-from fparser.two.Fortran2003 import Cray_Pointer_Decl
-from fparser.two.utils import NoMatchError, InternalError
+from fparser.Fortran2003 import Cray_Pointer_Decl
+from fparser.utils import NoMatchError, InternalError
 
 
 def test_cray_pointer_decl(f2003_create):

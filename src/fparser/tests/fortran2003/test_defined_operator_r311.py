@@ -38,8 +38,8 @@ defined operator.
 '''
 
 import pytest
-from fparser.two.Fortran2003 import Defined_Operator
-from fparser.two.utils import NoMatchError
+from fparser.Fortran2003 import Defined_Operator
+from fparser.utils import NoMatchError
 
 
 def test_defined_operator(f2003_create):

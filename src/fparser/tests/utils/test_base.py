@@ -36,8 +36,8 @@
 
 import pytest
 from fparser.api import get_reader
-from fparser.two import Fortran2003
-from fparser.two.utils import walk
+from fparser import Fortran2003
+from fparser.utils import walk
 
 
 TEST_CODE = ("program hello\n"
@@ -58,7 +58,7 @@ TEST_CODE = ("program hello\n"
 def test_parent_info():
     ''' Check that parent information is correctly set-up in the
     parse tree. '''
-    from fparser.two.utils import Base
+    from fparser.utils import Base
     reader = get_reader(TEST_CODE)
     main = Fortran2003.Program(reader)
     node_list = walk(main)

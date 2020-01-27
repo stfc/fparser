@@ -36,8 +36,8 @@
 utils.py'''
 
 import pytest
-from fparser.two.utils import BracketBase, InternalError
-from fparser.two.Fortran2003 import Name
+from fparser.utils import BracketBase, InternalError
+from fparser.Fortran2003 import Name
 
 
 def test_brackets():
@@ -126,7 +126,7 @@ def test_tostr(monkeypatch):
     incorrect.
 
     '''
-    from fparser.two.Fortran2003 import Format_Specification
+    from fparser.Fortran2003 import Format_Specification
     ast = Format_Specification("()")
     monkeypatch.setattr(ast, "items", [None])
     with pytest.raises(InternalError) as excinfo:
@@ -143,7 +143,7 @@ def test_tostr_invalid2(monkeypatch):
     None.
 
     '''
-    from fparser.two.Fortran2003 import Format_Specification
+    from fparser.Fortran2003 import Format_Specification
     ast = Format_Specification("()")
     monkeypatch.setattr(ast, "items", [None, ast.items[1], ast.items[2]])
     with pytest.raises(InternalError) as excinfo:
@@ -161,7 +161,7 @@ def test_tostr_invalid3(monkeypatch):
     None.
 
     '''
-    from fparser.two.Fortran2003 import Format_Specification
+    from fparser.Fortran2003 import Format_Specification
     ast = Format_Specification("()")
     monkeypatch.setattr(ast, "items", [ast.items[0], ast.items[1], None])
     with pytest.raises(InternalError) as excinfo:

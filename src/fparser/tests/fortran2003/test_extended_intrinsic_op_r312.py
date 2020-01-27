@@ -38,8 +38,8 @@ extended intrinsic operator.
 '''
 
 import pytest
-from fparser.two.Fortran2003 import Extended_Intrinsic_Op
-from fparser.two.utils import NoMatchError
+from fparser.Fortran2003 import Extended_Intrinsic_Op
+from fparser.utils import NoMatchError
 
 
 def test_extended_intrinsic_op(f2003_create):

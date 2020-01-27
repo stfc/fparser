@@ -73,8 +73,8 @@
 # pylint: disable=eval-used
 # pylint: disable=exec-used
 # pylint: disable=unused-import
-from fparser.two.Fortran2003 import Program_Unit as Program_Unit_2003
-from fparser.two.Fortran2003 import EndStmtBase, BlockBase, SequenceBase, \
+from fparser.Fortran2003 import Program_Unit as Program_Unit_2003
+from fparser.Fortran2003 import EndStmtBase, BlockBase, SequenceBase, \
     Base, Specification_Part, Module_Subprogram_Part, Implicit_Part, \
     Implicit_Part_Stmt, Declaration_Construct, Use_Stmt, Import_Stmt
 
@@ -310,7 +310,7 @@ class Submodule_Stmt(Base):  # R1117
         submodule statement if one is provided.
 
         :return: the name of the submodule stored in a Name class
-        :return type: :py:class:`fparser.two.Fortran2003.Name`
+        :return type: :py:class:`fparser.Fortran2003.Name`
         '''
         return self.items[1]
 
@@ -344,7 +344,7 @@ class End_Submodule_Stmt(EndStmtBase):  # R1119
         this name matches the submodule name.
 
         :return: the name of the submodule stored in a Name class
-        :return type: :py:class:`fparser.two.Fortran2003.Name` or `None`
+        :return type: :py:class:`fparser.Fortran2003.Name` or `None`
 
         '''
         return self.items[1]

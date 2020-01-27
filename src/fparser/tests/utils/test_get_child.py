@@ -41,8 +41,8 @@ from fparser.api import get_reader
 @pytest.mark.usefixtures("f2003_create")
 def test_get_child():
     ''' Test the get_child() utility. '''
-    from fparser.two import Fortran2003
-    from fparser.two.utils import walk, get_child
+    from fparser import Fortran2003
+    from fparser.utils import walk, get_child
     reader = get_reader("program hello\n"
                         "write(*,*) 'hello'\n"
                         "write(*,*) 'goodbye'\n"

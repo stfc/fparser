@@ -40,8 +40,8 @@ Fortran95. However, Fortran compilers still support it.
 '''
 
 import pytest
-from fparser.two.Fortran2003 import Format_Item
-from fparser.two.utils import NoMatchError, InternalError
+from fparser.Fortran2003 import Format_Item
+from fparser.utils import NoMatchError, InternalError
 
 
 def test_data_edit_descriptor(f2003_create):
@@ -127,7 +127,7 @@ def test_hollerith_item(f2003_create, monkeypatch):
     tested in more detail by the associated class.
 
     '''
-    from fparser.two import utils
+    from fparser import utils
     monkeypatch.setattr(utils, "EXTENSIONS", ["hollerith"])
     for my_input in ["2H12", " 2H12 "]:
         ast = Format_Item(my_input)

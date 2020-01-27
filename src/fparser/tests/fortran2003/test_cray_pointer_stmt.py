@@ -39,8 +39,8 @@ Cray-pointer statement.
 
 import pytest
 from fparser.api import get_reader
-from fparser.two.Fortran2003 import Cray_Pointer_Stmt
-from fparser.two.utils import NoMatchError
+from fparser.Fortran2003 import Cray_Pointer_Stmt
+from fparser.utils import NoMatchError
 
 
 def test_cray_pointer_stmt(f2003_create):
@@ -97,7 +97,7 @@ def test_invalid_cray_pointer(f2003_create, monkeypatch):
     exception if it is not named as a valid extension.
 
     '''
-    from fparser.two import utils
+    from fparser import utils
     monkeypatch.setattr(utils, "EXTENSIONS", [])
     myinput = "pointer (mypointer, mypointee)"
     with pytest.raises(NoMatchError) as excinfo:
@@ -111,7 +111,7 @@ def test_valid_cray_pointer(f2003_create, monkeypatch):
     expected output if it is named as a valid extension.
 
     '''
-    from fparser.two import utils
+    from fparser import utils
     monkeypatch.setattr(utils, "EXTENSIONS", ["cray-pointer"])
     myinput = "pointer(mypointer, mypointee)"
     result = Cray_Pointer_Stmt(myinput)

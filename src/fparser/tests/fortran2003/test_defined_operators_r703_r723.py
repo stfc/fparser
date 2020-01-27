@@ -41,7 +41,7 @@ duplication we use a fixture.
 '''
 
 import pytest
-from fparser.two.utils import NoMatchError
+from fparser.utils import NoMatchError
 
 
 def test_defined_operator(f2003_create, op_type):

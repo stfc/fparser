@@ -36,8 +36,8 @@
 utils.py'''
 
 import pytest
-from fparser.two.utils import SequenceBase, InternalError
-from fparser.two.Fortran2003 import Name
+from fparser.utils import SequenceBase, InternalError
+from fparser.Fortran2003 import Name
 
 
 def test_match_invalid_separator(f2003_create):
@@ -84,7 +84,7 @@ def test_match_repmap(f2003_create):
     is also used within the matching class.
 
     '''
-    from fparser.two.Fortran2003 import Entity_Decl_List
+    from fparser.Fortran2003 import Entity_Decl_List
     separator = ","
     subcls = Entity_Decl_List
     string = "a(n, n), b(n, n)"
@@ -115,7 +115,7 @@ def test_match_space(f2003_create):
 
 def test_match_instance(f2003_create):
     '''Test the sequencebase init, tostr and torepr methods.'''
-    from fparser.two.Fortran2003 import Data_Ref, Type_Param_Name_List
+    from fparser.Fortran2003 import Data_Ref, Type_Param_Name_List
 
     # ',' separator.
     obj = Type_Param_Name_List("a,b,c")

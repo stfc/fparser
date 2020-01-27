@@ -38,9 +38,9 @@ or more program-units.
 '''
 
 import pytest
-from fparser.two.utils import FortranSyntaxError
+from fparser.utils import FortranSyntaxError
 from fparser.api import get_reader
-from fparser.two.Fortran2003 import Program
+from fparser.Fortran2003 import Program
 
 # Test no content or just white space. This is not officially a
 # Fortran rule but fortran compilers tend to accept empty content so

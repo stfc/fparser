@@ -39,8 +39,8 @@ Use statement.
 
 import pytest
 from fparser.api import get_reader
-from fparser.two.Fortran2003 import Use_Stmt
-from fparser.two.utils import NoMatchError, InternalError
+from fparser.Fortran2003 import Use_Stmt
+from fparser.utils import NoMatchError, InternalError
 
 # match() use ...
 

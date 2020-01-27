@@ -88,8 +88,8 @@ def runner(_, options, args):
 
     '''
     import six
-    from fparser.two.parser import ParserFactory
-    from fparser.two.Fortran2003 import FortranSyntaxError, InternalError
+    from fparser.parser import ParserFactory
+    from fparser.Fortran2003 import FortranSyntaxError, InternalError
     from fparser.common.readfortran import FortranFileReader
     if not args:
         print("Error: No fortran files specified", file=sys.stderr)

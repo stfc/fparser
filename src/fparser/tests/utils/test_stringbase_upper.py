@@ -36,7 +36,7 @@
 utils.py'''
 
 import pytest
-from fparser.two.utils import STRINGBase, InternalError
+from fparser.utils import STRINGBase, InternalError
 
 
 def test_string():
@@ -92,7 +92,7 @@ def test_pattern_class():
 
     '''
 
-    from fparser.two import pattern_tools
+    from fparser import pattern_tools
     pattern = pattern_tools.intrinsic_type_name
     for my_input in ["logical", "LoGiCaL", "LOGICAL"]:
         result = STRINGBase.match(pattern, my_input)

@@ -47,9 +47,9 @@ End_Program_Unit
 '''
 
 import pytest
-from fparser.two.utils import FortranSyntaxError, NoMatchError
+from fparser.utils import FortranSyntaxError, NoMatchError
 from fparser.api import get_reader
-from fparser.two.Fortran2003 import Main_Program
+from fparser.Fortran2003 import Main_Program
 
 
 def test_valid(f2003_create):

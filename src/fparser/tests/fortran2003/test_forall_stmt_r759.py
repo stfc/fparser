@@ -39,8 +39,8 @@ forall statement.
 
 import pytest
 from fparser.api import get_reader
-from fparser.two.Fortran2003 import Forall_Stmt
-from fparser.two.utils import NoMatchError, InternalError
+from fparser.Fortran2003 import Forall_Stmt
+from fparser.utils import NoMatchError, InternalError
 
 
 def test_forall_stmt(f2003_create):

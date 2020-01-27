@@ -38,9 +38,9 @@ kind selector.
 '''
 
 import pytest
-from fparser.two.utils import InternalError
+from fparser.utils import InternalError
 from fparser.api import get_reader
-from fparser.two.Fortran2003 import Kind_Selector, Program
+from fparser.Fortran2003 import Kind_Selector, Program
 
 # match() 'kind=' is present
 

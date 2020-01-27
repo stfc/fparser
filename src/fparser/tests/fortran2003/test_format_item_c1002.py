@@ -41,8 +41,8 @@ this class.
 '''
 
 import pytest
-from fparser.two.Fortran2003 import Format_Item_C1002
-from fparser.two.utils import InternalError, NoMatchError
+from fparser.Fortran2003 import Format_Item_C1002
+from fparser.utils import InternalError, NoMatchError
 
 
 def test_data_edit_descriptor_error(f2003_create):

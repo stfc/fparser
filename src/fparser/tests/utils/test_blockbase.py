@@ -37,8 +37,8 @@
 import pytest
 
 from fparser.api import get_reader
-from fparser.two.utils import BlockBase
-import fparser.two.Fortran2003 as F2003
+from fparser.utils import BlockBase
+import fparser.Fortran2003 as F2003
 
 # TODO #179: full testing of this class. We currently only test the
 # comment and include support.

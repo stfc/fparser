@@ -40,7 +40,7 @@
 import pytest
 from fparser.api import get_reader
 from fparser.common.readfortran import FortranStringReader
-from fparser.two.Fortran2003 import If_Construct
+from fparser.Fortran2003 import If_Construct
 
 
 @pytest.mark.usefixtures("f2003_create")

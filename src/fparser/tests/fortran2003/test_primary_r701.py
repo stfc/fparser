@@ -46,8 +46,8 @@ import sys
 
 import pytest
 
-import fparser.two.Fortran2003 as f2003
-import fparser.two.utils
+import fparser.Fortran2003 as f2003
+import fparser.utils
 
 
 def assert_subclass_parse(source, base_type, actual_type=None,
@@ -58,9 +58,9 @@ def assert_subclass_parse(source, base_type, actual_type=None,
     :param source: The Fortran source to be parsed.
     :type source: str or :py:class:`FortranReaderBase`
     :param base_type: the base type from which a match is expected to be found
-    :type base_type: :py:class:`fortran.two.Fortran2003.Base` subclass
+    :type base_type: :py:class:`fortran.Fortran2003.Base` subclass
     :param actual_type: The actual type matched by the parser.
-    :type actual_type: :py:class:`fortran.two.Fortran2003.Base` subclass
+    :type actual_type: :py:class:`fortran.Fortran2003.Base` subclass
     :param str expected_str: The expected ``str(result)`` of the parsed result
 
     '''
@@ -89,7 +89,7 @@ def possible_subclasses(node_type, _seen=None):
     actual logic for identifying possible_subclasses.
 
     :param node_type: The root node from which to find all subclasses.
-    :type node_type: :py:class:`fortran.two.Fortran2003.Base` subclass
+    :type node_type: :py:class:`fortran.Fortran2003.Base` subclass
     :param _seen: Private list of seen subclasses, designed to support \
                   recursive calls to this function.
     :type _seen: None or list
@@ -199,7 +199,7 @@ def test_no_match(f2003_create):
     '''Test that a NoMatchError is raised if we provide code
     that isn't allowed as a Primary type (e.g. a comment).
     '''
-    with pytest.raises(fparser.two.utils.NoMatchError):
+    with pytest.raises(fparser.utils.NoMatchError):
         _ = f2003.Primary('! A comment')
 
 
@@ -210,7 +210,7 @@ def test_c701_no_assumed_size_array(f2003_create):
     defined types.
     '''
     context = f2003.Type_Declaration_Stmt("INTEGER :: not_a_type")
-    with pytest.raises(fparser.two.utils.NoMatchError):
+    with pytest.raises(fparser.utils.NoMatchError):
         f2003.Primary('not_a_type',)  # context)
 
 
@@ -221,5 +221,5 @@ def test_c702_no_assumed_size_array(f2003_create):
     defined types.
     '''
     context = f2003.Type_Declaration_Stmt("integer(*) :: assumed_size_array")
-    with pytest.raises(fparser.two.utils.NoMatchError):
+    with pytest.raises(fparser.utils.NoMatchError):
         f2003.Primary('assumed_size_array',)  # context)
