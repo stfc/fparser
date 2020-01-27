@@ -38,7 +38,7 @@ exception handling and ast traversal.
 '''
 
 import pytest
-from fparser.two.utils import FortranSyntaxError
+from fparser.utils import FortranSyntaxError
 from fparser.api import get_reader
 
 # test BlockBase
@@ -50,7 +50,7 @@ def test_blockbase_match_names(f2003_create):
     as it sets match_names to True.
 
     '''
-    from fparser.two.Fortran2003 import Derived_Type_Def, Case_Construct
+    from fparser.Fortran2003 import Derived_Type_Def, Case_Construct
 
     # working named example
     reader = get_reader("type abc\nend type abc")
@@ -85,7 +85,7 @@ def test_blockbase_match_name_classes(f2003_create):
     used when names can appear in multiple places.
 
     '''
-    from fparser.two.Fortran2003 import If_Construct
+    from fparser.Fortran2003 import If_Construct
 
     # working named example
     reader = get_reader("label:if (.true.) then\nendif label")

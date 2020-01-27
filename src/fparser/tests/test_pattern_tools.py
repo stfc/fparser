@@ -1,5 +1,5 @@
 ##############################################################################
-# Copyright (c) 2017-2018 Science and Technology Facilities Council
+# Copyright (c) 2017-2020 Science and Technology Facilities Council
 #
 # All rights reserved.
 #
@@ -36,26 +36,26 @@
 # Modified M.Hambley, UK Met Office
 ##############################################################################
 '''
-Test battery associated with fparser.two.pattern_tools package.
+Test battery associated with fparser.pattern_tools package.
 '''
 
-import fparser.two.pattern_tools
+import fparser.pattern_tools
 
 
 def test_name_pattern():
     '''
     Tests inherited from implementation source.
     '''
-    assert fparser.two.pattern_tools.name.match('a1_a')
-    assert abs(fparser.two.pattern_tools.name).match('a1_a')
-    assert not abs(fparser.two.pattern_tools.name).match('a1_a[]')
+    assert fparser.pattern_tools.name.match('a1_a')
+    assert abs(fparser.pattern_tools.name).match('a1_a')
+    assert not abs(fparser.pattern_tools.name).match('a1_a[]')
 
 
 def test_kind_param_pattern():
     '''
     Tests inherited from implementation source.
     '''
-    match = abs(fparser.two.pattern_tools.kind_param)
+    match = abs(fparser.pattern_tools.kind_param)
     assert match.match('23')
     assert match.match('SHORT')
 
@@ -64,7 +64,7 @@ def test_signed_digit_pattern():
     '''
     Tests inherited from implementation source.
     '''
-    match = abs(fparser.two.pattern_tools.signed_digit_string)
+    match = abs(fparser.pattern_tools.signed_digit_string)
     assert match.match('23')
     assert match.match('+ 23')
     assert match.match('- 23')
@@ -76,8 +76,8 @@ def test_thing():
     '''
     Tests inherited from implementation source.
     '''
-    match = ~fparser.two.pattern_tools.sign.named() \
-        + fparser.two.pattern_tools.digit_string.named('number')
+    match = ~fparser.pattern_tools.sign.named() \
+        + fparser.pattern_tools.digit_string.named('number')
     result = match.match('23')
     assert result.groupdict() == {'number': '23', 'sign': None}
     result = match.match('- 23')
@@ -88,7 +88,7 @@ def test_char_literal_const_pattern():
     '''
     Tests inherited from implementation source.
     '''
-    match = abs(fparser.two.pattern_tools.char_literal_constant)
+    match = abs(fparser.pattern_tools.char_literal_constant)
     assert match.match('"adadfa"')
     assert match.match('"adadfa""adad"')
     assert match.match('HEY_"adadfa"')
@@ -100,7 +100,7 @@ def test_multi_op_pattern():
     '''
     Tests inherited from implementation source.
     '''
-    match = fparser.two.pattern_tools.mult_op.named()
+    match = fparser.pattern_tools.mult_op.named()
     assert match.rsplit('a *  b')
     assert match.lsplit('a * c* b') == ('a', '*', 'c* b')
     assert match.rsplit('a * c* b') == ('a * c', '*', 'b')
@@ -114,7 +114,7 @@ def test_power_op_pattern():
     '''
     Tests inherited from implementation source.
     '''
-    match = fparser.two.pattern_tools.power_op.named()
+    match = fparser.pattern_tools.power_op.named()
     assert match.rsplit('a **  b')
     assert match.lsplit('a * b ** c') == ('a * b', '**', 'c')
     assert match.rsplit('a * b ** c') == ('a * b', '**', 'c')

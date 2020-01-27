@@ -1,4 +1,4 @@
-# Copyright (c) 2018 Science and Technology Facilities Council
+# Copyright (c) 2018-2020 Science and Technology Facilities Council
 # All rights reserved.
 #
 # Modifications made as part of the fparser project are distributed
@@ -34,9 +34,9 @@
 ''' Module containing tests for the parser file '''
 
 import pytest
-from fparser.two.parser import ParserFactory
+from fparser.parser import ParserFactory
 from fparser.common.readfortran import FortranStringReader
-from fparser.two.utils import FortranSyntaxError
+from fparser.utils import FortranSyntaxError
 
 
 def test_parserfactory_std():

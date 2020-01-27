@@ -1,4 +1,4 @@
-# Copyright (c) 2018-2019 Science and Technology Facilities Council
+# Copyright (c) 2018-2020 Science and Technology Facilities Council
 #
 # All rights reserved.
 #
@@ -151,8 +151,8 @@ def test_runner_internal_error(tmpdir, monkeypatch, capsys):
         ''' dummy function that simply raises an internal error '''
         raise InternalError(std)
     # monkeypatch the parser so that it returns an InternalError exception.
-    from fparser.two.parser import ParserFactory
-    from fparser.two.utils import InternalError
+    from fparser.parser import ParserFactory
+    from fparser.utils import InternalError
     monkeypatch.setattr(ParserFactory, "create", dummy_parser)
     # run the relevant script method (runner())
     fparser2.runner(None, DummyArgs(), [my_file.strpath, my_file.strpath])

@@ -1,4 +1,4 @@
-# Copyright (c) 2018 Science and Technology Facilities Council
+# Copyright (c) 2018-2020 Science and Technology Facilities Council
 
 # All rights reserved.
 
@@ -37,7 +37,7 @@ directory
 
 '''
 import pytest
-from fparser.two.parser import ParserFactory
+from fparser.parser import ParserFactory
 
 
 @pytest.fixture

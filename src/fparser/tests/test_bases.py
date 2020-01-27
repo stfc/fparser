@@ -41,7 +41,7 @@ import pytest
 def test_keywordvaluebase_errors():
     ''' Unit tests for the KeywordValueBase class to check that it rejects
     invalid input '''
-    from fparser.two.Fortran2003 import KeywordValueBase, Io_Unit, Format, \
+    from fparser.Fortran2003 import KeywordValueBase, Io_Unit, Format, \
         Char_Literal_Constant
     lhs_cls = 'UNIT'
     rhs_cls = Io_Unit
@@ -75,7 +75,7 @@ def test_keywordvaluebase_errors():
 def test_read_stmt_errors():
     ''' Unit tests for the Read class to ensure it rejects invalid
     inputs '''
-    from fparser.two.Fortran2003 import Read_Stmt
+    from fparser.Fortran2003 import Read_Stmt
     # Missing closing parenthesis
     obj = Read_Stmt.match("READ(unit=23")
     assert obj is None
@@ -101,7 +101,7 @@ def test_read_stmt_errors():
 def test_io_ctrl_spec_list_errors():
     ''' Unit tests for the Io_Control_Spec_List class to ensure it
     rejects invalid input '''
-    from fparser.two.Fortran2003 import Io_Control_Spec_List
+    from fparser.Fortran2003 import Io_Control_Spec_List
     # Positional arg following named arg
     obj = Io_Control_Spec_List.match("unit=23, namvar")
     assert obj is None
@@ -111,7 +111,7 @@ def test_io_ctrl_spec_list_errors():
 def test_io_ctrl_spec_errors():
     ''' Unit tests for the Io_Control_Spec class to ensure it
     rejects invalid input '''
-    from fparser.two.Fortran2003 import Io_Control_Spec
+    from fparser.Fortran2003 import Io_Control_Spec
     # An argument with a name that is not valid within an IO control
     # description
     obj = Io_Control_Spec.match("not_unit=23")
@@ -124,8 +124,8 @@ def test_blockbase_tofortran_non_ascii():
     containing non-ascii characters within a sub-class of BlockBase. We
     use a Case Construct for this purpose. '''
     from fparser.common.readfortran import FortranStringReader
-    from fparser.two.utils import BlockBase, walk
-    from fparser.two.Fortran2003 import Program, Case_Construct
+    from fparser.utils import BlockBase, walk
+    from fparser.Fortran2003 import Program, Case_Construct
     code = (u"program my_test\n"
             u"! A comment outside the select block\n"
             u"SELECT CASE(iflag)\n"

@@ -1,4 +1,4 @@
-# Copyright (c) 2018-2019 Science and Technology Facilities Council.
+# Copyright (c) 2018-2020 Science and Technology Facilities Council.
 
 # All rights reserved.
 
@@ -37,8 +37,8 @@ directory
 
 '''
 import pytest
-from fparser.two.parser import ParserFactory
-from fparser.two.Fortran2003 import Defined_Unary_Op, Defined_Binary_Op
+from fparser.parser import ParserFactory
+from fparser.Fortran2003 import Defined_Unary_Op, Defined_Binary_Op
 
 
 @pytest.fixture

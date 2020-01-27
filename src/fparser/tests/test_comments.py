@@ -34,11 +34,11 @@
 ''' Module containing tests for aspects of fparser2 related to comments '''
 
 import pytest
-from fparser.two.Fortran2003 import Program, Comment, Subroutine_Subprogram
-from fparser.two.utils import walk
+from fparser.Fortran2003 import Program, Comment, Subroutine_Subprogram
+from fparser.utils import walk
 from fparser.api import get_reader
 
-from fparser.two.parser import ParserFactory
+from fparser.parser import ParserFactory
 # this is required to setup the fortran2003 classes
 _ = ParserFactory().create(std="f2003")
 
@@ -200,7 +200,7 @@ def test_prog_comments():
     #   .    .
     #   .
     #   |--> Comment
-    from fparser.two.Fortran2003 import Main_Program, Write_Stmt, \
+    from fparser.Fortran2003 import Main_Program, Write_Stmt, \
         End_Program_Stmt
     walk(obj.children, Comment, debug=True)
     assert type(obj.content[0]) == Comment
@@ -249,17 +249,17 @@ function my_mod()
   ! That was a function
 end function my_mod
 '''
-    from fparser.two.Fortran2003 import Function_Subprogram
+    from fparser.Fortran2003 import Function_Subprogram
     reader = get_reader(source, isfree=True, ignore_comments=False)
     fn_unit = Function_Subprogram(reader)
-    # <class 'fparser.two.Fortran2003.Function_Stmt'>
+    # <class 'fparser.Fortran2003.Function_Stmt'>
     #    <type 'NoneType'>
-    #    <class 'fparser.two.Fortran2003.Name'>
+    #    <class 'fparser.Fortran2003.Name'>
     #    <type 'NoneType'>
     #    <type 'NoneType'>
-    # <class 'fparser.two.Fortran2003.Specification_Part'>
-    #   <class 'fparser.two.Fortran2003.Implicit_Part'>
-    #     <class 'fparser.two.Fortran2003.Comment'>
+    # <class 'fparser.Fortran2003.Specification_Part'>
+    #   <class 'fparser.Fortran2003.Implicit_Part'>
+    #     <class 'fparser.Fortran2003.Comment'>
     #       <type 'str'>, "'! This is a function'"
     comment = fn_unit.content[1].content[0].content[0]
     assert isinstance(comment, Comment)
@@ -317,7 +317,7 @@ type my_type ! Inline comment1
   ! Ending comment
 end type my_type
 '''
-    from fparser.two.Fortran2003 import Derived_Type_Def
+    from fparser.Fortran2003 import Derived_Type_Def
     reader = get_reader(source, isfree=True, ignore_comments=False)
     dtype = Derived_Type_Def(reader)
     assert isinstance(dtype, Derived_Type_Def)
@@ -345,8 +345,8 @@ allocate(my_array(size), &
          my_array2(size))
 end if
 '''
-    from fparser.two.Fortran2003 import If_Construct, Allocate_Stmt
-    from fparser.two.utils import get_child
+    from fparser.Fortran2003 import If_Construct, Allocate_Stmt
+    from fparser.utils import get_child
     reader = get_reader(source, isfree=True, ignore_comments=False)
     ifstmt = If_Construct(reader)
     assert isinstance(ifstmt, If_Construct)

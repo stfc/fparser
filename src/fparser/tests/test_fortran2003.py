@@ -69,9 +69,9 @@ Module containing py.test tests for Fortran 2003 language constructs
 
 from __future__ import print_function
 import pytest
-from fparser.two.Fortran2003 import *
+from fparser.Fortran2003 import *
 from fparser.api import get_reader
-from fparser.two.parser import ParserFactory
+from fparser.parser import ParserFactory
 # this is required to setup the fortran2003 classes
 _ = ParserFactory().create(std="f2003")
 
@@ -82,7 +82,7 @@ def assert_raises(exc, fcls, string):
     string is not parsed correctly.
 
     :param exc: the error to be raised
-    :type exc: :py:class:'fparser.two.Fortran2003.NoMatchError'
+    :type exc: :py:class:'fparser.Fortran2003.NoMatchError'
     :param fcls: the class of Fortran object to create
     :type fcls: names of classes deriving from `:py:class:Base` or str
     :param string: (source of) Fortran string to parse
