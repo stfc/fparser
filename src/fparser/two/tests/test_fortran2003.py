@@ -2227,22 +2227,6 @@ def test_continue_stmt():  # R848
     assert str(obj) == 'CONTINUE'
     assert repr(obj) == "Continue_Stmt('CONTINUE')"
 
-
-def test_stop_stmt():  # R849
-
-    tcls = Stop_Stmt
-    obj = tcls('stop')
-    assert isinstance(obj, tcls), repr(obj)
-    assert str(obj) == 'STOP'
-
-    obj = tcls('stop 123')
-    assert isinstance(obj, tcls), repr(obj)
-    assert str(obj) == 'STOP 123'
-
-    obj = tcls('stop   \'hey you\'')
-    assert isinstance(obj, tcls), repr(obj)
-    assert str(obj) == "STOP 'hey you'"
-
 #
 # SECTION 9
 #

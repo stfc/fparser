@@ -7025,26 +7025,42 @@ class Continue_Stmt(StmtBase, STRINGBase):  # R848
 class Stop_Stmt(StmtBase, WORDClsBase):  # R849
     """
     <stop-stmt> = STOP [ <stop-code> ]
+
     """
     subclass_names = []
     use_names = ['Stop_Code']
 
+    @staticmethod
     def match(string):
         return WORDClsBase.match('STOP', Stop_Code, string)
-    match = staticmethod(match)
 
 
-class Stop_Code(StringBase):  # R850
+class Stop_Code(Level_3_Expr):  # R850
     """
     <stop-code> = <scalar-char-constant>
                   | <digit> [ <digit> [ <digit> [ <digit> [ <digit> ] ] ] ]
+
+    and C834(R850) scalar-char-constant shall be of type default character.
+
+    However, various compilers (gfortran, nvfortran) accept stop-code when
+    specified as a concatenation of strings.
+
     """
     subclass_names = ['Scalar_Char_Constant']
 
+    @staticmethod
     def match(string):
-        return StringBase.match(pattern.abs_label, string)
-    match = staticmethod(match)
+        result = StringBase.match(pattern.abs_label, string)
+        if result:
+            return result
+        return BinaryOpBase.match(pattern.char_constant,
+                                  pattern.concat_op.named(),
+                                  pattern.char_constant, string)
 
+    def tostr(self):
+        '''
+        '''
+        return " ".join([str(item) for item in self.items])
 #
 # SECTION  9
 #
