@@ -320,49 +320,60 @@ class Base(ComparableMixin):
         # Get the class' match method if it has one
         match = getattr(cls, 'match') if hasattr(cls, 'match') else None
 
-        if isinstance(string, FortranReaderBase) and \
-           match and not issubclass(cls, BlockBase):
-            reader = string
-            item = reader.get_item()
-            if item is None:
-                return None
-            if isinstance(item, readfortran.Comment):
-                # We got a comment but we weren't after a comment (we handle
-                # those in Comment.__new__)
-                obj = None
-            else:
-                try:
-                    obj = item.parse_line(cls, parent_cls)
-                except NoMatchError:
-                    obj = None
-            if obj is None:
-                # No match so give the item back to the reader
-                reader.put_item(item)
-                return None
-            obj.item = item
-            return obj
+        #if cls.__name__ == "Implicit_Part":
+        #    import pdb; pdb.set_trace()
 
         result = None
+        reader = None
         if match:
             # IMPORTANT: if string is FortranReaderBase then cls must
             # restore readers content when no match is found.
-            try:
-                result = cls.match(string)
-            except NoMatchError as msg:
-                if str(msg) == '%s: %r' % (cls.__name__, string):
-                    # avoid recursion 1.
-                    raise
+            if isinstance(string, FortranReaderBase) and not issubclass(cls, BlockBase):
+                reader = string
+
+                item = reader.get_item()
+                if item is None:
+                    result = None
+                    string = None
+                elif isinstance(item, readfortran.Comment):
+                    reader.put_item(item)
+                    result = None
+                    string = None
+                else:
+                    string = item.line
+
+            if string:
+                try:
+                    result = cls.match(string)
+                except NoMatchError as msg:
+                    print(msg)
+                    if not reader and str(msg) == '%s: %r' % (cls.__name__, string):
+                        # avoid recursion 1.
+                        raise
+                    result = None
+            
+            if reader and string is not None and result is None:
+                reader.put_item(item)
+
+        #if result:
+        #    print(cls, string, result)
+        #    import pdb; pdb.set_trace()
+
 
         if isinstance(result, tuple):
             obj = object.__new__(cls)
             obj.string = string
             obj.item = None
+            if reader:
+                obj.item = item
             # Set-up parent information for the results of the match
             _set_parent(obj, result)
             if hasattr(cls, 'init'):
                 obj.init(*result)
             return obj
         elif isinstance(result, Base):
+            if reader:
+                result.item = item
             return result
         elif result is None:
             # Loop over the possible sub-classes of this class and
@@ -371,7 +382,10 @@ class Base(ComparableMixin):
                 if subcls in parent_cls:  # avoid recursion 2.
                     continue
                 try:
-                    obj = subcls(string, parent_cls=parent_cls)
+                    if reader:
+                        obj = subcls(reader, parent_cls=parent_cls)
+                    else:
+                        obj = subcls(string, parent_cls=parent_cls)
                 except NoMatchError:
                     obj = None
                 if obj is not None:
@@ -379,7 +393,8 @@ class Base(ComparableMixin):
         else:
             raise AssertionError(repr(result))
         # If we get to here then we've failed to match the current line
-        if isinstance(string, FortranReaderBase):
+
+        if not reader and isinstance(string, FortranReaderBase):
             content = False
             for index in range(string.linecount):
                 # Check all lines up to this one for content. We
@@ -400,9 +415,8 @@ class Base(ComparableMixin):
             line = string.source_lines[string.linecount-1]
             errmsg = u"at line {0}\n>>>{1}\n".format(
                 string.linecount, line)
-        else:
-            errmsg = u"{0}: '{1}'".format(cls.__name__, string)
-        raise NoMatchError(errmsg)
+            raise NoMatchError(errmsg)
+        return None
 
     def get_root(self):
         '''
