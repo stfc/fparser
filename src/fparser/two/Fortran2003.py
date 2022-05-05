@@ -78,9 +78,104 @@ from fparser.two.symbol_table import SYMBOL_TABLES
 from fparser.two.utils import Base, BlockBase, StringBase, WORDClsBase, \
     NumberBase, STRINGBase, BracketBase, StmtBase, EndStmtBase, \
     BinaryOpBase, Type_Declaration_StmtBase, CALLBase, CallBase, \
-    KeywordValueBase, SeparatorBase, SequenceBase, UnaryOpBase, walk
+    KeywordValueBase, SeparatorBase, SequenceBase, UnaryOpBase, walk, \
+    ConsumeBase
 from fparser.two.utils import NoMatchError, FortranSyntaxError, \
     InternalSyntaxError, InternalError, show_result, py2_encode_list_items
+
+
+class Skip_Execution_Part(ConsumeBase):
+    '''Capture a generic skipped execution_part string. These are
+    skipped when the user does not want to parse the execution part of
+    a program fully and prefere a faster parser.'''
+
+    subclass_names = []
+    use_names = ['Contains_Stmt']
+
+    @staticmethod
+    def match(string, end_token):
+        '''Match the string unless it matches a Contains_Stmt or an
+        EndStmtBase with the particular EndStmtBase token being passed to
+        the match ("PROGRAM", "SUBROUTINE", or "FUNCTION")
+
+        :param str string: the string to match.
+        :param str end_token: the token to match in EndStmtBase.
+
+        :returns: a Skip_Execution_Part instance, or None if there is \
+            no match.
+        :rtype: Optional[ \
+            :py:class:`fparser.two.Fortran2003.Skip_Execution_Part`]
+
+        '''
+        if Contains_Stmt.match(string):
+            # Found Contains_Stmt so stop matching
+            return None
+        if EndStmtBase.match(end_token, Name, string):
+            # Found End_Stmt_Base so stop matching
+            return None
+        # Simply match the string
+        return ConsumeBase.match(string)
+
+
+class Skip_Program_Execution_Part(Skip_Execution_Part):
+    ''' Match the string unless one of R1103 (End_Program_Stmt) or
+    R1237 (Contains_Stmt) is found. '''
+
+    @staticmethod
+    def match(string):
+        '''Match the string unless it matches a Contains_Stmt or an
+        End_Program_Stmt
+
+        :param str string: the string to match.
+
+        :returns: a Skip_Execution_Part instance, or None if there is \
+            no match.
+        :rtype: Optional[ \
+            :py:class:`fparser.two.Fortran2003.Skip_Execution_Part`]
+
+        '''
+        return Skip_Execution_Part.match(string, 'PROGRAM')
+
+
+class Skip_Function_Execution_Part(Skip_Execution_Part):
+    ''' Match the string unless one of R1230 (End_Function_Stmt) or
+    R1237 (Contains_Stmt) is found. '''
+
+    @staticmethod
+    def match(string):
+        '''Match the string unless it matches a Contains_Stmt or an
+        End_Function_Stmt
+
+        :param str string: the string to match.
+
+        :returns: a Skip_Execution_Part instance, or None if there is \
+            no match.
+        :rtype: Optional[ \
+            :py:class:`fparser.two.Fortran2003.Skip_Execution_Part`]
+
+        '''
+        return Skip_Execution_Part.match(string, "FUNCTION")
+
+
+class Skip_Subroutine_Execution_Part(Skip_Execution_Part):
+    ''' Match the string unless one of R1234 (End_Subroutine_Stmt) or
+    R1237 (Contains_Stmt) is found. '''
+
+    @staticmethod
+    def match(string):
+        '''Match the string unless it matches a Contains_Stmt or an
+        End_Subroutine_Stmt
+
+        :param str string: the string to match.
+
+        :returns: a Skip_Execution_Part instance, or None if there is \
+            no match.
+        :rtype: Optional[ \
+            :py:class:`fparser.two.Fortran2003.Skip_Execution_Part`]
+
+        '''
+        return Skip_Execution_Part.match(string, "SUBROUTINE")
+
 
 #
 # SECTION  1
@@ -9111,7 +9206,8 @@ class Main_Program(BlockBase):  # R1101 [C1101, C1102, C1103]
     '''
     subclass_names = []
     use_names = ['Program_Stmt', 'Specification_Part', 'Execution_Part',
-                 'Internal_Subprogram_Part', 'End_Program_Stmt']
+                 'Internal_Subprogram_Part', 'End_Program_Stmt',
+                 'Skip_Program_Execution_Part']
 
     @staticmethod
     def match(reader):
@@ -9147,8 +9243,13 @@ class Main_Program(BlockBase):  # R1101 [C1101, C1102, C1103]
                 :py:class:`fparser.two.Fortran2003.End_Program_Stmt`])
 
         '''
+        from fparser.two.utils import SKIP_EXECUTION_PART
+        execution_part_rule = Execution_Part
+        if SKIP_EXECUTION_PART:
+            execution_part_rule = Skip_Program_Execution_Part
+
         return BlockBase.match(
-            Program_Stmt, [Specification_Part, Execution_Part,
+            Program_Stmt, [Specification_Part, execution_part_rule,
                            Internal_Subprogram_Part], End_Program_Stmt,
             reader, match_names=True, strict_order=True)
 
@@ -9200,8 +9301,13 @@ class Main_Program0(BlockBase):
         table_name = "fparser2:main_program"
         SYMBOL_TABLES.enter_scope(table_name)
 
+        from fparser.two.utils import SKIP_EXECUTION_PART
+        execution_part_rule = Execution_Part
+        if SKIP_EXECUTION_PART:
+            execution_part_rule = Skip_Program_Execution_Part
+
         result = BlockBase.match(None,
-                                 [Specification_Part, Execution_Part,
+                                 [Specification_Part, execution_part_rule,
                                   Internal_Subprogram_Part],
                                  End_Program_Stmt, reader)
 
@@ -10502,16 +10608,22 @@ class Function_Subprogram(BlockBase):  # R1223
     """
     subclass_names = []
     use_names = ['Function_Stmt', 'Specification_Part', 'Execution_Part',
-                 'Internal_Subprogram_Part', 'End_Function_Stmt']
+                 'Skip_Function_Execution_Part', 'Internal_Subprogram_Part', 'End_Function_Stmt']
 
     @staticmethod
     def match(reader):
+
+        from fparser.two.utils import SKIP_EXECUTION_PART
+        execution_part_rule = Execution_Part
+        if SKIP_EXECUTION_PART:
+            execution_part_rule = Skip_Function_Execution_Part
+
         return BlockBase.match(Function_Stmt,
                                [Specification_Part,
-                                Execution_Part,
+                                execution_part_rule,
                                 Internal_Subprogram_Part],
                                End_Function_Stmt,
-                               reader)
+                               reader, strict_order=True)
 
 
 class Function_Stmt(StmtBase):  # R1224
@@ -10768,12 +10880,18 @@ class Subroutine_Subprogram(BlockBase):  # R1231
                  'Internal_Subprogram_Part', 'End_Subroutine_Stmt']
 
     def match(reader):
+
+        from fparser.two.utils import SKIP_EXECUTION_PART
+        execution_part_rule = Execution_Part
+        if SKIP_EXECUTION_PART:
+            execution_part_rule = Skip_Subroutine_Execution_Part
+
         return BlockBase.match(Subroutine_Stmt,
                                [Specification_Part,
-                                Execution_Part,
+                                execution_part_rule,
                                 Internal_Subprogram_Part],
                                End_Subroutine_Stmt,
-                               reader)
+                               reader, strict_order=True)
     match = staticmethod(match)
 
 

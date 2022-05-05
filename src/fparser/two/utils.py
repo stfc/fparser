@@ -1,4 +1,4 @@
-# Modified work Copyright (c) 2017-2021 Science and Technology
+# Modified work Copyright (c) 2017-2022 Science and Technology
 # Facilities Council
 # Original work Copyright (c) 1999-2008 Pearu Peterson
 
@@ -74,6 +74,11 @@ import six
 from fparser.common.splitline import string_replace_map
 from fparser.two.symbol_table import SYMBOL_TABLES
 from fparser.common.readfortran import FortranReaderBase
+
+# Whether to skip the full parsing of executable statements. This can
+# be useful to improve the speed of fparser when the user does not
+# require executable statement information.
+SKIP_EXECUTION_PART = False
 
 # A list of supported extensions to the standard(s)
 
@@ -1331,6 +1336,30 @@ string
 
     def tostr(self):
         return str(self.string)
+
+    def torepr(self):
+        return '%s(%r)' % (self.__class__.__name__, self.string)
+
+    def _cmpkey(self):
+        """ Provides a key of objects to be used for comparing.
+        """
+        return self.string
+
+
+class ConsumeBase(Base):
+    """
+    xxx
+    """
+    @staticmethod
+    def match(string):
+        return string,
+
+    def init(self, string):
+        self.string = f"skipped: {string}"
+        return
+
+    def tostr(self):
+        return self.string
 
     def torepr(self):
         return '%s(%r)' % (self.__class__.__name__, self.string)
