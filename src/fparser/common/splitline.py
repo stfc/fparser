@@ -249,8 +249,8 @@ def splitquote(line, stopchar=None, lower=False, quotechars='"\''):
             i += 1
         except IndexError:
             break
-        l = []
-        l_append = l.append
+        lchars = []
+        l_append = lchars.append
         nofslashes = 0
         if stopchar is None:
             # search for string start
@@ -269,9 +269,9 @@ def splitquote(line, stopchar=None, lower=False, quotechars='"\''):
                     i += 1
                 except IndexError:
                     break
-            if not l:
+            if not lchars:
                 continue
-            item = ''.join(l)
+            item = ''.join(lchars)
             if lower:
                 item = item.lower()
             items.append(item)
@@ -283,8 +283,8 @@ def splitquote(line, stopchar=None, lower=False, quotechars='"\''):
                 char = line[i]
                 i += 1
             except IndexError:
-                if l:
-                    item = String(''.join(l))
+                if lchars:
+                    item = String(''.join(lchars))
                     items.append(item)
                 break
         # else continued string
@@ -303,8 +303,8 @@ def splitquote(line, stopchar=None, lower=False, quotechars='"\''):
                 i += 1
             except IndexError:
                 break
-        if l:
-            item = String(''.join(l))
+        if lchars:
+            item = String(''.join(lchars))
             items.append(item)
     return items, stopchar
 

@@ -576,7 +576,6 @@ class FortranReaderBase():
         self.exit_on_error = True
         self.restore_cache = []
 
-
     ##########################################################################
 
     def __repr__(self):

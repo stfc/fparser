@@ -56,10 +56,10 @@ def test_format_constructor_faults():
     with "None" arguments.
     '''
     with pytest.raises(Exception):
-        _unit_under_test = FortranFormat(True, None)
+        _ = FortranFormat(True, None)
 
     with pytest.raises(Exception):
-        _unit_under_test = FortranFormat(None, True)
+        _ = FortranFormat(None, True)
 
 
 ##############################################################################
@@ -79,7 +79,7 @@ def pretty(request):
 ##############################################################################
 
 def test_fortranformat_constructor(pretty):
-    #pylint: disable=redefined-outer-name
+    # pylint: disable=redefined-outer-name
     '''
     Tests the constructor correctly sets up the object.
     '''
@@ -141,7 +141,7 @@ def mode(request):
 ##############################################################################
 
 def test_fortranformat_from_mode(mode):
-    #pylint: disable=redefined-outer-name
+    # pylint: disable=redefined-outer-name
     '''
     Tests that the object is correctly created by the from_mode function.
     '''
@@ -162,7 +162,7 @@ def test_format_from_mode_bad():
     Tests that an exception is thrown for an unrecognised mode string.
     '''
     with pytest.raises(NotImplementedError):
-        _unit_under_test = FortranFormat.from_mode('cheese')
+        _ = FortranFormat.from_mode('cheese')
 
 
 ##############################################################################
@@ -250,7 +250,7 @@ def content(request):
 ##############################################################################
 
 def test_get_source_info_str(header, content):
-    #pylint: disable=redefined-outer-name
+    # pylint: disable=redefined-outer-name
     '''
     Tests that source format is correctly identified when read from a string.
     '''
@@ -286,7 +286,7 @@ def extension(request):
 ##############################################################################
 
 def test_get_source_info_filename(extension, header, content):
-    #pylint: disable=redefined-outer-name
+    # pylint: disable=redefined-outer-name
     '''
     Tests that source format is correctly identified when read from a file.
     '''
@@ -318,7 +318,7 @@ def test_get_source_info_filename(extension, header, content):
 ##############################################################################
 
 def test_get_source_info_file(extension, header, content):
-    #pylint: disable=redefined-outer-name
+    # pylint: disable=redefined-outer-name
     '''
     Tests that source format is correctly identified when read from a file.
     '''
@@ -366,9 +366,9 @@ def test_get_source_info_wrong():
     of argument.
     '''
     with pytest.raises(ValueError):
-        _source_info = get_source_info(42)  # Obviously wrong
+        _ = get_source_info(42)  # Obviously wrong
 
     with pytest.raises(ValueError):
-        _source_info = get_source_info(['one'])  # Less obviously wrong
+        _ = get_source_info(['one'])  # Less obviously wrong
 
 ##############################################################################

@@ -81,7 +81,6 @@ __all__ = ['split_comma', 'specs_split_comma',
            'parse_result', 'is_name', 'parse_array_spec', 'CHAR_BIT',
            'str2stmt', 'classes']
 
-import logging
 import glob
 import io
 import os
@@ -92,12 +91,14 @@ import traceback
 class ParseError(Exception):
     pass
 
+
 class AnalyzeError(Exception):
     pass
 
-is_name = re.compile(r'^[a-z_]\w*$',re.I).match
-name_re = re.compile(r'[a-z_]\w*',re.I).match
-is_entity_decl = re.compile(r'^[a-z_]\w*',re.I).match
+
+is_name = re.compile(r'^[a-z_]\w*$', re.I).match
+name_re = re.compile(r'[a-z_]\w*', re.I).match
+is_entity_decl = re.compile(r'^[a-z_]\w*', re.I).match
 is_int_literal_constant = re.compile(r'^\d+(_\w+|)$').match
 module_file_extensions = ['.f', '.f90', '.f95', '.f03', '.f08']
 
@@ -128,14 +129,16 @@ def split_comma(line, item=None, comma=',', keep_empty=False,
     if item is None:
         for s in line.split(comma):
             s = s.strip()
-            if not s and not keep_empty: continue
+            if not s and not keep_empty:
+                continue
             items.append(s)
         return items
     newitem = item.copy(line, True)
     apply_map = newitem.apply_map
     for s in newitem.get_line().split(comma):
         s = apply_map(s).strip()
-        if not s and not keep_empty: continue
+        if not s and not keep_empty:
+            continue
         items.append(s)
     return items
 
@@ -167,26 +170,29 @@ def extract_bracketed_list_items(line, item=None):
     return items
 
 
-def parse_array_spec(line, item = None):
+def parse_array_spec(line, item=None):
     items = []
     for spec in split_comma(line, item):
-        items.append(tuple(split_comma(spec, item, comma=':', keep_empty=True)))
+        items.append(tuple(split_comma(spec, item, comma=':',
+                                       keep_empty=True)))
     return items
 
-def specs_split_comma(line, item = None, upper=False):
+
+def specs_split_comma(line, item=None, upper=False):
     specs0 = split_comma(line, item)
     specs = []
     for spec in specs0:
         i = spec.find('=')
-        if i!=-1:
+        if i != -1:
             kw = spec[:i].strip().upper()
-            v  = spec[i+1:].strip()
+            v = spec[i+1:].strip()
             specs.append('%s = %s' % (kw, v))
         else:
             if upper:
                 spec = spec.upper()
             specs.append(spec)
     return specs
+
 
 def parse_bind(line, item=None):
     if not line.lower().startswith('bind'):
@@ -207,6 +213,7 @@ def parse_bind(line, item=None):
         rest = newitem.apply_map(rest)
     return args, rest
 
+
 def parse_result(line, item=None):
     if not line.lower().startswith('result'):
         return None, line
@@ -216,6 +223,7 @@ def parse_result(line, item=None):
     name = line[1:i].strip()
     assert is_name(name), repr(name)
     return name, line[i+1:].lstrip()
+
 
 def filter_stmts(content, classes):
     """ Pop and return classes instances from content.
@@ -236,21 +244,23 @@ def filter_stmts(content, classes):
 def get_module_files(directory, _cache={}):
     if directory in _cache:
         return _cache[directory]
-    module_line = re.compile(r'(\A|^)module\s+(?P<name>\w+)\s*(!.*|)$',re.I | re.M)
+    module_line = re.compile(
+        r'(\A|^)module\s+(?P<name>\w+)\s*(!.*|)$', re.I | re.M)
     d = {}
     files = []
     for ext in module_file_extensions:
-        files += glob.glob(os.path.join(directory,'*'+ext))
+        files += glob.glob(os.path.join(directory, '*'+ext))
     for fn in files:
-        f = open(fn,'r')
+        f = open(fn, 'r')
         for name in module_line.findall(f.read()):
             name = name[1]
             if name in d:
-                print(d[name],'already defines',name)
+                print(d[name], 'already defines', name)
                 continue
             d[name] = fn
     _cache[directory] = d
     return d
+
 
 def get_module_file(name, directory, _cache={}):
     fn = _cache.get(name, None)
@@ -258,27 +268,28 @@ def get_module_file(name, directory, _cache={}):
         return fn
     if name.endswith('_module'):
         for ext in module_file_extensions:
-            f1 = os.path.join(directory,name[:-7]+ext)
+            f1 = os.path.join(directory, name[:-7]+ext)
             if os.path.isfile(f1):
                 _cache[name] = fn
                 return f1
     files = []
     for ext in module_file_extensions:
-        files += glob.glob(os.path.join(directory,'*'+ext))
+        files += glob.glob(os.path.join(directory, '*'+ext))
     for fn in files:
         if module_in_file(name, fn):
             _cache[name] = fn
             return fn
     return None
 
+
 def module_in_file(name, filename):
     name = name.lower()
     pattern = re.compile(r'\s*module\s+(?P<name>[a-z]\w*)', re.I).match
     encoding = {'encoding': 'UTF-8'}
-    f = io.open(filename,'r',**encoding)
+    f = io.open(filename, 'r', **encoding)
     for line in f:
         m = pattern(line)
-        if m and m.group('name').lower()==name:
+        if m and m.group('name').lower() == name:
             f.close()
             return filename
     f.close()
@@ -287,16 +298,17 @@ def module_in_file(name, filename):
 def str2stmt(string, isfree=True, isstrict=False):
     """ Convert Fortran code to Statement tree.
     """
-    from .readfortran import Line, FortranStringReader
+    from .readfortran import FortranStringReader
     from .parsefortran import FortranParser
     reader = FortranStringReader(string, isfree, isstrict)
     parser = FortranParser(reader)
     parser.parse()
     parser.analyze()
     block = parser.block
-    while len(block.content)==1:
+    while len(block.content) == 1:
         block = block.content[0]
     return block
+
 
 def show_item_on_failure(func, _exception_depth=[0]):
     """
@@ -307,28 +319,34 @@ def show_item_on_failure(func, _exception_depth=[0]):
             func(self)
         except AnalyzeError as msg:
             clsname = self.__class__.__name__
-            self.error('%s.analyze error: %s' % (clsname,msg))
+            self.error('%s.analyze error: %s' % (clsname, msg))
             traceback.print_exc()
         except ParseError as msg:
             self.error('parse error: %s' % (msg))
         except Exception as msg:
             _exception_depth[0] += 1
-            if _exception_depth[0]==1:
-                self.error('exception triggered here: %s %s' % (Exception, msg))
+            if _exception_depth[0] == 1:
+                self.error(
+                    'exception triggered here: %s %s' % (Exception, msg))
             raise
         _exception_depth[0] = 0
     return new_func
 
+
 _classes_cache = {}
+
+
 class meta_classes(type):
     """ Meta class for ``classes``.
     """
     __abstractmethods__ = False
+
     def __getattr__(self, name):
         # Expose created classes only as attributes to ``classes`` type.
         cls = _classes_cache.get(name)
         if cls is None:
-            raise AttributeError('instance does not have attribute %r' % (name))
+            raise AttributeError(
+                'instance does not have attribute %r' % (name))
         return cls
 
 
@@ -348,7 +366,7 @@ class classes(type, metaclass=meta_classes):
 
     def __new__(metacls, name, bases, dict):
         if 'analyze' in dict:
-            dict['analyze'] =  show_item_on_failure(dict['analyze'])
+            dict['analyze'] = show_item_on_failure(dict['analyze'])
         cls = type.__new__(metacls, name, bases, dict)
         _classes_cache[name] = cls
         return cls

@@ -881,14 +881,16 @@ python module foo
   2nd line
   end line'''endml='tere!fake comment'!should be a comment
   a = 2
-  'charc\"onstant' ''' single line mline '''a='hi!fake comment'!should be a comment
+  'charc\"onstant' ''' single line mline '''a='hi!fake comment'!should be\
+ a comment
   a=\\\\\\\\\\'''not a multiline'''
   !blah='''never ending multiline
   b=3! hey, fake line continuation:&
   c=4& !line cont
   &45
   thisis_label_2 : c = 3
-   xxif_isotropic_2 :     if ( string_upper_compare ( o%opt_aniso, 'ISOTROPIC' ) ) then
+   xxif_isotropic_2 :     if ( string_upper_compare ( o%opt_aniso, \
+'ISOTROPIC' ) ) then
    g=3
    endif
   end interface
@@ -955,7 +957,8 @@ cComment
      &5
 !   KDMO
       write (obj%print_lun, *) ' KDMO : '
-      write (obj%print_lun, *) '  COORD = ',coord, '  BIN_WID = ',             &
+      write (obj%print_lun, *) '  COORD = ',coord, '  BIN_WID = ',\
+             &
        obj%bin_wid,'  VEL_DMO = ', obj%vel_dmo
       end subroutine foo
       subroutine
