@@ -79,7 +79,7 @@ from fparser.two import pattern_tools as pattern
 from fparser.two.utils import STRINGBase, BracketBase, WORDClsBase, \
     SeparatorBase, Type_Declaration_StmtBase, StmtBase
 from fparser.two.Fortran2003 import (
-    EndStmtBase, BlockBase, Base, Specification_Part,
+    EndStmtBase, BlockBase, SequenceBase, Base, Specification_Part,
     Module_Subprogram_Part, Implicit_Part, Implicit_Part_Stmt,
     Declaration_Construct, Use_Stmt, Import_Stmt, Declaration_Type_Spec,
     Component_Decl_List, Stop_Code)
