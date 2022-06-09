@@ -124,7 +124,8 @@ def test_where_construct_wrong_name(f2003_create, fake_symbol_table):
             name: where (expr)
                 a = 1
             end where wrong"""))
-    assert exc_info.value.args[0].endswith("Expecting name 'name', got 'wrong'")
+    assert exc_info.value.args[0].endswith(
+        "Expecting name 'name', got 'wrong'")
 
 
 def test_where_construct_missing_start_name(f2003_create, fake_symbol_table):
@@ -135,7 +136,8 @@ def test_where_construct_missing_start_name(f2003_create, fake_symbol_table):
             where (expr)
                 a = 1
             end where name"""))
-    assert exc_info.value.args[0].endswith("Name 'name' has no corresponding starting name")
+    assert exc_info.value.args[0].endswith(
+        "Name 'name' has no corresponding starting name")
 
 
 def test_where_construct_missing_end_name(f2003_create, fake_symbol_table):
@@ -146,7 +148,8 @@ def test_where_construct_missing_end_name(f2003_create, fake_symbol_table):
             name: where (expr)
                 a = 1
             end where"""))
-    assert exc_info.value.args[0].endswith("Expecting name 'name' but none given")
+    assert exc_info.value.args[0].endswith(
+        "Expecting name 'name' but none given")
 
 
 def test_where_construct_else_wrong_end_name(f2003_create, fake_symbol_table):
@@ -159,7 +162,8 @@ def test_where_construct_else_wrong_end_name(f2003_create, fake_symbol_table):
             elsewhere
                 a = 2
             end where wrong"""))
-    assert exc_info.value.args[0].endswith("Expecting name 'name', got 'wrong'")
+    assert exc_info.value.args[0].endswith(
+        "Expecting name 'name', got 'wrong'")
 
 
 def test_where_construct_else_wrong_name(f2003_create, fake_symbol_table):
@@ -172,10 +176,12 @@ def test_where_construct_else_wrong_name(f2003_create, fake_symbol_table):
             elsewhere wrong
                 a = 2
             end where name"""))
-    assert exc_info.value.args[0].endswith("Expecting name 'name', got 'wrong'")
+    assert exc_info.value.args[0].endswith(
+        "Expecting name 'name', got 'wrong'")
 
 
-def test_where_construct_else_where_wrong_name(f2003_create, fake_symbol_table):
+def test_where_construct_else_where_wrong_name(f2003_create,
+                                               fake_symbol_table):
     """Check named 'where' construct has correct start/end name"""
     with pytest.raises(FortranSyntaxError) as exc_info:
         Where_Construct(
@@ -185,4 +191,5 @@ def test_where_construct_else_where_wrong_name(f2003_create, fake_symbol_table):
             elsewhere (other_expr) wrong
                 a = 2
             end where name"""))
-    assert exc_info.value.args[0].endswith("Expecting name 'name', got 'wrong'")
+    assert exc_info.value.args[0].endswith(
+        "Expecting name 'name', got 'wrong'")

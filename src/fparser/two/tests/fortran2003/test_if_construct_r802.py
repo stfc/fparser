@@ -187,7 +187,8 @@ def test_if_construct_wrong_name(f2003_create, fake_symbol_table):
             name: if (expr) then
                 a = 1
             end if wrong"""))
-    assert exc_info.value.args[0].endswith("Expecting name 'name', got 'wrong'")
+    assert exc_info.value.args[0].endswith(
+        "Expecting name 'name', got 'wrong'")
 
 
 def test_if_construct_missing_start_name(f2003_create, fake_symbol_table):
@@ -198,7 +199,8 @@ def test_if_construct_missing_start_name(f2003_create, fake_symbol_table):
             if (expr) then
                 a = 1
             end if name"""))
-    assert exc_info.value.args[0].endswith("Name 'name' has no corresponding starting name")
+    assert exc_info.value.args[0].endswith(
+        "Name 'name' has no corresponding starting name")
 
 
 def test_if_construct_missing_end_name(f2003_create, fake_symbol_table):
@@ -209,7 +211,8 @@ def test_if_construct_missing_end_name(f2003_create, fake_symbol_table):
             name: if (expr) then
                 a = 1
             end if"""))
-    assert exc_info.value.args[0].endswith("Expecting name 'name' but none given")
+    assert exc_info.value.args[0].endswith(
+        "Expecting name 'name' but none given")
 
 
 def test_if_construct_else_wrong_end_name(f2003_create, fake_symbol_table):
@@ -222,7 +225,8 @@ def test_if_construct_else_wrong_end_name(f2003_create, fake_symbol_table):
             else
                 a = 2
             end if wrong"""))
-    assert exc_info.value.args[0].endswith("Expecting name 'name', got 'wrong'")
+    assert exc_info.value.args[0].endswith(
+        "Expecting name 'name', got 'wrong'")
 
 
 def test_if_construct_else_wrong_name(f2003_create, fake_symbol_table):
@@ -235,7 +239,8 @@ def test_if_construct_else_wrong_name(f2003_create, fake_symbol_table):
             else wrong
                 a = 2
             end if name"""))
-    assert exc_info.value.args[0].endswith("Expecting name 'name', got 'wrong'")
+    assert exc_info.value.args[0].endswith(
+        "Expecting name 'name', got 'wrong'")
 
 
 def test_if_construct_else_if_wrong_name(f2003_create, fake_symbol_table):
@@ -248,4 +253,5 @@ def test_if_construct_else_if_wrong_name(f2003_create, fake_symbol_table):
             else if (other_expr) then wrong
                 a = 2
             end if name"""))
-    assert exc_info.value.args[0].endswith("Expecting name 'name', got 'wrong'")
+    assert exc_info.value.args[0].endswith(
+        "Expecting name 'name', got 'wrong'")

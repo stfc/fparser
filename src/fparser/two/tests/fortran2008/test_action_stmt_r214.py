@@ -86,8 +86,8 @@ import pytest
 from fparser.api import get_reader, walk
 from fparser.two.Fortran2003 import (
     Allocate_Stmt, Arithmetic_If_Stmt, Backspace_Stmt, Call_Stmt, Close_Stmt,
-    Computed_Goto_Stmt, Continue_Stmt, Cycle_Stmt, Deallocate_Stmt,
-    End_Function_Stmt, End_Subroutine_Stmt, Endfile_Stmt, Exit_Stmt, Flush_Stmt,
+    Computed_Goto_Stmt, Continue_Stmt, Cycle_Stmt, Deallocate_Stmt, Flush_Stmt,
+    End_Function_Stmt, End_Subroutine_Stmt, Endfile_Stmt, Exit_Stmt,
     Forall_Stmt, Goto_Stmt, If_Stmt, Inquire_Stmt, Nullify_Stmt, Open_Stmt,
     Pointer_Assignment_Stmt, Print_Stmt, Read_Stmt, Return_Stmt, Rewind_Stmt,
     Stop_Stmt, Wait_Stmt, Where_Stmt, Write_Stmt
@@ -115,7 +115,8 @@ from fparser.two.utils import NoMatchError
     ('IF (A > B) A = B', If_Stmt),
     ('INQUIRE (IOLENGTH=N) M', Inquire_Stmt),
     ('NULLIFY(P)', Nullify_Stmt),
-    ("OPEN (10, FILE = 'employee.names', ACTION = 'READ', PAD = 'YES')", Open_Stmt),
+    ("OPEN (10, FILE = 'employee.names', ACTION = 'READ', PAD = 'YES')",
+     Open_Stmt),
     ('P => NULL()', Pointer_Assignment_Stmt),
     ("PRINT *, 'HELLO WORLD'", Print_Stmt),
     ('READ (6, *) VAR', Read_Stmt),

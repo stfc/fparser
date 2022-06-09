@@ -92,7 +92,8 @@ from fparser.two.utils import FortranSyntaxError
         ),
         (
             """\
-            ASSOCIATE ( W => RESULT(I,J)%W, ZX => AX%B(I,J)%D, ZY => AY%B(I,J)%D )
+            ASSOCIATE ( W => RESULT(I,J)%W, ZX => AX%B(I,J)%D, ZY => \
+AY%B(I,J)%D )
                 W = ZX*X + ZY*Y
             END ASSOCIATE
             """,
@@ -122,7 +123,8 @@ def test_end_block_missing_name(f2003_create, fake_symbol_table):
                 """
             )
         )
-    assert exc_info.value.args[0].endswith("Expecting name 'name' but none given")
+    assert exc_info.value.args[0].endswith(
+        "Expecting name 'name' but none given")
 
 
 def test_end_block_wrong_name(f2003_create, fake_symbol_table):
@@ -138,4 +140,5 @@ def test_end_block_wrong_name(f2003_create, fake_symbol_table):
                 """
             )
         )
-    assert exc_info.value.args[0].endswith("Expecting name 'name', got 'wrong'")
+    assert exc_info.value.args[0].endswith(
+        "Expecting name 'name', got 'wrong'")

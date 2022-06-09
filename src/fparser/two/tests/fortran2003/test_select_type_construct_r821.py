@@ -80,10 +80,12 @@ def test_select_type_construct_wrong_name(f2003_create, fake_symbol_table):
             end select wrong"""
             )
         )
-    assert exc_info.value.args[0].endswith("Expecting name 'name', got 'wrong'")
+    assert exc_info.value.args[0].endswith(
+        "Expecting name 'name', got 'wrong'")
 
 
-def test_select_type_construct_missing_start_name(f2003_create, fake_symbol_table):
+def test_select_type_construct_missing_start_name(f2003_create,
+                                                  fake_symbol_table):
     """Check named 'select type' construct has correct start/end names"""
     with pytest.raises(FortranSyntaxError) as exc_info:
         Select_Type_Construct(
@@ -95,10 +97,12 @@ def test_select_type_construct_missing_start_name(f2003_create, fake_symbol_tabl
             end select name"""
             )
         )
-    assert exc_info.value.args[0].endswith("Name 'name' has no corresponding starting name")
+    assert exc_info.value.args[0].endswith(
+        "Name 'name' has no corresponding starting name")
 
 
-def test_select_type_construct_missing_end_name(f2003_create, fake_symbol_table):
+def test_select_type_construct_missing_end_name(f2003_create,
+                                                fake_symbol_table):
     """Check named 'select type' construct has correct start/end names"""
     with pytest.raises(FortranSyntaxError) as exc_info:
         Select_Type_Construct(
@@ -110,10 +114,12 @@ def test_select_type_construct_missing_end_name(f2003_create, fake_symbol_table)
             end select"""
             )
         )
-    assert exc_info.value.args[0].endswith("Expecting name 'name' but none given")
+    assert exc_info.value.args[0].endswith(
+        "Expecting name 'name' but none given")
 
 
-def test_select_type_construct_select_type_wrong_name(f2003_create, fake_symbol_table):
+def test_select_type_construct_select_type_wrong_name(f2003_create,
+                                                      fake_symbol_table):
     """Check named 'select type' construct has correct start/end names"""
     with pytest.raises(FortranSyntaxError) as exc_info:
         Select_Type_Construct(
@@ -125,4 +131,5 @@ def test_select_type_construct_select_type_wrong_name(f2003_create, fake_symbol_
             end select name"""
             )
         )
-    assert exc_info.value.args[0].endswith("Expecting name 'name', got 'wrong'")
+    assert exc_info.value.args[0].endswith(
+        "Expecting name 'name', got 'wrong'")

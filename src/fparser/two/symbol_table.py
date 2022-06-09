@@ -481,6 +481,7 @@ class SymbolTable():
             current = current.parent
         return current
 
+
 #: The single, global container for all symbol tables constructed while
 #: parsing.
 SYMBOL_TABLES = SymbolTables()

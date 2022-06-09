@@ -1,4 +1,4 @@
-# Copyright (c) 2021 Science and Technology Facilities Council.
+# Copyright (c) 2021-2022 Science and Technology Facilities Council.
 
 # All rights reserved.
 
@@ -37,9 +37,9 @@ are still in test_fortran2003.py and need to be moved here TODO #306.
 
 '''
 
-import pytest
 from fparser.api import get_reader
-from fparser.two.Fortran2003 import Subroutine_Subprogram, Subroutine_Stmt, Name
+from fparser.two.Fortran2003 import (Subroutine_Subprogram, Subroutine_Stmt,
+                                     Name)
 from fparser.two.symbol_table import SYMBOL_TABLES
 
 

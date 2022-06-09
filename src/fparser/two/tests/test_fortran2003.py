@@ -68,7 +68,6 @@ Module containing py.test tests for Fortran 2003 language constructs
 '''
 
 import pytest
-from fparser.two.Fortran2003 import *
 from fparser.two import Fortran2003
 from fparser.two.symbol_table import SYMBOL_TABLES
 from fparser.api import get_reader
@@ -107,7 +106,7 @@ def test_specification_part():
     ''' Tests for parsing specification-part (R204). '''
     reader = get_reader('''\
     integer a''')
-    tcls = Specification_Part
+    tcls = Fortran2003.Specification_Part
     obj = tcls(reader)
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'INTEGER :: a'
@@ -116,7 +115,7 @@ def test_specification_part():
             "Entity_Decl_List(',', (Entity_Decl(Name('a'), None, None, "
             "None),))))")
     # Check that parent information is correctly setup
-    assert obj.parent == None
+    assert obj.parent is None
     assert obj.content[0].parent is obj
     assert obj.content[0].items[0].parent is obj.content[0]
     assert obj.content[0].items[2].parent is obj.content[0]
@@ -141,9 +140,9 @@ def test_constant():
     correctly (R305). The example here is for Literal_Constant
     subclass. Other literal constant types are tested separately.
     '''
-    tcls = Constant
+    tcls = Fortran2003.Constant
     obj = tcls('.false.')
-    assert isinstance(obj, Logical_Literal_Constant), repr(obj)
+    assert isinstance(obj, Fortran2003.Logical_Literal_Constant), repr(obj)
     assert str(obj) == '.FALSE.'
 
 
@@ -151,29 +150,29 @@ def test_literal_constant():
     ''' Tests that various types of literal constant expressions are
     parsed correctly (R306).
     '''
-    tcls = Literal_Constant
+    tcls = Fortran2003.Literal_Constant
     obj = tcls('35')
-    assert isinstance(obj, Int_Literal_Constant), repr(obj)
+    assert isinstance(obj, Fortran2003.Int_Literal_Constant), repr(obj)
     assert str(obj) == '35'
 
     obj = tcls('2.85e-13')
-    assert isinstance(obj, Real_Literal_Constant), repr(obj)
+    assert isinstance(obj, Fortran2003.Real_Literal_Constant), repr(obj)
     assert str(obj) == '2.85E-13'
 
     obj = tcls('(PI,-2.0E-3)')
-    assert isinstance(obj, Complex_Literal_Constant), repr(obj)
+    assert isinstance(obj, Fortran2003.Complex_Literal_Constant), repr(obj)
     assert str(obj) == '(PI, -2.0E-3)'
 
     obj = tcls('.true.')
-    assert isinstance(obj, Logical_Literal_Constant), repr(obj)
+    assert isinstance(obj, Fortran2003.Logical_Literal_Constant), repr(obj)
     assert str(obj) == '.TRUE.'
 
     obj = tcls("'(3(A5,1X))'")
-    assert isinstance(obj, Char_Literal_Constant), repr(obj)
+    assert isinstance(obj, Fortran2003.Char_Literal_Constant), repr(obj)
     assert str(obj) == "'(3(A5,1X))'"
 
     obj = tcls('B"01011101"')
-    assert isinstance(obj, Binary_Constant), repr(obj)
+    assert isinstance(obj, Fortran2003.Binary_Constant), repr(obj)
     assert str(obj) == 'B"01011101"'
 
 
@@ -184,7 +183,7 @@ def test_literal_constant():
 
 def test_type_param_value():  # R402
 
-    tcls = Type_Param_Value
+    tcls = Fortran2003.Type_Param_Value
     obj = tcls('*')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == '*'
@@ -195,13 +194,13 @@ def test_type_param_value():  # R402
     assert str(obj) == ':'
 
     obj = tcls('1+2')
-    assert isinstance(obj, Level_2_Expr), repr(obj)
+    assert isinstance(obj, Fortran2003.Level_2_Expr), repr(obj)
     assert str(obj) == '1 + 2'
 
 
 def test_intrinsic_type_spec():  # R403
 
-    tcls = Intrinsic_Type_Spec
+    tcls = Fortran2003.Intrinsic_Type_Spec
     obj = tcls('INTEGER')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'INTEGER'
@@ -239,7 +238,7 @@ def test_intrinsic_type_spec():  # R403
 def test_signed_int_literal_constant():  # R405
     # pylint: disable=invalid-name
 
-    tcls = Signed_Int_Literal_Constant
+    tcls = Fortran2003.Signed_Int_Literal_Constant
     obj = tcls('1')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == '1'
@@ -265,7 +264,7 @@ def test_signed_int_literal_constant():  # R405
 
 def test_int_literal_constant():  # R406
 
-    tcls = Int_Literal_Constant
+    tcls = Fortran2003.Int_Literal_Constant
     obj = tcls('1')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == '1'
@@ -291,8 +290,8 @@ def test_int_literal_constant():  # R406
 
 def test_binary_constant():  # R412
 
-    tcls = Boz_Literal_Constant
-    bcls = Binary_Constant
+    tcls = Fortran2003.Boz_Literal_Constant
+    bcls = Fortran2003.Binary_Constant
     obj = tcls('B"01"')
     assert isinstance(obj, bcls), repr(obj)
     assert str(obj) == 'B"01"'
@@ -301,8 +300,8 @@ def test_binary_constant():  # R412
 
 def test_octal_constant():  # R413
 
-    tcls = Boz_Literal_Constant
-    ocls = Octal_Constant
+    tcls = Fortran2003.Boz_Literal_Constant
+    ocls = Fortran2003.Octal_Constant
     obj = tcls('O"017"')
     assert isinstance(obj, ocls), repr(obj)
     assert str(obj) == 'O"017"'
@@ -311,8 +310,8 @@ def test_octal_constant():  # R413
 
 def test_hex_constant():  # R414
 
-    tcls = Boz_Literal_Constant
-    zcls = Hex_Constant
+    tcls = Fortran2003.Boz_Literal_Constant
+    zcls = Fortran2003.Hex_Constant
     obj = tcls('Z"01A"')
     assert isinstance(obj, zcls), repr(obj)
     assert str(obj) == 'Z"01A"'
@@ -324,7 +323,7 @@ def test_signed_real_literal_constant():
     literal constant are parsed correctly (R416). '''
     # pylint: disable=invalid-name
 
-    tcls = Signed_Real_Literal_Constant
+    tcls = Fortran2003.Signed_Real_Literal_Constant
     obj = tcls('12.78')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == '12.78'
@@ -371,7 +370,7 @@ def test_real_literal_constant():
     ''' Tests that various formats of a real literal constant
     are parsed correctly (R417). '''
 
-    tcls = Real_Literal_Constant
+    tcls = Fortran2003.Real_Literal_Constant
     obj = tcls('12.78')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == '12.78'
@@ -416,7 +415,7 @@ def test_real_literal_constant():
 
 def test_char_selector():  # R424
 
-    tcls = Char_Selector
+    tcls = Fortran2003.Char_Selector
     obj = tcls('(len=2, kind=8)')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == '(LEN = 2, KIND = 8)'
@@ -443,7 +442,7 @@ def test_char_selector():  # R424
 
 def test_complex_literal_constant():  # R421
 
-    tcls = Complex_Literal_Constant
+    tcls = Fortran2003.Complex_Literal_Constant
     obj = tcls('(1.0, -1.0)')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == '(1.0, -1.0)'
@@ -466,19 +465,19 @@ def test_complex_literal_constant():  # R421
 
 def test_type_name():  # C424
 
-    tcls = Type_Name
+    tcls = Fortran2003.Type_Name
     obj = tcls('a')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'a'
     assert repr(obj) == "Type_Name('a')"
 
-    assert_raises(NoMatchError, tcls, 'integer')
-    assert_raises(NoMatchError, tcls, 'doubleprecision')
+    assert_raises(Fortran2003.NoMatchError, tcls, 'integer')
+    assert_raises(Fortran2003.NoMatchError, tcls, 'doubleprecision')
 
 
 def test_length_selector():  # R425
 
-    tcls = Length_Selector
+    tcls = Fortran2003.Length_Selector
     obj = tcls('( len = *)')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == '(LEN = *)'
@@ -492,7 +491,7 @@ def test_length_selector():  # R425
 
 def test_char_length():  # R426
 
-    tcls = Char_Length
+    tcls = Fortran2003.Char_Length
     obj = tcls('(1)')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == '(1)'
@@ -500,7 +499,7 @@ def test_char_length():  # R426
             "Char_Length('(', Int_Literal_Constant('1', None), ')')")
 
     obj = tcls('1')
-    assert isinstance(obj, Int_Literal_Constant), repr(obj)
+    assert isinstance(obj, Fortran2003.Int_Literal_Constant), repr(obj)
     assert str(obj) == '1'
 
     obj = tcls('(*)')
@@ -514,7 +513,7 @@ def test_char_length():  # R426
 
 def test_logical_literal_constant():  # R428
 
-    tcls = Logical_Literal_Constant
+    tcls = Fortran2003.Logical_Literal_Constant
     obj = tcls('.TRUE.')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == '.TRUE.'
@@ -539,7 +538,7 @@ def test_logical_literal_constant():  # R428
 
 def test_type_attr_spec():  # R431
 
-    tcls = Type_Attr_Spec
+    tcls = Fortran2003.Type_Attr_Spec
     obj = tcls('abstract')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'ABSTRACT'
@@ -554,13 +553,13 @@ def test_type_attr_spec():  # R431
     assert str(obj) == 'EXTENDS(a)'
 
     obj = tcls('private')
-    assert isinstance(obj, Access_Spec), repr(obj)
+    assert isinstance(obj, Fortran2003.Access_Spec), repr(obj)
     assert str(obj) == 'PRIVATE'
 
 
 def test_end_type_stmt():  # R433
 
-    tcls = End_Type_Stmt
+    tcls = Fortran2003.End_Type_Stmt
     obj = tcls('end type')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'END TYPE'
@@ -573,7 +572,7 @@ def test_end_type_stmt():  # R433
 
 def test_sequence_stmt():  # R434
 
-    tcls = Sequence_Stmt
+    tcls = Fortran2003.Sequence_Stmt
     obj = tcls('sequence')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'SEQUENCE'
@@ -582,7 +581,7 @@ def test_sequence_stmt():  # R434
 
 def test_type_param_def_stmt():  # R435
 
-    tcls = Type_Param_Def_Stmt
+    tcls = Fortran2003.Type_Param_Def_Stmt
     obj = tcls('integer ,kind :: a')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'INTEGER, KIND :: a'
@@ -597,7 +596,7 @@ def test_type_param_def_stmt():  # R435
 
 def test_type_param_decl():  # R436
 
-    tcls = Type_Param_Decl
+    tcls = Fortran2003.Type_Param_Decl
     obj = tcls('a=2')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'a = 2'
@@ -605,13 +604,13 @@ def test_type_param_decl():  # R436
             "Type_Param_Decl(Name('a'), '=', Int_Literal_Constant('2', None))")
 
     obj = tcls('a')
-    assert isinstance(obj, Name), repr(obj)
+    assert isinstance(obj, Fortran2003.Name), repr(obj)
     assert str(obj) == 'a'
 
 
 def test_type_param_attr_spec():  # R437
 
-    tcls = Type_Param_Attr_Spec
+    tcls = Fortran2003.Type_Param_Attr_Spec
     obj = tcls('kind')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'KIND'
@@ -624,7 +623,7 @@ def test_type_param_attr_spec():  # R437
 
 def test_component_attr_spec():  # R441
 
-    tcls = Component_Attr_Spec
+    tcls = Fortran2003.Component_Attr_Spec
     obj = tcls('pointer')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'POINTER'
@@ -635,17 +634,18 @@ def test_component_attr_spec():  # R441
     assert str(obj) == 'ALLOCATABLE'
 
     obj = tcls('dimension(a)')
-    assert isinstance(obj, Dimension_Component_Attr_Spec), repr(obj)
+    assert isinstance(obj, Fortran2003.Dimension_Component_Attr_Spec), \
+        repr(obj)
     assert str(obj) == 'DIMENSION(a)'
 
     obj = tcls('private')
-    assert isinstance(obj, Access_Spec), repr(obj)
+    assert isinstance(obj, Fortran2003.Access_Spec), repr(obj)
     assert str(obj) == 'PRIVATE'
 
 
 def test_component_decl():  # R442
 
-    tcls = Component_Decl
+    tcls = Fortran2003.Component_Decl
     obj = tcls('a(1)')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'a(1)'
@@ -669,7 +669,7 @@ def test_component_decl():  # R442
 
 def test_proc_component_def_stmt():  # R445
 
-    tcls = Proc_Component_Def_Stmt
+    tcls = Fortran2003.Proc_Component_Def_Stmt
     obj = tcls('procedure(), pointer :: a')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'PROCEDURE(), POINTER :: a'
@@ -682,21 +682,21 @@ def test_proc_component_def_stmt():  # R445
 def test_private_components_stmt():
     ''' Tests that declaration of PRIVATE components in a type definition
     is parsed correctly (R447). '''
-    tcls = Private_Components_Stmt
+    tcls = Fortran2003.Private_Components_Stmt
     obj = tcls('private')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'PRIVATE'
     assert repr(obj) == "Private_Components_Stmt('PRIVATE')"
 
     # Statement not 'private'
-    with pytest.raises(NoMatchError) as excinfo:
+    with pytest.raises(Fortran2003.NoMatchError) as excinfo:
         _ = tcls('public')
     assert "Private_Components_Stmt: 'public'" in str(excinfo.value)
 
 
 def test_type_bound_procedure_part():
     ''' Tests for type-bound procedure (R448). '''
-    tcls = Type_Bound_Procedure_Part
+    tcls = Fortran2003.Type_Bound_Procedure_Part
     obj = tcls(get_reader('''\
 contains
 procedure, pass :: length => point_length'''))
@@ -706,15 +706,15 @@ procedure, pass :: length => point_length'''))
 
 def test_proc_binding_stmt():  # R450
 
-    tcls = Proc_Binding_Stmt
+    tcls = Fortran2003.Proc_Binding_Stmt
     obj = tcls('procedure, pass :: length => point_length')
-    assert isinstance(obj, Specific_Binding), repr(obj)
+    assert isinstance(obj, Fortran2003.Specific_Binding), repr(obj)
     assert str(obj) == 'PROCEDURE, PASS :: length => point_length'
 
 
 def test_generic_binding():  # R452
 
-    tcls = Generic_Binding
+    tcls = Fortran2003.Generic_Binding
     obj = tcls('generic :: a => b')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'GENERIC :: a => b'
@@ -726,7 +726,7 @@ def test_generic_binding():  # R452
 
 def test_final_binding():  # R454
 
-    tcls = Final_Binding
+    tcls = Fortran2003.Final_Binding
     obj = tcls('final a, b')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'FINAL :: a, b'
@@ -741,19 +741,19 @@ def test_final_binding():  # R454
 
 def test_derived_type_spec():  # R455
 
-    tcls = Derived_Type_Spec
+    tcls = Fortran2003.Derived_Type_Spec
     obj = tcls('a(b)')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'a(b)'
     assert repr(obj) == ("Derived_Type_Spec(Type_Name('a'), "
-                              "Type_Param_Spec_List(',', (Name('b'),)))")
+                         "Type_Param_Spec_List(',', (Name('b'),)))")
 
     obj = tcls('a(b,c,g=1)')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'a(b, c, g = 1)'
 
     obj = tcls('a')
-    assert isinstance(obj, Name), repr(obj)
+    assert isinstance(obj, Fortran2003.Name), repr(obj)
     assert str(obj) == 'a'
 
     obj = tcls('a()')
@@ -763,7 +763,7 @@ def test_derived_type_spec():  # R455
 
 def test_type_param_spec():  # R456
 
-    tcls = Type_Param_Spec
+    tcls = Fortran2003.Type_Param_Spec
     obj = tcls('a=1')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'a = 1'
@@ -781,7 +781,7 @@ def test_type_param_spec():  # R456
 
 def test_type_param_spec_list():  # R456-list
 
-    tcls = Type_Param_Spec_List
+    tcls = Fortran2003.Type_Param_Spec_List
     obj = tcls('a,b')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'a, b'
@@ -798,7 +798,7 @@ def test_type_param_spec_list():  # R456-list
 
 def test_structure_constructor():  # R457
 
-    tcls = Structure_Constructor
+    tcls = Fortran2003.Structure_Constructor
     obj = tcls('t()')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 't()'
@@ -811,28 +811,28 @@ def test_structure_constructor():  # R457
 
 def test_component_spec():  # R458
 
-    tcls = Component_Spec
+    tcls = Fortran2003.Component_Spec
     obj = tcls('k=a')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'k = a'
     assert repr(obj) == "Component_Spec(Name('k'), Name('a'))"
 
     obj = tcls('a')
-    assert isinstance(obj, Name), repr(obj)
+    assert isinstance(obj, Fortran2003.Name), repr(obj)
     assert str(obj) == 'a'
 
     obj = tcls('a % b')
-    assert isinstance(obj, Proc_Component_Ref), repr(obj)
+    assert isinstance(obj, Fortran2003.Proc_Component_Ref), repr(obj)
     assert str(obj) == 'a % b'
 
     obj = tcls('s =a % b')
-    assert isinstance(obj, Component_Spec), repr(obj)
+    assert isinstance(obj, Fortran2003.Component_Spec), repr(obj)
     assert str(obj) == 's = a % b'
 
 
 def test_component_spec_list():  # R458-list
 
-    tcls = Component_Spec_List
+    tcls = Fortran2003.Component_Spec_List
     obj = tcls('k=a, b')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'k = a, b'
@@ -847,7 +847,7 @@ def test_component_spec_list():  # R458-list
 
 def test_enum_def():  # R460
 
-    tcls = Enum_Def
+    tcls = Fortran2003.Enum_Def
     obj = tcls(get_reader('''\
 enum, bind(c)
 enumerator :: red = 4, blue = 9
@@ -862,7 +862,7 @@ end enum
 
 def test_enum_def_stmt():  # R461
 
-    tcls = Enum_Def_Stmt
+    tcls = Fortran2003.Enum_Def_Stmt
     obj = tcls('enum, bind(c)')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'ENUM, BIND(C)'
@@ -870,18 +870,18 @@ def test_enum_def_stmt():  # R461
 
 def test_array_constructor():  # R465
 
-    tcls = Array_Constructor
+    tcls = Fortran2003.Array_Constructor
     obj = tcls('(/a/)')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == '(/a/)'
     assert repr(obj) == ("Array_Constructor('(/', Ac_Value_List(',', "
-                              "(Name('a'),)), '/)')")
+                         "(Name('a'),)), '/)')")
 
     obj = tcls('[a]')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == '[a]'
     assert repr(obj) == ("Array_Constructor('[', Ac_Value_List(',', "
-                              "(Name('a'),)), ']')")
+                         "(Name('a'),)), ']')")
 
     obj = tcls('[integer::a]')
     assert isinstance(obj, tcls), repr(obj)
@@ -894,7 +894,7 @@ def test_array_constructor():  # R465
 
 def test_ac_spec():  # R466
 
-    tcls = Ac_Spec
+    tcls = Fortran2003.Ac_Spec
     obj = tcls('integer ::')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'INTEGER ::'
@@ -906,7 +906,7 @@ def test_ac_spec():  # R466
     assert str(obj) == 'INTEGER :: a, b'
 
     obj = tcls('a,b')
-    assert isinstance(obj, Ac_Value_List), repr(obj)
+    assert isinstance(obj, Fortran2003.Ac_Value_List), repr(obj)
     assert str(obj) == 'a, b'
 
     obj = tcls('integer :: a, (a, b, n = 1, 5)')
@@ -916,7 +916,7 @@ def test_ac_spec():  # R466
 
 def test_ac_value_list():  # R469-list
 
-    tcls = Ac_Value_List
+    tcls = Fortran2003.Ac_Value_List
     obj = tcls('a, b')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'a, b'
@@ -929,7 +929,7 @@ def test_ac_value_list():  # R469-list
 
 def test_ac_implied_do():  # R470
 
-    tcls = Ac_Implied_Do
+    tcls = Fortran2003.Ac_Implied_Do
     obj = tcls('( a, b, n = 1, 5 )')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == '(a, b, n = 1, 5)'
@@ -941,7 +941,7 @@ def test_ac_implied_do():  # R470
 
 def test_ac_implied_do_control():  # R471
 
-    tcls = Ac_Implied_Do_Control
+    tcls = Fortran2003.Ac_Implied_Do_Control
     obj = tcls('n = 3, 5')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'n = 3, 5'
@@ -960,9 +960,9 @@ def test_ac_implied_do_control():  # R471
 
 def test_declaration_type_spec():  # R502
 
-    tcls = Declaration_Type_Spec
+    tcls = Fortran2003.Declaration_Type_Spec
     obj = tcls('Integer*2')
-    assert isinstance(obj, Intrinsic_Type_Spec), repr(obj)
+    assert isinstance(obj, Fortran2003.Intrinsic_Type_Spec), repr(obj)
     assert str(obj) == 'INTEGER*2'
 
     obj = tcls('type(foo)')
@@ -971,25 +971,25 @@ def test_declaration_type_spec():  # R502
     assert repr(obj) == "Declaration_Type_Spec('TYPE', Type_Name('foo'))"
 
     # No content should not match.
-    with pytest.raises(NoMatchError):
+    with pytest.raises(Fortran2003.NoMatchError):
         obj = tcls('')
 
 
 def test_attr_spec():  # R503
 
-    tcls = Attr_Spec
+    tcls = Fortran2003.Attr_Spec
     obj = tcls('allocatable')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'ALLOCATABLE'
 
     obj = tcls('dimension(a)')
-    assert isinstance(obj, Dimension_Attr_Spec), repr(obj)
+    assert isinstance(obj, Fortran2003.Dimension_Attr_Spec), repr(obj)
     assert str(obj) == 'DIMENSION(a)'
 
 
 def test_dimension_attr_spec():  # R503.d
 
-    tcls = Dimension_Attr_Spec
+    tcls = Fortran2003.Dimension_Attr_Spec
     obj = tcls('dimension(a)')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'DIMENSION(a)'
@@ -1000,7 +1000,7 @@ def test_dimension_attr_spec():  # R503.d
 
 def test_intent_attr_spec():  # R503.f
 
-    tcls = Intent_Attr_Spec
+    tcls = Fortran2003.Intent_Attr_Spec
     obj = tcls('intent(in)')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'INTENT(IN)'
@@ -1009,7 +1009,7 @@ def test_intent_attr_spec():  # R503.f
 
 def test_target_entity_decl():
 
-    tcls = Target_Entity_Decl
+    tcls = Fortran2003.Target_Entity_Decl
     obj = tcls('a(1)')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'a(1)'
@@ -1021,7 +1021,7 @@ def test_target_entity_decl():
 
 def test_access_spec():  # R508
 
-    tcls = Access_Spec
+    tcls = Fortran2003.Access_Spec
     obj = tcls('private')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'PRIVATE'
@@ -1034,7 +1034,7 @@ def test_access_spec():  # R508
 
 def test_language_binding_spec():  # R509
 
-    tcls = Language_Binding_Spec
+    tcls = Fortran2003.Language_Binding_Spec
     obj = tcls('bind(c)')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'BIND(C)'
@@ -1047,7 +1047,7 @@ def test_language_binding_spec():  # R509
 
 def test_explicit_shape_spec():  # R511
 
-    tcls = Explicit_Shape_Spec
+    tcls = Fortran2003.Explicit_Shape_Spec
     obj = tcls('a:b')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'a : b'
@@ -1060,17 +1060,17 @@ def test_explicit_shape_spec():  # R511
 
 def test_upper_bound():  # R513
 
-    tcls = Upper_Bound
+    tcls = Fortran2003.Upper_Bound
     obj = tcls('a')
-    assert isinstance(obj, Name), repr(obj)
+    assert isinstance(obj, Fortran2003.Name), repr(obj)
     assert str(obj) == 'a'
 
-    assert_raises(NoMatchError, tcls, '*')
+    assert_raises(Fortran2003.NoMatchError, tcls, '*')
 
 
 def test_assumed_shape_spec():  # R514
 
-    tcls = Assumed_Shape_Spec
+    tcls = Fortran2003.Assumed_Shape_Spec
     obj = tcls(':')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == ':'
@@ -1083,7 +1083,7 @@ def test_assumed_shape_spec():  # R514
 
 def test_deferred_shape_spec():  # R515
 
-    tcls = Deferred_Shape_Spec
+    tcls = Fortran2003.Deferred_Shape_Spec
     obj = tcls(':')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == ':'
@@ -1092,7 +1092,7 @@ def test_deferred_shape_spec():  # R515
 
 def test_assumed_size_spec():  # R516
 
-    tcls = Assumed_Size_Spec
+    tcls = Fortran2003.Assumed_Size_Spec
     obj = tcls('*')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == '*'
@@ -1113,7 +1113,7 @@ def test_assumed_size_spec():  # R516
 
 def test_access_stmt():  # R518
 
-    tcls = Access_Stmt
+    tcls = Fortran2003.Access_Stmt
     obj = tcls('private')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'PRIVATE'
@@ -1130,7 +1130,7 @@ def test_access_stmt():  # R518
 
 def test_data_stmt():  # R524
 
-    tcls = Data_Stmt
+    tcls = Fortran2003.Data_Stmt
     obj = tcls('DATA YOURNAME % AGE, YOURNAME % NAME / 35, "FRED BROWN" /')
     assert isinstance(obj, tcls), repr(obj)
     assert (str(obj) ==
@@ -1147,7 +1147,7 @@ def test_data_stmt():  # R524
 
 def test_data_stmt_set():  # R525
 
-    tcls = Data_Stmt_Set
+    tcls = Fortran2003.Data_Stmt_Set
     obj = tcls('MILES / 10 * "2/3" /')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'MILES / 10 * "2/3" /'
@@ -1155,7 +1155,7 @@ def test_data_stmt_set():  # R525
 
 def test_data_implied_do():  # R527
 
-    tcls = Data_Implied_Do
+    tcls = Fortran2003.Data_Implied_Do
     obj = tcls('((SKEW (K, J), J = 1, K), K = 1, 100)')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == '((SKEW(K, J), J = 1, K), K = 1, 100)'
@@ -1165,7 +1165,7 @@ def test_data_implied_do():  # R527
 
 def test_dimension_stmt():  # R535
 
-    tcls = Dimension_Stmt
+    tcls = Fortran2003.Dimension_Stmt
     obj = tcls('dimension :: a(5)')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'DIMENSION :: a(5)'
@@ -1182,12 +1182,12 @@ def test_dimension_stmt():  # R535
 
 def test_intent_stmt():  # R536
 
-    tcls = Intent_Stmt
+    tcls = Fortran2003.Intent_Stmt
     obj = tcls('intent(in) :: a')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'INTENT(IN) :: a'
     assert repr(obj) == ("Intent_Stmt(Intent_Spec('IN'), "
-                              "Dummy_Arg_Name_List(',', (Name('a'),)))")
+                         "Dummy_Arg_Name_List(',', (Name('a'),)))")
 
     obj = tcls('intent(out) a, b')
     assert isinstance(obj, tcls), repr(obj)
@@ -1199,12 +1199,12 @@ def test_intent_stmt():  # R536
 
 def test_optional_stmt():  # R537
 
-    tcls = Optional_Stmt
+    tcls = Fortran2003.Optional_Stmt
     obj = tcls('optional :: a')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'OPTIONAL :: a'
     assert repr(obj) == ("Optional_Stmt('OPTIONAL', "
-                              "Dummy_Arg_Name_List(',', (Name('a'),)))")
+                         "Dummy_Arg_Name_List(',', (Name('a'),)))")
 
     obj = tcls('optional :: a, b, c')
     assert isinstance(obj, tcls), repr(obj)
@@ -1216,7 +1216,7 @@ def test_optional_stmt():  # R537
 
 def test_parameter_stmt():  # R538
 
-    tcls = Parameter_Stmt
+    tcls = Fortran2003.Parameter_Stmt
     obj = tcls('parameter(a=1)')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'PARAMETER(a = 1)'
@@ -1236,7 +1236,7 @@ def test_parameter_stmt():  # R538
 
 def test_named_constant_def():  # R539
 
-    tcls = Named_Constant_Def
+    tcls = Fortran2003.Named_Constant_Def
     obj = tcls('a=1')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'a = 1'
@@ -1246,7 +1246,7 @@ def test_named_constant_def():  # R539
 
 def test_pointer_stmt():  # R540
 
-    tcls = Pointer_Stmt
+    tcls = Fortran2003.Pointer_Stmt
     obj = tcls('pointer a(:), b')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'POINTER :: a(:), b'
@@ -1258,7 +1258,7 @@ def test_pointer_stmt():  # R540
 
 def test_pointer_decl():  # R541
 
-    tcls = Pointer_Decl
+    tcls = Fortran2003.Pointer_Decl
     obj = tcls('a(:)')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'a(:)'
@@ -1273,7 +1273,7 @@ def test_pointer_decl():  # R541
 
 def test_protected_stmt():  # R542
 
-    tcls = Protected_Stmt
+    tcls = Fortran2003.Protected_Stmt
     obj = tcls('protected a,b')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'PROTECTED :: a, b'
@@ -1285,12 +1285,12 @@ def test_protected_stmt():  # R542
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'PROTECTED :: a'
     assert repr(obj) == ("Protected_Stmt('PROTECTED', "
-                              "Entity_Name_List(',', (Name('a'),)))")
+                         "Entity_Name_List(',', (Name('a'),)))")
 
 
 def test_save_stmt():  # R543
 
-    tcls = Save_Stmt
+    tcls = Fortran2003.Save_Stmt
     obj = tcls('save')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'SAVE'
@@ -1312,9 +1312,9 @@ def test_save_stmt():  # R543
 
 def test_saved_entity():  # R544
 
-    tcls = Saved_Entity
+    tcls = Fortran2003.Saved_Entity
     obj = tcls('a')
-    assert isinstance(obj, Name), repr(obj)
+    assert isinstance(obj, Fortran2003.Name), repr(obj)
     assert str(obj) == 'a'
     assert repr(obj) == "Name('a')"
 
@@ -1328,7 +1328,7 @@ def test_saved_entity():  # R544
 
 def test_target_stmt():  # R546
 
-    tcls = Target_Stmt
+    tcls = Fortran2003.Target_Stmt
     obj = tcls('target a, b(1000, 1000)')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'TARGET :: a, b(1000, 1000)'
@@ -1340,7 +1340,7 @@ def test_target_stmt():  # R546
 
 def test_value_stmt():  # R547
 
-    tcls = Value_Stmt
+    tcls = Fortran2003.Value_Stmt
     obj = tcls('value a')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'VALUE :: a'
@@ -1352,7 +1352,7 @@ def test_value_stmt():  # R547
 
 def test_volatile_stmt():  # R548
 
-    tcls = Volatile_Stmt
+    tcls = Fortran2003.Volatile_Stmt
     obj = tcls('volatile a')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'VOLATILE :: a'
@@ -1364,7 +1364,7 @@ def test_volatile_stmt():  # R548
 
 def test_implicit_stmt():  # R549
 
-    tcls = Implicit_Stmt
+    tcls = Fortran2003.Implicit_Stmt
     obj = tcls('implicitnone')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'IMPLICIT NONE'
@@ -1379,7 +1379,7 @@ def test_implicit_stmt():  # R549
 
 def test_implicit_spec():  # R550
 
-    tcls = Implicit_Spec
+    tcls = Fortran2003.Implicit_Spec
     obj = tcls('integer (a-z)')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'INTEGER(A - Z)'
@@ -1394,7 +1394,7 @@ def test_implicit_spec():  # R550
 
 def test_letter_spec():  # R551
 
-    tcls = Letter_Spec
+    tcls = Fortran2003.Letter_Spec
     obj = tcls('a-z')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'A - Z'
@@ -1407,7 +1407,7 @@ def test_letter_spec():  # R551
 
 def test_namelist_stmt():  # R552
 
-    tcls = Namelist_Stmt
+    tcls = Fortran2003.Namelist_Stmt
     obj = tcls('namelist / nlist / a')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'NAMELIST /nlist/ a'
@@ -1418,7 +1418,7 @@ def test_namelist_stmt():  # R552
 
 def test_equivalence_stmt():  # R554
 
-    tcls = Equivalence_Stmt
+    tcls = Fortran2003.Equivalence_Stmt
     obj = tcls('equivalence (a, b ,z)')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'EQUIVALENCE(a, b, z)'
@@ -1434,12 +1434,12 @@ def test_equivalence_stmt():  # R554
 
 def test_common_stmt():  # R557
 
-    tcls = Common_Stmt
+    tcls = Fortran2003.Common_Stmt
     obj = tcls('common a')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'COMMON // a'
     assert repr(obj) == ("Common_Stmt([(None, "
-                              "Common_Block_Object_List(',', (Name('a'),)))])")
+                         "Common_Block_Object_List(',', (Name('a'),)))])")
 
     obj = tcls('common // a,b')
     assert isinstance(obj, tcls), repr(obj)
@@ -1456,7 +1456,7 @@ def test_common_stmt():  # R557
 
 def test_common_block_object():  # R558
 
-    tcls = Common_Block_Object
+    tcls = Fortran2003.Common_Block_Object
     obj = tcls('a(2)')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'a(2)'
@@ -1465,7 +1465,7 @@ def test_common_block_object():  # R558
             "(Explicit_Shape_Spec(None, Int_Literal_Constant('2', None)),)))")
 
     obj = tcls('a')
-    assert isinstance(obj, Name), repr(obj)
+    assert isinstance(obj, Fortran2003.Name), repr(obj)
     assert str(obj) == 'a'
 
 #
@@ -1475,12 +1475,12 @@ def test_common_block_object():  # R558
 
 def test_substring():  # R609
 
-    tcls = Substring
+    tcls = Fortran2003.Substring
     obj = tcls('a(:)')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'a(:)'
     assert repr(obj) == ("Substring(Name('a'), Substring_Range(None,"
-                              " None))")
+                         " None))")
 
     obj = tcls('a(1:2)')
     assert isinstance(obj, tcls), repr(obj)
@@ -1492,7 +1492,7 @@ def test_substring():  # R609
 
 def test_substring_range():  # R611
 
-    tcls = Substring_Range
+    tcls = Fortran2003.Substring_Range
     obj = tcls(':')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == ':'
@@ -1522,15 +1522,15 @@ def test_substring_range():  # R611
 
 def test_part_ref():  # R613
 
-    tcls = Part_Ref
+    tcls = Fortran2003.Part_Ref
     obj = tcls('a')
-    assert isinstance(obj, Name), repr(obj)
+    assert isinstance(obj, Fortran2003.Name), repr(obj)
     assert str(obj) == 'a'
 
 
 def test_type_param_inquiry():  # R615
 
-    tcls = Type_Param_Inquiry
+    tcls = Fortran2003.Type_Param_Inquiry
     obj = tcls('a % b')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'a % b'
@@ -1539,7 +1539,7 @@ def test_type_param_inquiry():  # R615
 
 def test_array_section():  # R617
 
-    tcls = Array_Section
+    tcls = Fortran2003.Array_Section
     obj = tcls('a(:)')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'a(:)'
@@ -1554,20 +1554,20 @@ def test_array_section():  # R617
 
 def test_section_subscript():  # R619
 
-    tcls = Section_Subscript
+    tcls = Fortran2003.Section_Subscript
 
     obj = tcls('1:2')
-    assert isinstance(obj, Subscript_Triplet), repr(obj)
+    assert isinstance(obj, Fortran2003.Subscript_Triplet), repr(obj)
     assert str(obj) == '1 : 2'
 
     obj = tcls('zzz')
-    assert isinstance(obj, Name), repr(obj)
+    assert isinstance(obj, Fortran2003.Name), repr(obj)
     assert str(obj) == 'zzz'
 
 
 def test_section_subscript_list():  # R619-list
 
-    tcls = Section_Subscript_List
+    tcls = Fortran2003.Section_Subscript_List
     obj = tcls('a,2')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'a, 2'
@@ -1586,7 +1586,7 @@ def test_section_subscript_list():  # R619-list
 
 def test_subscript_triplet():  # R620
 
-    tcls = Subscript_Triplet
+    tcls = Fortran2003.Subscript_Triplet
     obj = tcls('a:b')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'a : b'
@@ -1615,7 +1615,7 @@ def test_subscript_triplet():  # R620
 
 def test_allocate_stmt():  # R623
 
-    tcls = Allocate_Stmt
+    tcls = Fortran2003.Allocate_Stmt
     obj = tcls('allocate(a,b)')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'ALLOCATE(a, b)'
@@ -1630,7 +1630,7 @@ def test_allocate_stmt():  # R623
 
 def test_alloc_opt():  # R624
 
-    tcls = Alloc_Opt
+    tcls = Fortran2003.Alloc_Opt
     obj = tcls('stat=a')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'STAT = a'
@@ -1639,12 +1639,12 @@ def test_alloc_opt():  # R624
 
 def test_nullify_stmt():  # R633
 
-    tcls = Nullify_Stmt
+    tcls = Fortran2003.Nullify_Stmt
     obj = tcls('nullify (a)')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'NULLIFY(a)'
     assert repr(obj) == ("Nullify_Stmt('NULLIFY', "
-                              "Pointer_Object_List(',', (Name('a'),)))")
+                         "Pointer_Object_List(',', (Name('a'),)))")
 
     obj = tcls('nullify (a,c)')
     assert isinstance(obj, tcls), repr(obj)
@@ -1653,7 +1653,7 @@ def test_nullify_stmt():  # R633
 
 def test_deallocate_stmt():  # R635
 
-    tcls = Deallocate_Stmt
+    tcls = Fortran2003.Deallocate_Stmt
     obj = tcls('deallocate (a)')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'DEALLOCATE(a)'
@@ -1671,19 +1671,19 @@ def test_deallocate_stmt():  # R635
 
 def test_level_1_expr():  # R702
 
-    tcls = Level_1_Expr
+    tcls = Fortran2003.Level_1_Expr
     obj = tcls('.hey. a')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == '.HEY. a'
     assert repr(obj) == "Level_1_Expr('.HEY.', Name('a'))"
 
     obj = tcls('.false.')
-    assert isinstance(obj, Logical_Literal_Constant), repr(obj)
+    assert isinstance(obj, Fortran2003.Logical_Literal_Constant), repr(obj)
 
 
 def test_mult_operand():  # R704
 
-    tcls = Mult_Operand
+    tcls = Fortran2003.Mult_Operand
     obj = tcls('a**b')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'a ** b'
@@ -1698,13 +1698,13 @@ def test_mult_operand():  # R704
     assert str(obj) == '(a + b) ** 2'
 
     obj = tcls('0.0E-1')
-    assert isinstance(obj, Real_Literal_Constant), repr(obj)
+    assert isinstance(obj, Fortran2003.Real_Literal_Constant), repr(obj)
     assert str(obj) == '0.0E-1'
 
 
 def test_level_2_expr():  # R706
 
-    tcls = Level_2_Expr
+    tcls = Fortran2003.Level_2_Expr
     obj = tcls('a+b')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'a + b'
@@ -1719,11 +1719,11 @@ def test_level_2_expr():  # R706
     assert str(obj) == 'a + b + c'
 
     obj = tcls('+a')
-    assert isinstance(obj, Level_2_Unary_Expr), repr(obj)
+    assert isinstance(obj, Fortran2003.Level_2_Unary_Expr), repr(obj)
     assert str(obj) == '+ a'
 
     obj = tcls('+1')
-    assert isinstance(obj, Level_2_Unary_Expr), repr(obj)
+    assert isinstance(obj, Fortran2003.Level_2_Unary_Expr), repr(obj)
     assert str(obj) == '+ 1'
 
     obj = tcls('+a+b')
@@ -1731,13 +1731,13 @@ def test_level_2_expr():  # R706
     assert str(obj) == '+ a + b'
 
     obj = tcls('0.0E-1')
-    assert isinstance(obj, Real_Literal_Constant), repr(obj)
+    assert isinstance(obj, Fortran2003.Real_Literal_Constant), repr(obj)
     assert str(obj) == '0.0E-1'
 
 
 def test_level_2_unary_expr():  # R706.c
 
-    tcls = Level_2_Unary_Expr
+    tcls = Fortran2003.Level_2_Unary_Expr
     obj = tcls('+a')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == '+ a'
@@ -1752,13 +1752,13 @@ def test_level_2_unary_expr():  # R706.c
     assert str(obj) == '+ 1'
 
     obj = tcls('0.0E-1')
-    assert isinstance(obj, Real_Literal_Constant), repr(obj)
+    assert isinstance(obj, Fortran2003.Real_Literal_Constant), repr(obj)
     assert str(obj) == '0.0E-1'
 
 
 def test_level_3_expr():  # R710
 
-    tcls = Level_3_Expr
+    tcls = Fortran2003.Level_3_Expr
     obj = tcls('a//b')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'a // b'
@@ -1771,7 +1771,7 @@ def test_level_3_expr():  # R710
 
 def test_level_4_expr():  # R712
 
-    tcls = Level_4_Expr
+    tcls = Fortran2003.Level_4_Expr
     obj = tcls('a.eq.b')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'a .EQ. b'
@@ -1820,7 +1820,7 @@ def test_level_4_expr():  # R712
 
 def test_and_operand():  # R714
 
-    tcls = And_Operand
+    tcls = Fortran2003.And_Operand
     obj = tcls('.not.a')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == '.NOT. a'
@@ -1829,7 +1829,7 @@ def test_and_operand():  # R714
 
 def test_or_operand():  # R715
 
-    tcls = Or_Operand
+    tcls = Fortran2003.Or_Operand
     obj = tcls('a.and.b')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'a .AND. b'
@@ -1838,7 +1838,7 @@ def test_or_operand():  # R715
 
 def test_equiv_operand():  # R716
 
-    tcls = Equiv_Operand
+    tcls = Fortran2003.Equiv_Operand
     obj = tcls('a.or.b')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'a .OR. b'
@@ -1847,7 +1847,7 @@ def test_equiv_operand():  # R716
 
 def test_level_5_expr():  # R717
 
-    tcls = Level_5_Expr
+    tcls = Fortran2003.Level_5_Expr
     obj = tcls('a.eqv.b')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'a .EQV. b'
@@ -1858,52 +1858,52 @@ def test_level_5_expr():  # R717
     assert str(obj) == 'a .NEQV. b'
 
     obj = tcls('a.eq.b')
-    assert isinstance(obj, Level_4_Expr), repr(obj)
+    assert isinstance(obj, Fortran2003.Level_4_Expr), repr(obj)
     assert str(obj) == 'a .EQ. b'
 
 
 def test_expr():  # R722
 
-    tcls = Expr
+    tcls = Fortran2003.Expr
     obj = tcls('a .op. b')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'a .OP. b'
     assert repr(obj) == "Expr(Name('a'), '.OP.', Name('b'))"
 
     obj = tcls('a')
-    assert isinstance(obj, Name), repr(obj)
+    assert isinstance(obj, Fortran2003.Name), repr(obj)
     assert str(obj) == 'a'
 
     obj = tcls('3.e2')
-    assert isinstance(obj, Real_Literal_Constant), repr(obj)
+    assert isinstance(obj, Fortran2003.Real_Literal_Constant), repr(obj)
 
     obj = tcls('0.0E-1')
-    assert isinstance(obj, Real_Literal_Constant), repr(obj)
+    assert isinstance(obj, Fortran2003.Real_Literal_Constant), repr(obj)
     assert str(obj) == '0.0E-1'
 
     obj = tcls('123')
-    assert isinstance(obj, Int_Literal_Constant), repr(obj)
+    assert isinstance(obj, Fortran2003.Int_Literal_Constant), repr(obj)
     assert str(obj) == '123'
 
     obj = tcls('.false.')
-    assert isinstance(obj, Logical_Literal_Constant), repr(obj)
+    assert isinstance(obj, Fortran2003.Logical_Literal_Constant), repr(obj)
     assert str(obj) == '.FALSE.'
 
-    assert_raises(NoMatchError, Scalar_Int_Expr, 'a,b')
+    assert_raises(Fortran2003.NoMatchError, Fortran2003.Scalar_Int_Expr, 'a,b')
 
 
 def test_logical_initialization_expr():  # R733
     # pylint: disable=invalid-name
 
-    tcls = Logical_Initialization_Expr
+    tcls = Fortran2003.Logical_Initialization_Expr
     obj = tcls('.false.')
-    assert isinstance(obj, Logical_Literal_Constant), repr(obj)
+    assert isinstance(obj, Fortran2003.Logical_Literal_Constant), repr(obj)
     assert str(obj) == '.FALSE.'
 
 
 def test_assignment_stmt():
     ''' Tests for the Assignment_Stmt class (R734). '''
-    tcls = Assignment_Stmt
+    tcls = Fortran2003.Assignment_Stmt
     obj = tcls('a = b')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'a = b'
@@ -1939,7 +1939,7 @@ def test_assignment_stmt():
 @pytest.mark.usefixtures("fake_symbol_table")
 def test_pointer_assignment_stmt():  # R735
 
-    tcls = Pointer_Assignment_Stmt
+    tcls = Fortran2003.Pointer_Assignment_Stmt
     obj = tcls('new_node % left => current_node')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'new_node % left => current_node'
@@ -1965,7 +1965,7 @@ STRUCT % COMPONENT => BESSEL'''.split('\n'):
 
 def test_proc_component_ref():  # R741
 
-    tcls = Proc_Component_Ref
+    tcls = Fortran2003.Proc_Component_Ref
     obj = tcls('a % b')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'a % b'
@@ -1975,7 +1975,7 @@ def test_proc_component_ref():  # R741
 
 def test_where_stmt():  # R743
 
-    tcls = Where_Stmt
+    tcls = Fortran2003.Where_Stmt
     obj = tcls('where (a) c=2')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'WHERE (a) c = 2'
@@ -1986,7 +1986,7 @@ def test_where_stmt():  # R743
 
 def test_where_construct_stmt():  # R745
 
-    tcls = Where_Construct_Stmt
+    tcls = Fortran2003.Where_Construct_Stmt
     obj = tcls('where (a)')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'WHERE (a)'
@@ -1996,7 +1996,7 @@ def test_where_construct_stmt():  # R745
 @pytest.mark.usefixtures("fake_symbol_table")
 def test_forall_construct():  # R752
 
-    tcls = Forall_Construct
+    tcls = Fortran2003.Forall_Construct
     obj = tcls(get_reader('''\
     forall (i = 1:10, j = 1:10, b(i, j) /= 0.0)
       a(i, j) = real (i + j - 2)
@@ -2021,7 +2021,7 @@ def test_forall_construct():  # R752
 
 def test_forall_triplet_spec():  # R755
 
-    tcls = Forall_Triplet_Spec
+    tcls = Fortran2003.Forall_Triplet_Spec
     obj = tcls('n = 1: 2')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'n = 1 : 2'
@@ -2037,7 +2037,7 @@ def test_forall_triplet_spec():  # R755
 
 def test_if_nonblock_do():
     ''' Tests that conditional nonblock DO construct is parsed correctly. '''
-    tcls = If_Construct
+    tcls = Fortran2003.If_Construct
 
     obj = tcls(get_reader('''\
 if (expr) then
@@ -2053,7 +2053,7 @@ endif
     assert isinstance(obj, tcls), repr(obj)
     assert len(obj.content) == 3, repr(obj)
     obj = obj.content[1]
-    assert isinstance(obj, Action_Term_Do_Construct), repr(obj)
+    assert isinstance(obj, Fortran2003.Action_Term_Do_Construct), repr(obj)
     assert str(obj) == (
         'DO 20 i = 1, 3\n  a = 1\n  DO 20 j = 1, 3\n    a = 2\n    '
         'DO 20 k = 1, 3\n      a = 3\n20 rotm(i, j) = r2(j, i)')
@@ -2066,12 +2066,12 @@ endif'''))
     assert isinstance(obj, tcls), repr(obj)
     assert len(obj.content) == 3, repr(obj)
     obj = obj.content[1]
-    assert isinstance(obj, Action_Term_Do_Construct), repr(obj)
+    assert isinstance(obj, Fortran2003.Action_Term_Do_Construct), repr(obj)
 
 
 def test_case_selector():  # R813
 
-    tcls = Case_Selector
+    tcls = Fortran2003.Case_Selector
     obj = tcls('default')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'DEFAULT'
@@ -2087,7 +2087,7 @@ def test_case_selector():  # R813
 
 def test_select_type_stmt():  # R822
 
-    tcls = Select_Type_Stmt
+    tcls = Fortran2003.Select_Type_Stmt
     obj = tcls('select type(a=>b)')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'SELECT TYPE(a=>b)'
@@ -2099,7 +2099,7 @@ def test_select_type_stmt():  # R822
 
 def test_type_guard_stmt():  # R823
 
-    tcls = Type_Guard_Stmt
+    tcls = Fortran2003.Type_Guard_Stmt
     obj = tcls('type is (real*8)')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'TYPE IS (REAL*8)'
@@ -2115,7 +2115,7 @@ def test_type_guard_stmt():  # R823
 
 def test_label_do_stmt():
     ''' Tests that labeled DO statement is parsed correctly (R828). '''
-    tcls = Label_Do_Stmt
+    tcls = Fortran2003.Label_Do_Stmt
     obj = tcls('do 12')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'DO 12'
@@ -2126,25 +2126,25 @@ def test_loop_control():
     ''' Tests incorrect loop control constructs (R829). Correct loop
     control constructs are tested in test_block_label_do_construct()
     and test_nonblock_label_do_construct(). '''
-    tcls = Loop_Control
+    tcls = Fortran2003.Loop_Control
 
     # More than one '=' in counter expression
-    with pytest.raises(NoMatchError) as excinfo:
+    with pytest.raises(Fortran2003.NoMatchError) as excinfo:
         _ = tcls('j = 1 = 10')
     assert "Loop_Control: 'j = 1 = 10'" in str(excinfo.value)
 
     # Incorrect number of elements in counter expression
-    with pytest.raises(NoMatchError) as excinfo:
+    with pytest.raises(Fortran2003.NoMatchError) as excinfo:
         _ = tcls('k = 10, -10, -2, -1')
     assert "Loop_Control: 'k = 10, -10, -2, -1'" in str(excinfo.value)
-    with pytest.raises(NoMatchError) as excinfo:
+    with pytest.raises(Fortran2003.NoMatchError) as excinfo:
         _ = tcls('l = 5')
     assert "Loop_Control: 'l = 5'" in str(excinfo.value)
 
 
 def test_continue_stmt():  # R848
 
-    tcls = Continue_Stmt
+    tcls = Fortran2003.Continue_Stmt
     obj = tcls('continue')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'CONTINUE'
@@ -2153,7 +2153,7 @@ def test_continue_stmt():  # R848
 
 def test_stop_stmt():  # R849
 
-    tcls = Stop_Stmt
+    tcls = Fortran2003.Stop_Stmt
     obj = tcls('stop')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'STOP'
@@ -2173,20 +2173,20 @@ def test_stop_stmt():  # R849
 
 def test_io_unit():  # R901
 
-    tcls = Io_Unit
+    tcls = Fortran2003.Io_Unit
     obj = tcls('*')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == '*'
 
     obj = tcls('a')
-    assert isinstance(obj, Name), repr(obj)
+    assert isinstance(obj, Fortran2003.Name), repr(obj)
     assert str(obj) == 'a'
 
 
 def test_read_stmt():
     ''' Tests that we successfully parse various forms of
     READ statement (R910). '''
-    tcls = Read_Stmt
+    tcls = Fortran2003.Read_Stmt
     obj = tcls('read(123)')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'READ(123)'
@@ -2224,7 +2224,7 @@ def test_read_stmt():
 
 def test_print_stmt():  # R912
 
-    tcls = Print_Stmt
+    tcls = Fortran2003.Print_Stmt
     obj = tcls('print 123')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'PRINT 123'
@@ -2237,24 +2237,24 @@ def test_print_stmt():  # R912
 
 def test_format():  # R914
 
-    tcls = Format
+    tcls = Fortran2003.Format
     obj = tcls('*')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == '*'
     assert repr(obj) == "Format('*')"
 
     obj = tcls('a')
-    assert isinstance(obj, Name), repr(obj)
+    assert isinstance(obj, Fortran2003.Name), repr(obj)
     assert str(obj) == 'a'
 
     obj = tcls('123')
-    assert isinstance(obj, Label), repr(obj)
+    assert isinstance(obj, Fortran2003.Label), repr(obj)
     assert str(obj) == '123'
 
 
 def test_io_implied_do():  # R917
 
-    tcls = Io_Implied_Do
+    tcls = Fortran2003.Io_Implied_Do
     obj = tcls('(a, i=1,2)')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == '(a, i = 1, 2)'
@@ -2266,7 +2266,7 @@ def test_io_implied_do():  # R917
 
 def test_io_implied_do_control():  # R919
 
-    tcls = Io_Implied_Do_Control
+    tcls = Fortran2003.Io_Implied_Do_Control
     obj = tcls('i=1,2')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'i = 1, 2'
@@ -2278,7 +2278,7 @@ def test_io_implied_do_control():  # R919
 
 def test_wait_stmt():  # R921
 
-    tcls = Wait_Stmt
+    tcls = Fortran2003.Wait_Stmt
     obj = tcls('wait (123)')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'WAIT(UNIT = 123)'
@@ -2286,7 +2286,7 @@ def test_wait_stmt():  # R921
 
 def test_wait_spec():  # R922
 
-    tcls = Wait_Spec
+    tcls = Fortran2003.Wait_Spec
     obj = tcls('123')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'UNIT = 123'
@@ -2300,7 +2300,7 @@ def test_wait_spec():  # R922
 
 def test_backspace_stmt():  # R923
 
-    tcls = Backspace_Stmt
+    tcls = Fortran2003.Backspace_Stmt
     obj = tcls('backspace 1')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'BACKSPACE 1'
@@ -2311,7 +2311,7 @@ def test_backspace_stmt():  # R923
 
 def test_endfile_stmt():  # R924
 
-    tcls = Endfile_Stmt
+    tcls = Fortran2003.Endfile_Stmt
     obj = tcls('endfile 1')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'ENDFILE 1'
@@ -2322,7 +2322,7 @@ def test_endfile_stmt():  # R924
 
 def test_rewind_stmt():  # R925
 
-    tcls = Rewind_Stmt
+    tcls = Fortran2003.Rewind_Stmt
     obj = tcls('rewind 1')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'REWIND 1'
@@ -2333,7 +2333,7 @@ def test_rewind_stmt():  # R925
 
 def test_position_spec():  # R926
 
-    tcls = Position_Spec
+    tcls = Fortran2003.Position_Spec
     obj = tcls('1')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'UNIT = 1'
@@ -2349,7 +2349,7 @@ def test_position_spec():  # R926
 
 def test_flush_stmt():  # R927
 
-    tcls = Flush_Stmt
+    tcls = Fortran2003.Flush_Stmt
     obj = tcls('flush 1')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'FLUSH 1'
@@ -2360,7 +2360,7 @@ def test_flush_stmt():  # R927
 
 def test_flush_spec():  # R928
 
-    tcls = Flush_Spec
+    tcls = Fortran2003.Flush_Spec
     obj = tcls('1')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'UNIT = 1'
@@ -2376,7 +2376,7 @@ def test_flush_spec():  # R928
 
 def test_inquire_stmt():
     ''' Tests for the INQUIRE statement (R929). '''
-    tcls = Inquire_Stmt
+    tcls = Fortran2003.Inquire_Stmt
     obj = tcls('inquire(1,file=a)')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'INQUIRE(UNIT = 1, FILE = a)'
@@ -2390,7 +2390,7 @@ def test_inquire_stmt():
 def test_inquire_spec():
     ''' Tests that we recognise the various possible forms of
     entries in an inquire list (R930). '''
-    tcls = Inquire_Spec
+    tcls = Fortran2003.Inquire_Spec
     obj = tcls('1')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'UNIT = 1'
@@ -2419,14 +2419,14 @@ def test_inquire_spec_list():
     ''' Tests that we recognise the various possible forms of
     inquire list (R930). '''
     # Inquire_Spec_List is generated at runtime in Fortran2003.py
-    tcls = Inquire_Spec_List
+    tcls = Fortran2003.Inquire_Spec_List
 
     obj = tcls('unit=23, file="a_file.dat"')
     assert isinstance(obj, tcls)
     assert str(obj) == 'UNIT = 23, FILE = "a_file.dat"'
 
     # Invalid list (afile= instead of file=)
-    with pytest.raises(NoMatchError) as excinfo:
+    with pytest.raises(Fortran2003.NoMatchError) as excinfo:
         _ = tcls('unit=23, afile="a_file.dat"')
     assert "Inquire_Spec_List: 'unit=23, afile=" in str(excinfo.value)
 
@@ -2434,7 +2434,7 @@ def test_inquire_spec_list():
 def test_open_stmt():
     ''' Tests that we correctly parse and re-generate the various forms
     of OPEN statement (R904). '''
-    tcls = Open_Stmt
+    tcls = Fortran2003.Open_Stmt
     obj = tcls("open(23, file='some_file.txt')")
     assert isinstance(obj, tcls)
     assert str(obj) == "OPEN(UNIT = 23, FILE = 'some_file.txt')"
@@ -2445,9 +2445,9 @@ def test_open_stmt():
 
 def test_connect_spec():
     ''' Tests for individual elements of Connect_Spec (R905). '''
-    tcls = Connect_Spec
+    tcls = Fortran2003.Connect_Spec
     # Incorrect name for a member of the list
-    with pytest.raises(NoMatchError) as excinfo:
+    with pytest.raises(Fortran2003.NoMatchError) as excinfo:
         _ = tcls("afile='a_file.dat'")
     assert 'Connect_Spec: \'afile=' in str(excinfo.value)
 
@@ -2457,7 +2457,7 @@ def test_connect_spec_list():
     Tests that we correctly parse the various valid forms of
     connect specification (R905).
     '''
-    tcls = Connect_Spec_List
+    tcls = Fortran2003.Connect_Spec_List
     obj = tcls("22, access='direct'")
     assert isinstance(obj, tcls)
     assert str(obj) == "UNIT = 22, ACCESS = 'direct'"
@@ -2532,7 +2532,7 @@ def test_connect_spec_list():
                         "STATUS = 'OLD'")
 
     # Incorrect name for a member of the list
-    with pytest.raises(NoMatchError) as excinfo:
+    with pytest.raises(Fortran2003.NoMatchError) as excinfo:
         _ = tcls("unit=22, afile='a_file.dat', sign='PLUS', status='OLD'")
     assert 'Connect_Spec_List: \'unit=22, afile=' in str(excinfo.value)
 
@@ -2543,7 +2543,7 @@ def test_connect_spec_list():
 
 def test_format_stmt():  # R1001
 
-    tcls = Format_Stmt
+    tcls = Fortran2003.Format_Stmt
     obj = tcls('format (3f9.4)')
     assert isinstance(obj, tcls), repr(type(obj))
     assert str(obj) == 'FORMAT(3F9.4)'
@@ -2574,7 +2574,7 @@ def test_format_stmt():  # R1001
 
 def test_format_specification():  # R1002
 
-    tcls = Format_Specification
+    tcls = Fortran2003.Format_Specification
     obj = tcls('(3f9.4, 2f8.1)')
     assert isinstance(obj, tcls), repr(type(obj))
     assert str(obj) == '(3F9.4, 2F8.1)'
@@ -2586,17 +2586,17 @@ def test_format_specification():  # R1002
 
 def test_format_item():  # R1003
 
-    tcls = Format_Item
+    tcls = Fortran2003.Format_Item
     obj = tcls('3f9.4')
     assert isinstance(obj, tcls), repr(type(obj))
     assert str(obj) == '3F9.4'
 
     obj = tcls("' '")
-    assert isinstance(obj, Char_Literal_Constant), repr(type(obj))
+    assert isinstance(obj, Fortran2003.Char_Literal_Constant), repr(type(obj))
     assert str(obj) == "' '"
 
     obj = tcls('i4/')
-    assert isinstance(obj, Format_Item_C1002), repr(type(obj))
+    assert isinstance(obj, Fortran2003.Format_Item_C1002), repr(type(obj))
     assert str(obj) == 'I4, /'
 
     obj = tcls('3f12.6/')
@@ -2606,7 +2606,7 @@ def test_format_item():  # R1003
     assert str(obj) == '3D12.6, /'
 
     # D specifier must be Dw.d so must have a decimal point
-    with pytest.raises(NoMatchError):
+    with pytest.raises(Fortran2003.NoMatchError):
         _ = tcls('3d12/')
 
     obj = tcls('3e12.6/')
@@ -2624,7 +2624,7 @@ def test_format_item():  # R1003
     assert str(obj) == '3EN12.6, /'
 
     # Must have a decimal point
-    with pytest.raises(NoMatchError):
+    with pytest.raises(Fortran2003.NoMatchError):
         _ = tcls('3en12/')
 
     # Engineering format specifying number of digits in exponent
@@ -2641,12 +2641,12 @@ def test_format_item():  # R1003
     assert str(obj) == "' ', /, ' '"
 
     obj = tcls("'(5X,\"q_mesh =\",4F12.8)'")
-    assert isinstance(obj, Char_Literal_Constant)
+    assert isinstance(obj, Fortran2003.Char_Literal_Constant)
 
 
 def test_data_edit_desc():
     ''' Tests for matching Edit Descriptors (R1005). '''
-    tcls = Data_Edit_Desc
+    tcls = Fortran2003.Data_Edit_Desc
     obj = tcls('I3')
     assert str(obj) == 'I3'
 
@@ -2662,14 +2662,14 @@ def test_data_edit_desc():
     obj = tcls('L3')
     assert str(obj) == 'L3'
 
-    with pytest.raises(NoMatchError) as excinfo:
+    with pytest.raises(Fortran2003.NoMatchError) as excinfo:
         _ = tcls('L3.2')
     assert "Data_Edit_Desc: 'L3.2'" in str(excinfo.value)
 
     obj = tcls('A3')
     assert str(obj) == 'A3'
 
-    with pytest.raises(NoMatchError) as excinfo:
+    with pytest.raises(Fortran2003.NoMatchError) as excinfo:
         _ = tcls('A3.2')
     assert "Data_Edit_Desc: 'A3.2'" in str(excinfo.value)
 
@@ -2679,24 +2679,24 @@ def test_data_edit_desc():
     obj = tcls("DT'a_name'(3,-2)")
     assert str(obj) == "DT'a_name'(3, -2)"
 
-    with pytest.raises(NoMatchError) as excinfo:
+    with pytest.raises(Fortran2003.NoMatchError) as excinfo:
         _ = tcls("DT'a_name'()")
     assert '''Data_Edit_Desc: \'DT\'a_name\'()\'''' in str(excinfo.value)
 
 
 def test_format_item_list():  # R1002, R1003
 
-    tcls = Format_Item_List
+    tcls = Fortran2003.Format_Item_List
     obj = tcls('3f9.4')
-    assert isinstance(obj, Format_Item), repr(type(obj))
+    assert isinstance(obj, Fortran2003.Format_Item), repr(type(obj))
     assert str(obj) == '3F9.4'
 
     obj = tcls('3f9.4, 2f8.1')
-    assert isinstance(obj, Format_Item_List), repr(type(obj))
+    assert isinstance(obj, Fortran2003.Format_Item_List), repr(type(obj))
     assert str(obj) == '3F9.4, 2F8.1'
 
     obj = tcls("' ', 2f8.1")
-    assert isinstance(obj, Format_Item_List), repr(type(obj))
+    assert isinstance(obj, Fortran2003.Format_Item_List), repr(type(obj))
     assert str(obj) == "' ', 2F8.1"
 
     obj = tcls("' ', ' '")
@@ -2756,7 +2756,7 @@ def test_invalid_main_program0():
 
 def test_module():  # R1104
 
-    tcls = Module
+    tcls = Fortran2003.Module
     obj = tcls(get_reader('''\
 module m
 end
@@ -2780,7 +2780,7 @@ end
 
 def test_module_subprogram_part():  # R1107
 
-    tcls = Module_Subprogram_Part
+    tcls = Fortran2003.Module_Subprogram_Part
     obj = tcls(get_reader('''\
 contains
   subroutine foo(a)
@@ -2796,7 +2796,7 @@ contains
 def test_module_nature():
     ''' Tests that a module nature statement is parsed correctly
     (INTRINSIC or NON_INTRINSIC allowed, R1110). '''
-    tcls = Module_Nature
+    tcls = Fortran2003.Module_Nature
     obj = tcls('intrinsic')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'INTRINSIC'
@@ -2808,14 +2808,14 @@ def test_module_nature():
     assert repr(obj) == "Module_Nature('NON_INTRINSIC')"
 
     # Incorrect module nature
-    with pytest.raises(NoMatchError) as excinfo:
+    with pytest.raises(Fortran2003.NoMatchError) as excinfo:
         _ = tcls('other_nature')
     assert "Module_Nature: 'other_nature'" in str(excinfo.value)
 
 
 def test_rename():  # R1111
 
-    tcls = Rename
+    tcls = Fortran2003.Rename
     obj = tcls('a=>b')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'a => b'
@@ -2828,7 +2828,7 @@ def test_rename():  # R1111
 @pytest.mark.xfail(reason="Match fails with multiple spaces, see issue #197")
 def test_block_data():  # R1116
 
-    tcls = Block_Data
+    tcls = Fortran2003.Block_Data
     obj = tcls(get_reader('''\
 block data a
 real b
@@ -2837,7 +2837,7 @@ end block data
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'BLOCK DATA a\n  REAL :: b\nEND BLOCK DATA'
 
-    tcls = Block_Data
+    tcls = Fortran2003.Block_Data
     obj = tcls(get_reader('''\
 block     data a
 end block     data a
@@ -2852,7 +2852,7 @@ end block     data a
 
 def test_interface_block():  # R1201
 
-    tcls = Interface_Block
+    tcls = Fortran2003.Interface_Block
     obj = tcls(get_reader('''\
 interface
 end interface'''))
@@ -2873,18 +2873,18 @@ end interface
 
 def test_interface_specification():  # R1202
 
-    tcls = Interface_Specification
+    tcls = Fortran2003.Interface_Specification
     obj = tcls(get_reader('''\
     function foo()
     end
     '''))
-    assert isinstance(obj, Function_Body), repr(obj)
+    assert isinstance(obj, Fortran2003.Function_Body), repr(obj)
     assert str(obj) == 'FUNCTION foo()\nEND'
 
 
 def test_interface_stmt():  # R1203
 
-    tcls = Interface_Stmt
+    tcls = Fortran2003.Interface_Stmt
     obj = tcls('interface')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'INTERFACE'
@@ -2900,7 +2900,7 @@ def test_interface_stmt():  # R1203
 
 def test_end_interface_stmt():  # R1204
 
-    tcls = End_Interface_Stmt
+    tcls = Fortran2003.End_Interface_Stmt
     obj = tcls('end interface')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'END INTERFACE'
@@ -2916,12 +2916,12 @@ def test_end_interface_stmt():  # R1204
 
 def test_interface_body():  # R1205
 
-    tcls = Interface_Body
+    tcls = Fortran2003.Interface_Body
     obj = tcls(get_reader('''\
 subroutine foo
 end subroutine foo
 '''))
-    assert isinstance(obj, Subroutine_Body), repr(obj)
+    assert isinstance(obj, Fortran2003.Subroutine_Body), repr(obj)
     assert str(obj) == 'SUBROUTINE foo\nEND SUBROUTINE foo'
 
     obj = tcls(get_reader('''\
@@ -2929,7 +2929,7 @@ function foo(a) result(c)
   real a, c
 end
 '''))
-    assert isinstance(obj, Function_Body), repr(obj)
+    assert isinstance(obj, Fortran2003.Function_Body), repr(obj)
     assert (str(obj) ==
             'FUNCTION foo(a) RESULT(c)\n  REAL :: a, c\nEND')
 
@@ -2944,7 +2944,7 @@ def test_function_body():
 
 def test_procedure_stmt():  # R1206
 
-    tcls = Procedure_Stmt
+    tcls = Fortran2003.Procedure_Stmt
     obj = tcls('module procedure a')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'MODULE PROCEDURE a'
@@ -2956,12 +2956,12 @@ def test_procedure_stmt():  # R1206
 
 def test_generic_spec():  # R1207
 
-    tcls = Generic_Spec
+    tcls = Fortran2003.Generic_Spec
     obj = tcls('a')
-    assert isinstance(obj, Name), repr(obj)
+    assert isinstance(obj, Fortran2003.Name), repr(obj)
     assert str(obj) == 'a'
     obj = tcls('read(formatted)')
-    assert isinstance(obj, Dtio_Generic_Spec), repr(obj)
+    assert isinstance(obj, Fortran2003.Dtio_Generic_Spec), repr(obj)
     assert str(obj) == 'READ(FORMATTED)'
 
     obj = tcls('assignment ( = )')
@@ -2976,7 +2976,7 @@ def test_generic_spec():  # R1207
 
 def test_dtio_generic_spec():  # R1208
 
-    tcls = Dtio_Generic_Spec
+    tcls = Fortran2003.Dtio_Generic_Spec
     obj = tcls('read   ( formatted )')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'READ(FORMATTED)'
@@ -2991,7 +2991,7 @@ def test_dtio_generic_spec():  # R1208
 
 def test_import_stmt():  # R1209
 
-    tcls = Import_Stmt
+    tcls = Fortran2003.Import_Stmt
     obj = tcls('import :: a, b')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'IMPORT :: a, b'
@@ -3003,7 +3003,7 @@ def test_import_stmt():  # R1209
 
 def test_external_stmt():  # R1210
 
-    tcls = External_Stmt
+    tcls = Fortran2003.External_Stmt
     obj = tcls('external :: a, b')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'EXTERNAL :: a, b'
@@ -3015,7 +3015,7 @@ def test_external_stmt():  # R1210
 
 def test_procedure_declaration_stmt():  # R1211
 
-    tcls = Procedure_Declaration_Stmt
+    tcls = Fortran2003.Procedure_Declaration_Stmt
     obj = tcls('procedure () a')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'PROCEDURE() a'
@@ -3038,24 +3038,25 @@ def test_procedure_declaration_stmt():  # R1211
 
 @pytest.mark.parametrize(
     'procedure_attribute_input,expected_class,expected_string',
-    [('private', Access_Spec, 'PRIVATE'),
-     ('public', Access_Spec, 'PUBLIC'),
-     ('bind(c)', Language_Binding_Spec, 'BIND(C)'),
-     ('bind(c, name="foo")', Language_Binding_Spec, 'BIND(C, NAME = "foo")'),
-     ('intent(in)', Proc_Attr_Spec, 'INTENT(IN)'),
-     ('intent(out)', Proc_Attr_Spec, 'INTENT(OUT)'),
-     ('intent(inout)', Proc_Attr_Spec, 'INTENT(INOUT)'),
-     ('optional', Proc_Attr_Spec, 'OPTIONAL'),
-     ('pointer', Proc_Attr_Spec, 'POINTER'),
-     ('protected', Proc_Attr_Spec, 'PROTECTED'),
-     ('save', Proc_Attr_Spec, 'SAVE')])
+    [('private', Fortran2003.Access_Spec, 'PRIVATE'),
+     ('public', Fortran2003.Access_Spec, 'PUBLIC'),
+     ('bind(c)', Fortran2003.Language_Binding_Spec, 'BIND(C)'),
+     ('bind(c, name="foo")', Fortran2003.Language_Binding_Spec,
+      'BIND(C, NAME = "foo")'),
+     ('intent(in)', Fortran2003.Proc_Attr_Spec, 'INTENT(IN)'),
+     ('intent(out)', Fortran2003.Proc_Attr_Spec, 'INTENT(OUT)'),
+     ('intent(inout)', Fortran2003.Proc_Attr_Spec, 'INTENT(INOUT)'),
+     ('optional', Fortran2003.Proc_Attr_Spec, 'OPTIONAL'),
+     ('pointer', Fortran2003.Proc_Attr_Spec, 'POINTER'),
+     ('protected', Fortran2003.Proc_Attr_Spec, 'PROTECTED'),
+     ('save', Fortran2003.Proc_Attr_Spec, 'SAVE')])
 def test_proc_attr_spec(procedure_attribute_input, expected_class,
                         expected_string):
     '''
     Tests the procedure attribute specification as outlined in #R1213 of
     ISO/IEC 1539-1:2010.
     '''
-    unit_under_test = Proc_Attr_Spec
+    unit_under_test = Fortran2003.Proc_Attr_Spec
 
     result = unit_under_test(procedure_attribute_input)
     assert isinstance(result, expected_class)
@@ -3064,19 +3065,19 @@ def test_proc_attr_spec(procedure_attribute_input, expected_class,
 
 def test_proc_decl():  # R1214
 
-    tcls = Proc_Decl
+    tcls = Fortran2003.Proc_Decl
     obj = tcls('a => NULL')
     assert isinstance(obj, tcls)
     assert str(obj) == 'a => NULL'
 
     obj = tcls('a')
-    assert isinstance(obj, Name), repr(type(obj))
+    assert isinstance(obj, Fortran2003.Name), repr(type(obj))
     assert str(obj) == 'a'
 
 
 def test_intrinsic_stmt():  # R1216
 
-    tcls = Intrinsic_Stmt
+    tcls = Fortran2003.Intrinsic_Stmt
     obj = tcls('intrinsic :: a, b')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'INTRINSIC :: a, b'
@@ -3089,7 +3090,7 @@ def test_intrinsic_stmt():  # R1216
 
 def test_function_reference():  # R1217
 
-    tcls = Function_Reference
+    tcls = Fortran2003.Function_Reference
     obj = tcls('f()')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'f()'
@@ -3102,7 +3103,7 @@ def test_function_reference():  # R1217
 
 def test_call_stmt():  # R1218
 
-    tcls = Call_Stmt
+    tcls = Fortran2003.Call_Stmt
     obj = tcls('call a')
     assert isinstance(obj, tcls)
     assert str(obj) == 'CALL a'
@@ -3116,7 +3117,7 @@ def test_call_stmt():  # R1218
 
 def test_procedure_designator():  # R1219
 
-    tcls = Procedure_Designator
+    tcls = Fortran2003.Procedure_Designator
     obj = tcls('a%b')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'a % b'
@@ -3125,20 +3126,20 @@ def test_procedure_designator():  # R1219
 
 def test_actual_arg_spec():  # R1220
 
-    tcls = Actual_Arg_Spec
+    tcls = Fortran2003.Actual_Arg_Spec
     obj = tcls('k=a')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'k = a'
     assert repr(obj) == "Actual_Arg_Spec(Name('k'), Name('a'))"
 
     obj = tcls('a')
-    assert isinstance(obj, Name), repr(obj)
+    assert isinstance(obj, Fortran2003.Name), repr(obj)
     assert str(obj) == 'a'
 
 
 def test_actual_arg_spec_list():
 
-    tcls = Actual_Arg_Spec_List
+    tcls = Fortran2003.Actual_Arg_Spec_List
     obj = tcls('a,b')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'a, b'
@@ -3159,7 +3160,7 @@ def test_actual_arg_spec_list():
 
 def test_alt_return_spec():  # R1222
 
-    tcls = Alt_Return_Spec
+    tcls = Fortran2003.Alt_Return_Spec
     obj = tcls('* 123')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == '*123'
@@ -3171,7 +3172,7 @@ def test_function_subprogram():  # R1223
     reader = get_reader('''\
     function foo()
     end function foo''')
-    tcls = Function_Subprogram
+    tcls = Fortran2003.Function_Subprogram
     obj = tcls(reader)
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'FUNCTION foo()\nEND FUNCTION foo'
@@ -3183,7 +3184,7 @@ def test_function_subprogram():  # R1223
     pure real function foo(a) result(b) bind(c)
     integer a
     end function foo''')
-    tcls = Function_Subprogram
+    tcls = Fortran2003.Function_Subprogram
     obj = tcls(reader)
     assert isinstance(obj, tcls), repr(obj)
     assert (str(obj) ==
@@ -3194,7 +3195,7 @@ def test_function_subprogram():  # R1223
 def test_function_stmt():  # R1224
     '''Check that rule R1224 (function-stmt) is parsed correctly.'''
 
-    tcls = Function_Stmt
+    tcls = Fortran2003.Function_Stmt
     obj = tcls('function foo()')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'FUNCTION foo()'
@@ -3242,42 +3243,42 @@ def test_function_stmt():  # R1224
     # Constraint C1242. A prefix shall not specify ELEMENTAL if
     # proc-language-binding-spec appears in the function-stmt or
     # subroutine-stmt.
-    with pytest.raises(NoMatchError):
+    with pytest.raises(Fortran2003.NoMatchError):
         _ = tcls('elemental real function foo() bind(c)')
-    with pytest.raises(NoMatchError):
+    with pytest.raises(Fortran2003.NoMatchError):
         _ = tcls('elemental real function foo() bind(c) result(b)')
-    with pytest.raises(NoMatchError):
+    with pytest.raises(Fortran2003.NoMatchError):
         _ = tcls('elemental real function foo() result(b) bind(c)')
 
 
 def test_dummy_arg_name():  # R1226
 
-    tcls = Dummy_Arg_Name
+    tcls = Fortran2003.Dummy_Arg_Name
     obj = tcls('a')
-    assert isinstance(obj, Name), repr(obj)
+    assert isinstance(obj, Fortran2003.Name), repr(obj)
     assert str(obj) == 'a'
 
 
 @pytest.mark.parametrize(
     'procedure_prefix_input,expected_class,expected_string',
-    [('integer', Intrinsic_Type_Spec, 'INTEGER'),
-     ('integer * 2', Intrinsic_Type_Spec, 'INTEGER*2'),
-     ('real', Intrinsic_Type_Spec, 'REAL'),
-     ('double complex', Intrinsic_Type_Spec, 'DOUBLE COMPLEX'),
-     ('complex', Intrinsic_Type_Spec, 'COMPLEX'),
-     ('character', Intrinsic_Type_Spec, 'CHARACTER'),
-     ('logical', Intrinsic_Type_Spec, 'LOGICAL'),
-     ('type(foo)', Declaration_Type_Spec, 'TYPE(foo)'),
-     ('class(bar)', Declaration_Type_Spec, 'CLASS(bar)'),
-     ('class(*)', Declaration_Type_Spec, 'CLASS(*)'),
-     ('elemental', Prefix_Spec, 'ELEMENTAL'),
-     ('impure', Prefix_Spec, 'IMPURE'),
-     ('module', Prefix_Spec, 'MODULE'),
-     ('pure', Prefix_Spec, 'PURE'),
-     ('recursive', Prefix_Spec, 'RECURSIVE')])
+    [('integer', Fortran2003.Intrinsic_Type_Spec, 'INTEGER'),
+     ('integer * 2', Fortran2003.Intrinsic_Type_Spec, 'INTEGER*2'),
+     ('real', Fortran2003.Intrinsic_Type_Spec, 'REAL'),
+     ('double complex', Fortran2003.Intrinsic_Type_Spec, 'DOUBLE COMPLEX'),
+     ('complex', Fortran2003.Intrinsic_Type_Spec, 'COMPLEX'),
+     ('character', Fortran2003.Intrinsic_Type_Spec, 'CHARACTER'),
+     ('logical', Fortran2003.Intrinsic_Type_Spec, 'LOGICAL'),
+     ('type(foo)', Fortran2003.Declaration_Type_Spec, 'TYPE(foo)'),
+     ('class(bar)', Fortran2003.Declaration_Type_Spec, 'CLASS(bar)'),
+     ('class(*)', Fortran2003.Declaration_Type_Spec, 'CLASS(*)'),
+     ('elemental', Fortran2003.Prefix_Spec, 'ELEMENTAL'),
+     ('impure', Fortran2003.Prefix_Spec, 'IMPURE'),
+     ('module', Fortran2003.Prefix_Spec, 'MODULE'),
+     ('pure', Fortran2003.Prefix_Spec, 'PURE'),
+     ('recursive', Fortran2003.Prefix_Spec, 'RECURSIVE')])
 def test_prefix_spec(procedure_prefix_input, expected_class,
                      expected_string):  # R1226
-    unit_under_test = Prefix_Spec
+    unit_under_test = Fortran2003.Prefix_Spec
     result = unit_under_test(procedure_prefix_input)
     assert isinstance(result, expected_class), repr(result)
     assert str(result) == expected_string
@@ -3285,29 +3286,29 @@ def test_prefix_spec(procedure_prefix_input, expected_class,
 
 def test_suffix():  # R1229
 
-    tcls = Suffix
+    tcls = Fortran2003.Suffix
 
     obj = tcls('bind(c)')
-    assert isinstance(obj, Language_Binding_Spec), repr(obj)
+    assert isinstance(obj, Fortran2003.Language_Binding_Spec), repr(obj)
     assert str(obj) == 'BIND(C)'
     assert repr(obj) == "Language_Binding_Spec(None)"
 
     obj = tcls('result(a)')
-    assert isinstance(obj, Suffix), repr(obj)
+    assert isinstance(obj, Fortran2003.Suffix), repr(obj)
     assert str(obj) == 'RESULT(a)'
 
     obj = tcls('bind(c) result(a)')
-    assert isinstance(obj, Suffix), repr(obj)
+    assert isinstance(obj, Fortran2003.Suffix), repr(obj)
     assert str(obj) == 'RESULT(a) BIND(C)'
 
     obj = tcls('result(a) bind(c)')
-    assert isinstance(obj, Suffix), repr(obj)
+    assert isinstance(obj, Fortran2003.Suffix), repr(obj)
     assert str(obj) == 'RESULT(a) BIND(C)'
 
 
 def test_end_function_stmt():  # R1230
 
-    tcls = End_Function_Stmt
+    tcls = Fortran2003.End_Function_Stmt
     obj = tcls('end')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'END'
@@ -3324,7 +3325,7 @@ def test_subroutine_subprogram():  # R1231
     reader = get_reader('''\
     subroutine foo
     end subroutine foo''')
-    tcls = Subroutine_Subprogram
+    tcls = Fortran2003.Subroutine_Subprogram
     obj = tcls(reader)
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'SUBROUTINE foo\nEND SUBROUTINE foo'
@@ -3336,7 +3337,7 @@ def test_subroutine_subprogram():  # R1231
     subroutine foo
     integer a
     end subroutine foo''')
-    tcls = Subroutine_Subprogram
+    tcls = Fortran2003.Subroutine_Subprogram
     obj = tcls(reader)
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'SUBROUTINE foo\n  INTEGER :: a\nEND SUBROUTINE foo'
@@ -3345,7 +3346,7 @@ def test_subroutine_subprogram():  # R1231
 def test_subroutine_stmt():  # R1232
     '''Check that rule R1232 (subroutine-stmt) is parsed correctly.'''
 
-    tcls = Subroutine_Stmt
+    tcls = Fortran2003.Subroutine_Stmt
     obj = tcls('subroutine foo')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'SUBROUTINE foo'
@@ -3382,15 +3383,15 @@ def test_subroutine_stmt():  # R1232
     # Constraint C1242. A prefix shall not specify ELEMENTAL if
     # proc-language-binding-spec appears in the function-stmt or
     # subroutine-stmt.
-    with pytest.raises(NoMatchError):
+    with pytest.raises(Fortran2003.NoMatchError):
         _ = tcls('elemental module subroutine foo() bind(c)')
 
 
 def test_dummy_arg():  # R1233
 
-    tcls = Dummy_Arg
+    tcls = Fortran2003.Dummy_Arg
     obj = tcls('a')
-    assert isinstance(obj, Name), repr(obj)
+    assert isinstance(obj, Fortran2003.Name), repr(obj)
     assert str(obj) == 'a'
     obj = tcls('*')
     assert isinstance(obj, tcls), repr(obj)
@@ -3399,7 +3400,7 @@ def test_dummy_arg():  # R1233
 
 def test_end_subroutine_stmt():  # R1234
 
-    tcls = End_Subroutine_Stmt
+    tcls = Fortran2003.End_Subroutine_Stmt
     obj = tcls('end subroutine foo')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'END SUBROUTINE foo'
@@ -3416,7 +3417,7 @@ def test_end_subroutine_stmt():  # R1234
 
 def test_entry_stmt():  # R1235
 
-    tcls = Entry_Stmt
+    tcls = Fortran2003.Entry_Stmt
     obj = tcls('entry a')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'ENTRY a()'
@@ -3433,7 +3434,7 @@ def test_entry_stmt():  # R1235
 
 def test_return_stmt():  # R1236
 
-    tcls = Return_Stmt
+    tcls = Fortran2003.Return_Stmt
     obj = tcls('return')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'RETURN'
@@ -3442,7 +3443,7 @@ def test_return_stmt():  # R1236
 
 def test_contains():  # R1237
 
-    tcls = Contains_Stmt
+    tcls = Fortran2003.Contains_Stmt
     obj = tcls('Contains')
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == 'CONTAINS'

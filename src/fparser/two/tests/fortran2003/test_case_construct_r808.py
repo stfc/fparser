@@ -84,7 +84,8 @@ def test_case_construct_name(f2003_create):
     '''))
     assert isinstance(obj, tcls), repr(obj)
     assert (str(obj) ==
-            'name:SELECT CASE (n)\nCASE (: - 1) name\n  signum = - 1\nCASE (0) name\n'
+            'name:SELECT CASE (n)\nCASE (: - 1) name\n  signum = - 1\n'
+            'CASE (0) name\n'
             '  signum = 0\nCASE (1 :) name\n  signum = 1\nCASE DEFAULT name\n'
             '  signum = - 2\nEND SELECT name')
 
@@ -112,7 +113,8 @@ def test_case_construct_wrong_name(f2003_create, fake_symbol_table):
             case (:-1)
                 a = 1
             end select wrong"""))
-    assert exc_info.value.args[0].endswith("Expecting name 'name', got 'wrong'")
+    assert exc_info.value.args[0].endswith(
+        "Expecting name 'name', got 'wrong'")
 
 
 def test_case_construct_missing_start_name(f2003_create, fake_symbol_table):
@@ -124,7 +126,8 @@ def test_case_construct_missing_start_name(f2003_create, fake_symbol_table):
             case (:-1)
                 a = 1
             end select name"""))
-    assert exc_info.value.args[0].endswith("Name 'name' has no corresponding starting name")
+    assert exc_info.value.args[0].endswith(
+        "Name 'name' has no corresponding starting name")
 
 
 def test_case_construct_missing_end_name(f2003_create, fake_symbol_table):
@@ -136,7 +139,8 @@ def test_case_construct_missing_end_name(f2003_create, fake_symbol_table):
             case (:-1)
                 a = 1
             end select"""))
-    assert exc_info.value.args[0].endswith("Expecting name 'name' but none given")
+    assert exc_info.value.args[0].endswith(
+        "Expecting name 'name' but none given")
 
 
 def test_case_construct_case_wrong_name(f2003_create, fake_symbol_table):
@@ -148,4 +152,5 @@ def test_case_construct_case_wrong_name(f2003_create, fake_symbol_table):
             case (:-1) wrong
                 a = 1
             end select name"""))
-    assert exc_info.value.args[0].endswith("Expecting name 'name', got 'wrong'")
+    assert exc_info.value.args[0].endswith(
+        "Expecting name 'name', got 'wrong'")

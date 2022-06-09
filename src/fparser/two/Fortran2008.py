@@ -79,10 +79,10 @@ from fparser.two import pattern_tools as pattern
 from fparser.two.utils import STRINGBase, BracketBase, WORDClsBase, \
     SeparatorBase, Type_Declaration_StmtBase, StmtBase
 from fparser.two.Fortran2003 import (
-    EndStmtBase, BlockBase, SequenceBase, Base, Specification_Part,
+    EndStmtBase, BlockBase, Base, Specification_Part,
     Module_Subprogram_Part, Implicit_Part, Implicit_Part_Stmt,
     Declaration_Construct, Use_Stmt, Import_Stmt, Declaration_Type_Spec,
-    Entity_Decl_List, Component_Decl_List, Stop_Code)
+    Component_Decl_List, Stop_Code)
 # Import of F2003 classes that are updated in this standard.
 from fparser.two.Fortran2003 import (
     Program_Unit as Program_Unit_2003, Attr_Spec as Attr_Spec_2003,
@@ -114,7 +114,6 @@ class Program_Unit(Program_Unit_2003):  # R202
     # therefore extend the Fortran2003 specification
     subclass_names = Program_Unit_2003.subclass_names[:]
     subclass_names.append("Submodule")
-
 
 
 class Executable_Construct(Executable_Construct_2003):  # R213
@@ -688,8 +687,9 @@ class If_Stmt(If_Stmt_2003):  # R837
 
     Associated constraints are:
 
-    C828 (R837) The action-stmt in the if-stmt shall not be an end-function-stmt,
-          end-mp-subprogram-stmt, end-program-stmt, end-subroutine-stmt, or if-stmt.
+    C828 (R837) The action-stmt in the if-stmt shall not be an
+          end-function-stmt, end-mp-subprogram-stmt, end-program-stmt,
+          end-subroutine-stmt, or if-stmt.
 
     '''
     use_names = ['Scalar_Logical_Expr', 'Action_Stmt_C828']

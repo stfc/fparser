@@ -599,11 +599,13 @@ class BlockBase(Base):
                     end_name = obj.get_end_name()
                     if end_name and not start_name:
                         raise FortranSyntaxError(
-                            reader, f"Name '{end_name}' has no corresponding starting name")
+                            reader, (f"Name '{end_name}' has no corresponding "
+                                     f"starting name"))
                     if end_name and start_name and \
                        end_name.lower() != start_name.lower():
                         raise FortranSyntaxError(
-                            reader, f"Expecting name '{start_name}', got '{end_name}'")
+                            reader, (f"Expecting name '{start_name}', got "
+                                     f"'{end_name}'"))
 
                 if endcls is not None and isinstance(obj, endcls_all):
                     if match_labels:
@@ -619,15 +621,18 @@ class BlockBase(Base):
 
                         if end_name and not start_name:
                             raise FortranSyntaxError(
-                                reader,
-                                f"Name '{end_name}' has no corresponding starting name")
-                        elif strict_match_names and start_name and not end_name:
+                                reader, (f"Name '{end_name}' has no "
+                                         f"corresponding starting name"))
+                        elif (strict_match_names and start_name and
+                              not end_name):
                             raise FortranSyntaxError(
-                                reader, f"Expecting name '{start_name}' but none given")
+                                reader, (f"Expecting name '{start_name}' but "
+                                         f"none given"))
                         elif start_name and end_name and (start_name.lower() !=
                                                           end_name.lower()):
                             raise FortranSyntaxError(
-                                reader, f"Expecting name '{start_name}', got '{end_name}'")
+                                reader, (f"Expecting name '{start_name}', got "
+                                         f"'{end_name}'"))
                     # We've found the enclosing end statement so break out
                     found_end = True
                     break
@@ -1362,8 +1367,8 @@ class STRINGBase(StringBase):
             return None
         if not isinstance(string, str):
             raise InternalError(
-                f"Supplied string should be of type str, but found {type(string)}"
-            )
+                f"Supplied string should be of type str, but found "
+                f"{type(string)}")
         if isinstance(my_pattern, (list, tuple)):
             for child in my_pattern:
                 result = STRINGBase.match(child, string)

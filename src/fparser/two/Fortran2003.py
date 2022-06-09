@@ -2698,7 +2698,8 @@ class Type_Declaration_Stmt(Type_Declaration_StmtBase):  # R501
         of the current scope (if there is one).
 
         Note that this is implemented as a class method to allow parameterizing
-        the type used to match attr-spec-list via :py:meth:`get_attr_spec_list_cls`.
+        the type used to match attr-spec-list via
+        :py:meth:`get_attr_spec_list_cls`.
 
         :param str string: the string to match.
 
@@ -2708,8 +2709,8 @@ class Type_Declaration_Stmt(Type_Declaration_StmtBase):  # R501
 
         '''
         result = Type_Declaration_StmtBase.match(
-            Declaration_Type_Spec, cls.get_attr_spec_list_cls(), Entity_Decl_List,
-            string)
+            Declaration_Type_Spec, cls.get_attr_spec_list_cls(),
+            Entity_Decl_List, string)
         cls.add_to_symbol_table(result)
         return result
 
@@ -2924,7 +2925,8 @@ class Entity_Decl(Base):  # R504
         return s
 
     def get_name(self):
-        '''Provides the entity name as an instance of the :py:class:`Name` class.
+        '''Provides the entity name as an instance of the :py:class:`Name`
+        class.
 
         :rtype: :py:class:`Name`
         '''
@@ -6042,14 +6044,15 @@ class If_Stmt(StmtBase):  # R807
         type that is used to match the action-stmt. It is specified by the
         attribute :py:attr:`action_stmt_cls`, which can be overwritten in
         derived classes to specify an updated version, so done for example
-        in the Fortran 2008 version :py:class:`fparser.two.Fortran2008.If_Stmt`.
+        in the Fortran 2008 version
+        :py:class:`fparser.two.Fortran2008.If_Stmt`.
 
         :param str string: Text that we are trying to match.
 
         :returns: None if there is no match or, if there is a match, a \
             2-tuple containing the logical expression as an object matched by \
             :py:class:`fparser.two.Fortran2003.Scalar_Logical_Expr` and the \
-            action statement as an object matching ``cls.action_stmt_cls``. 
+            action statement as an object matching ``cls.action_stmt_cls``.
         :rtype: (:py:class:`fparser.two.Fortran2003.Scalar_Logical_Expr`,
             :py:class:`fparser.two.Fortran2003.Action_Stmt_C802`) \
             or NoneType
@@ -7040,7 +7043,7 @@ class Arithmetic_If_Stmt(StmtBase):  # R847
         labels = line[i+1:].lstrip().split(',')
         if len(labels) != 3:
             return
-        labels = [Label(l.strip()) for l in labels]
+        labels = [Label(lab.strip()) for lab in labels]
         return (Scalar_Numeric_Expr(line[1:i].strip()),) + tuple(labels)
     match = staticmethod(match)
 
@@ -10618,7 +10621,8 @@ class Function_Stmt(StmtBase):  # R1224
         return s
 
     def get_name(self):
-        '''Provides the function name as an instance of the :py:class:`Name` class.
+        '''Provides the function name as an instance of the :py:class:`Name`
+        class.
 
         :rtype: :py:class:`Name`
         '''
