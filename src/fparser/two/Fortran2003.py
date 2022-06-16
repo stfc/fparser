@@ -410,7 +410,7 @@ class Specification_Part(BlockBase):  # R204
     def match(reader):
         return BlockBase.match(None, [Use_Stmt, Import_Stmt,
                                       Implicit_Part, Declaration_Construct],
-                               None, reader)
+                               None, reader, strict_order=True)
 
 
 class Implicit_Part(BlockBase):  # R205
@@ -9329,7 +9329,7 @@ class Module(BlockBase):  # R1104
     def match(reader):
         return BlockBase.match(Module_Stmt,
                                [Specification_Part, Module_Subprogram_Part],
-                               End_Module_Stmt, reader)
+                               End_Module_Stmt, reader, strict_order=True)
 
 
 class Module_Stmt(StmtBase, WORDClsBase):  # R1105
@@ -10552,7 +10552,7 @@ class Function_Subprogram(BlockBase):  # R1223
                                 Execution_Part,
                                 Internal_Subprogram_Part],
                                End_Function_Stmt,
-                               reader)
+                               reader, strict_order=True)
 
 
 class Function_Stmt(StmtBase):  # R1224
@@ -10814,7 +10814,7 @@ class Subroutine_Subprogram(BlockBase):  # R1231
                                 Execution_Part,
                                 Internal_Subprogram_Part],
                                End_Subroutine_Stmt,
-                               reader)
+                               reader, strict_order=True)
     match = staticmethod(match)
 
 
