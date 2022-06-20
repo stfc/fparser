@@ -527,7 +527,8 @@ class BlockBase(Base):
               enable_if_construct_hook=False,
               enable_where_construct_hook=False,
               strict_order=False,
-              strict_match_names=False):
+              strict_match_names=False,
+              once_only=False):
         '''
         Checks whether the content in reader matches the given
         type of block statement (e.g. DO..END DO, IF...END IF etc.)
@@ -677,6 +678,9 @@ class BlockBase(Base):
                 if not strict_order:
                     # Return to start of classes list now that we've matched.
                     i = 0
+                if once_only:
+                    # Move to next class if we only allow up to one match.
+                    i += 1
                 if enable_if_construct_hook:
                     if isinstance(obj, di.Else_If_Stmt):
                         # Got an else-if so go back to start of possible
