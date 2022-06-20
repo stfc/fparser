@@ -981,3 +981,15 @@ clear_symbol_table  --                      Removes all stored symbol tables.
 fake_symbol_table   --                      Creates a fake scoping region and
                                             associated symbol table.
 =================== ======================= ===================================
+
+
+Performance Benchmark
+---------------------
+
+The fparser scripts folder contains a benchmarking script to assess the
+performance of the parser by generating a synthetic Fortran file with
+multiple subroutine and the associated subroutine calls. It can be executed
+with the following command::
+
+    ./src/fparser/scripts/fparser2_bench.py
+

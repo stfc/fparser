@@ -1,6 +1,6 @@
 This directory contains scripts that are potentially useful for
-running and/or testing fparser. The scripts and their use is described
-below
+running and/or testing fparser. The scripts and their use are described
+below.
 
 fparser2.py
 -----------
@@ -16,6 +16,12 @@ end program test
 > fparser2.py tmp.f90
 PROGRAM test
 END PROGRAM test
+
+fparser2_bench.py
+-----------------
+
+Generates a synthetic Fortran source benchmark in memory and then
+measures the time taken by fparser2 to parse it.
 
 parse.py
 --------
