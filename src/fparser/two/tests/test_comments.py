@@ -264,7 +264,7 @@ end function my_mod
     comment = fn_unit.content[1].content[0].content[0]
     assert isinstance(comment, Comment)
     assert "! This is a function" in str(comment)
-    comment = fn_unit.content[1].content[2].content[0]
+    comment = fn_unit.content[1].content[2]
     assert isinstance(comment, Comment)
     assert "! Comment1" in str(comment)
     exec_part = fn_unit.content[2]
@@ -291,14 +291,13 @@ end subroutine my_mod
     reader = get_reader(source, isfree=True, ignore_comments=False)
     fn_unit = Subroutine_Subprogram(reader)
     assert isinstance(fn_unit, Subroutine_Subprogram)
-    walk(fn_unit.children, Comment, debug=True)
     spec_part = fn_unit.content[1]
     comment = spec_part.content[0].content[0]
     assert isinstance(comment, Comment)
     assert "! First comment" in str(comment)
-    comment = spec_part.content[2].content[0]
+    comment = spec_part.content[2]
     assert isinstance(comment, Comment)
-    assert comment.parent is spec_part.content[2]
+    assert comment.parent is spec_part
     assert "! Body comment" in str(comment)
     exec_part = fn_unit.content[2]
     comment = exec_part.content[1]

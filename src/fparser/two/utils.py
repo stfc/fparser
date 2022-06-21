@@ -529,8 +529,7 @@ class BlockBase(Base):
               strict_order=False,
               strict_match_names=False,
               once_only=False):
-        '''
-        Checks whether the content in reader matches the given
+        '''Checks whether the content in reader matches the given
         type of block statement (e.g. DO..END DO, IF...END IF etc.)
 
         :param type startcls: the class marking the beginning of the block
@@ -551,6 +550,9 @@ class BlockBase(Base):
                                   given subclasses.
         :param bool strict_match_names: if start name present, end name \
                                         must exist and match.
+        :param bool once_only: whether to restrict matching to at most \
+            once for a subclass. This is only active if strict_order is \
+            also set.
 
         :return: instance of startcls or None if no match is found
         :rtype: startcls
@@ -678,8 +680,7 @@ class BlockBase(Base):
                 if not strict_order:
                     # Return to start of classes list now that we've matched.
                     i = 0
-                if once_only:
-                    # Move to next class if we only allow up to one match.
+                elif once_only:
                     i += 1
                 if enable_if_construct_hook:
                     if isinstance(obj, di.Else_If_Stmt):
