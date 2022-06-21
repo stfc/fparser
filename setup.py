@@ -103,8 +103,8 @@ CLASSIFIERS = [
 
 MAJOR = 0
 MINOR = 0
-MICRO = 15
-VERSION = '%d.%d.%d' % (MAJOR, MINOR, MICRO)
+MICRO = 16
+VERSION = f'{MAJOR}.{MINOR}.{MICRO}'
 
 if __name__ == '__main__':
 
