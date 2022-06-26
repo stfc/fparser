@@ -551,7 +551,7 @@ class BlockBase(Base):
         enable_where_construct_hook=False,
         strict_order=False,
         strict_match_names=False,
-        once_only=False
+        once_only=False,
     ):
         """
         Checks whether the content in reader matches the given

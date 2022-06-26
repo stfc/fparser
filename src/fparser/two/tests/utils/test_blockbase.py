@@ -1,4 +1,4 @@
-# Copyright (c) 2019-2021, Science and Technology Facilities Council
+# Copyright (c) 2019-2022, Science and Technology Facilities Council
 
 # All rights reserved.
 
@@ -81,8 +81,9 @@ def test_include(f2003_create):
         ),
         ignore_comments=False,
     )
-    result = BlockBase.match(startcls, subclasses, endcls, reader,
-                             strict_order=True, once_only=True)
+    result = BlockBase.match(
+        startcls, subclasses, endcls, reader, strict_order=True, once_only=True
+    )
     assert (
         "([Include_Stmt(Include_Filename('1')), Comment('! comment1'), "
         "Program_Stmt('PROGRAM', Name('test')), Include_Stmt("
