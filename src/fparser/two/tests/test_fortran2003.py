@@ -140,8 +140,9 @@ end type b
     assert isinstance(obj, tcls), repr(obj)
     assert "TYPE :: a\nEND TYPE a\nTYPE :: b\nEND TYPE b" in str(obj)
 
-
-    obj = tcls(get_reader('''\
+    obj = tcls(
+        get_reader(
+            """\
 ! comment1
 use a
 ! comment2
@@ -153,12 +154,17 @@ include 'fred'
 #ifdef x
 use d
 #endif
-''', ignore_comments=False))
+""",
+            ignore_comments=False,
+        )
+    )
     assert isinstance(obj, tcls), repr(obj)
     expected = (
         "! comment1\nUSE a\n! comment2\nUSE b\n! comment3\n#define x\n"
-        "USE c\nINCLUDE 'fred'\n#ifdef x\nUSE d\n#endif")
+        "USE c\nINCLUDE 'fred'\n#ifdef x\nUSE d\n#endif"
+    )
     assert expected in str(obj)
+
 
 #
 # SECTION  3
