@@ -32,7 +32,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-'''Tests for a Fortran 2003 R1011 control edit descriptor.'''
+"""Tests for a Fortran 2003 R1011 control edit descriptor."""
 
 import pytest
 from fparser.two.Fortran2003 import Control_Edit_Desc
@@ -40,37 +40,48 @@ from fparser.two.utils import NoMatchError, InternalError
 
 
 def test_descriptors_match(f2003_create):
-    '''Check that valid control edit descriptors are parsed correctly when
+    """Check that valid control edit descriptors are parsed correctly when
     they are dealt with by the match method. These are '/', ':', 'P'
     and '$'. '$' is dealt with in separate tests as it is an
     extension. We test with and without spaces.
 
-    '''
-    for my_input in ["/", " / ", "2/", " 2 / ", ":", " : ", "2P", " 2 P ",
-                     "2p", " 2 p "]:
+    """
+    for my_input in [
+        "/",
+        " / ",
+        "2/",
+        " 2 / ",
+        ":",
+        " : ",
+        "2P",
+        " 2 P ",
+        "2p",
+        " 2 p ",
+    ]:
         ast = Control_Edit_Desc(my_input)
         assert str(ast) == my_input.upper().replace(" ", "")
 
 
 def test_descriptors_subclass(f2003_create):
-    '''Check that valid control edit descriptors are parsed correctly when
+    """Check that valid control edit descriptors are parsed correctly when
     they are passed onto subclasses. In this case we just test a
     single example for each subclass to see if valid values are passed
     on, as the subclass tests check all the options.
 
-    '''
+    """
     for my_input in ["T2", "SS", "BN", "RU", "DC"]:
         ast = Control_Edit_Desc(my_input)
         assert str(ast) == my_input.upper()
 
 
 def test_dollar_valid(f2003_create, monkeypatch):
-    '''Check that valid $ format specifications are parsed correctly if
+    """Check that valid $ format specifications are parsed correctly if
     the dollar-descriptor extension is specified. Also include an
     example with spaces.
 
-    '''
+    """
     from fparser.two import utils
+
     monkeypatch.setattr(utils, "EXTENSIONS", ["dollar-descriptor"])
     for my_input in ["$", " $ "]:
         ast = Control_Edit_Desc(my_input)
@@ -78,11 +89,12 @@ def test_dollar_valid(f2003_create, monkeypatch):
 
 
 def test_dollar_invalid(f2003_create, monkeypatch):
-    '''Check that valid '$' format specifications raise a NoMatchError if
+    """Check that valid '$' format specifications raise a NoMatchError if
     the 'dollar-format' extension is not in the EXTENSIONS list.
 
-    '''
+    """
     from fparser.two import utils
+
     monkeypatch.setattr(utils, "EXTENSIONS", [])
     for my_input in ["$", " $ "]:
         with pytest.raises(NoMatchError):
@@ -90,21 +102,33 @@ def test_dollar_invalid(f2003_create, monkeypatch):
 
 
 def test_invalid_format_errors(f2003_create):
-    '''Check that invalid format for the match method raises a
+    """Check that invalid format for the match method raises a
     NoMatchError exception.
 
-    '''
-    for my_input in [None, "", "  ", "//", "a /", "/ a", "::", "a :",
-                     ": a", "pp", "a p", "p a"]:
+    """
+    for my_input in [
+        None,
+        "",
+        "  ",
+        "//",
+        "a /",
+        "/ a",
+        "::",
+        "a :",
+        ": a",
+        "pp",
+        "a p",
+        "p a",
+    ]:
         with pytest.raises(NoMatchError):
             _ = Control_Edit_Desc(my_input)
 
 
 def test_internal_error1(f2003_create, monkeypatch):
-    '''Check that an internal error is raised if the length of the Items
+    """Check that an internal error is raised if the length of the Items
     list is not 2 as the str() method assumes that it is.
 
-    '''
+    """
     my_input = "3P"
     ast = Control_Edit_Desc(my_input)
     monkeypatch.setattr(ast, "items", [None, None, None])
@@ -114,16 +138,17 @@ def test_internal_error1(f2003_create, monkeypatch):
 
 
 def test_internal_error2(f2003_create, monkeypatch):
-    '''Check that an internal error is raised if the descriptor name
+    """Check that an internal error is raised if the descriptor name
     (first entry of items) is empty or None as the str() method assumes
     that it is a string with content.
 
-    '''
+    """
     my_input = "3P"
     ast = Control_Edit_Desc(my_input)
     for content in [None, ""]:
         monkeypatch.setattr(ast, "items", [ast.items[0], content])
         with pytest.raises(InternalError) as excinfo:
             str(ast)
-        assert "should be an edit descriptor name but is empty or None" \
-            in str(excinfo.value)
+        assert "should be an edit descriptor name but is empty or None" in str(
+            excinfo.value
+        )

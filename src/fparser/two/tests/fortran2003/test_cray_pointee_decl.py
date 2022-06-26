@@ -32,10 +32,10 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-'''Test Fortran 2003 Cray-pointers: This file tests the support for a
+"""Test Fortran 2003 Cray-pointers: This file tests the support for a
 Cray-pointee declaration.
 
-'''
+"""
 
 import pytest
 from fparser.two.Fortran2003 import Cray_Pointee_Decl
@@ -43,17 +43,21 @@ from fparser.two.utils import NoMatchError
 
 
 def test_cray_pointee_decl(f2003_create):
-    '''Check that Cray-pointee declarations are parsed correctly.
-
-    '''
-    for myinput in ["a(n)", "a(0 : n)", "a(n, m)", "a(5, *)", "a(*)",
-                    "a(0 : 1, 2 : *)"]:
+    """Check that Cray-pointee declarations are parsed correctly."""
+    for myinput in [
+        "a(n)",
+        "a(0 : n)",
+        "a(n, m)",
+        "a(5, *)",
+        "a(*)",
+        "a(0 : 1, 2 : *)",
+    ]:
         ast = Cray_Pointee_Decl(myinput)
         assert myinput in str(ast)
 
 
 def test_errors(f2003_create):
-    '''Check that syntax errors produce a NoMatchError exception.'''
+    """Check that syntax errors produce a NoMatchError exception."""
     for myinput in ["", "  ", "a", "a2)", "a(2", "a()"]:
         with pytest.raises(NoMatchError) as excinfo:
             _ = Cray_Pointee_Decl(myinput)
@@ -61,10 +65,10 @@ def test_errors(f2003_create):
 
 
 def test_unsupported(f2003_create):
-    '''Check that unsupported assumed shape declarations produce a
+    """Check that unsupported assumed shape declarations produce a
     NoMatchError exception.
 
-    '''
+    """
     for myinput in ["a(:)", "a(2,:)"]:
         with pytest.raises(NoMatchError) as excinfo:
             _ = Cray_Pointee_Decl(myinput)

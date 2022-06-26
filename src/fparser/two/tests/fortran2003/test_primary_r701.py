@@ -32,7 +32,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-'''Test Fortran 2003 rule R701 : primary type.
+"""Test Fortran 2003 rule R701 : primary type.
 
 Sub-rules:
     C701 (R701) The type-param-name shall be the name of a type parameter.
@@ -41,7 +41,7 @@ Sub-rules:
 Neither C701 nor C702 can be tested here, as they require context of the
 type defined outside of Primary.
 
-'''
+"""
 import sys
 
 import pytest
@@ -50,9 +50,8 @@ import fparser.two.Fortran2003 as f2003
 from fparser.two.utils import NoMatchError
 
 
-def assert_subclass_parse(source, base_type, actual_type=None,
-                          expected_str=None):
-    '''Assert that the given source matches the given ``base_type``
+def assert_subclass_parse(source, base_type, actual_type=None, expected_str=None):
+    """Assert that the given source matches the given ``base_type``
     and optionally the specific type that it should produce.
 
     :param source: The Fortran source to be parsed.
@@ -63,7 +62,7 @@ def assert_subclass_parse(source, base_type, actual_type=None,
     :type actual_type: :py:class:`fortran.two.Fortran2003.Base` subclass
     :param str expected_str: The expected ``str(result)`` of the parsed result
 
-    '''
+    """
     obj = f2003.Primary(source)
     # Note: Check that the type exists in the possible types, rather than
     # checking the type is an instance of one of the possible types (and
@@ -81,7 +80,7 @@ def assert_subclass_parse(source, base_type, actual_type=None,
 
 
 def possible_subclasses(node_type, _seen=None):
-    '''Given a type (e.g. Fortran2003.Primary), return all of the
+    """Given a type (e.g. Fortran2003.Primary), return all of the
     subtypes that could have been matched after parsing.
 
     NOTE: This is not a general implementation. It is useful for testing
@@ -94,9 +93,9 @@ def possible_subclasses(node_type, _seen=None):
                   recursive calls to this function.
     :type _seen: None or list
 
-    '''
+    """
     seen = _seen or []
-    subclasses = getattr(node_type, 'subclass_names', [])
+    subclasses = getattr(node_type, "subclass_names", [])
     if node_type not in seen:
         seen.append(node_type)
 
@@ -111,59 +110,63 @@ def possible_subclasses(node_type, _seen=None):
 
 @pytest.mark.usefixtures("f2003_create", "fake_symbol_table")
 def test_intrinsic_function():
-    '''Test that an intrinsic function is matched by Primary.
-    '''
+    """Test that an intrinsic function is matched by Primary."""
     assert_subclass_parse(
-        'sin(x)', f2003.Intrinsic_Function_Reference,
+        "sin(x)",
+        f2003.Intrinsic_Function_Reference,
         actual_type=f2003.Intrinsic_Function_Reference,
-        expected_str='SIN(x)')
+        expected_str="SIN(x)",
+    )
 
 
 @pytest.mark.usefixtures("f2003_create")
 def test_constant():
-    '''Test that Constant types are matched by Primary.
-    '''
+    """Test that Constant types are matched by Primary."""
     assert_subclass_parse(
-        '1.2e-03', f2003.Constant,
+        "1.2e-03",
+        f2003.Constant,
         actual_type=f2003.Real_Literal_Constant,
-        expected_str='1.2E-03')
+        expected_str="1.2E-03",
+    )
 
 
 @pytest.mark.usefixtures("f2003_create")
 def test_designator():
-    '''Test that Designator types are matched by Primary.
-    '''
+    """Test that Designator types are matched by Primary."""
     assert_subclass_parse(
-        'array(1:5)', f2003.Designator,
+        "array(1:5)",
+        f2003.Designator,
         actual_type=f2003.Part_Ref,
-        expected_str='array(1 : 5)')
+        expected_str="array(1 : 5)",
+    )
 
 
 @pytest.mark.usefixtures("f2003_create")
 def test_array_constructor():
-    '''Test that Array Constructor types are matched by Primary.
-    '''
+    """Test that Array Constructor types are matched by Primary."""
     assert_subclass_parse(
-        '[ 1.2, 2.3e + 2,    -5.1 e-3 ]', f2003.Array_Constructor,
+        "[ 1.2, 2.3e + 2,    -5.1 e-3 ]",
+        f2003.Array_Constructor,
         actual_type=f2003.Array_Constructor,
-        expected_str='[1.2, 2.3E+2, - 5.1E-3]')
+        expected_str="[1.2, 2.3E+2, - 5.1E-3]",
+    )
 
 
 @pytest.mark.usefixtures("f2003_create")
 def test_structure_constructor_1():
-    '''Test that Structure Constructor types are matched by Primary.
-
-    '''
+    """Test that Structure Constructor types are matched by Primary."""
     assert_subclass_parse(
-        "PERSON ( 12,   \"Jones\" )", f2003.Structure_Constructor,
+        'PERSON ( 12,   "Jones" )',
+        f2003.Structure_Constructor,
         actual_type=f2003.Structure_Constructor,
-        expected_str='PERSON(12, "Jones")')
+        expected_str='PERSON(12, "Jones")',
+    )
 
 
 @pytest.mark.xfail(reason="Requires more parse context (#190)")
 @pytest.mark.usefixtures("f2003_create")
 def test_structure_constructor_2():
-    '''Test that Structure Constructor types are matched by Primary.
+    """Test that Structure Constructor types are matched by Primary.
 
     This test currently fails as PERSON( 12, 24 ) is matched as an
     array access (Designator). In general, the only way to tell the
@@ -173,59 +176,66 @@ def test_structure_constructor_2():
     not know the information before link time as declarations may be
     in different modules (see issue #201).
 
-    '''
+    """
     # This test incorrectly Matches with Designator. It would
     # correctly match with Structure_Constructor but Designator is
     # checked first from the Primary class.
     assert_subclass_parse(
-        "PERSON ( 12, 24 )", f2003.Structure_Constructor,
+        "PERSON ( 12, 24 )",
+        f2003.Structure_Constructor,
         actual_type=f2003.Structure_Constructor,
-        expected_str='PERSON(12, 24)')
+        expected_str="PERSON(12, 24)",
+    )
 
 
 @pytest.mark.xfail(reason="Requires more parse context (#190)")
 @pytest.mark.usefixtures("f2003_create")
 def test_function_reference():
-    '''This test demonstrates the inability to distinguish
+    """This test demonstrates the inability to distinguish
     Structure_Constructor from Function_Reference without more parse context
     than is currently being provided.
-    '''
+    """
     assert_subclass_parse(
-        'a_function(1.2, some_kwarg="hello")', f2003.Function_Reference)
+        'a_function(1.2, some_kwarg="hello")', f2003.Function_Reference
+    )
 
 
 @pytest.mark.xfail(reason="Requires more parse context (#190)")
 def test_type_param_inquiry():
-    '''This test demonstrates the inability to distinguish Designator from
+    """This test demonstrates the inability to distinguish Designator from
     Type_Param_Inquiry without more parse context than is currently being
     provided.
-    '''
-    assert_subclass_parse(
-        'X % KIND', f2003.Type_Param_Inquiry)
+    """
+    assert_subclass_parse("X % KIND", f2003.Type_Param_Inquiry)
 
 
 def test_type_param_name():
-    '''Test that Type_Param_Name types are matched by Primary.
-    '''
+    """Test that Type_Param_Name types are matched by Primary."""
     assert_subclass_parse(
-        'INTEGER', f2003.Type_Param_Name,
-        actual_type=f2003.Name,
-        expected_str='INTEGER')
+        "INTEGER", f2003.Type_Param_Name, actual_type=f2003.Name, expected_str="INTEGER"
+    )
 
 
-@pytest.mark.parametrize("string", ["(a)", "(a + b)", "(a + 1)", "((a))",
-                                    "(\"a\" + \"c\")", "(\"a\" + \")\")",
-                                    "(')' + \")\")"])
+@pytest.mark.parametrize(
+    "string",
+    [
+        "(a)",
+        "(a + b)",
+        "(a + 1)",
+        "((a))",
+        '("a" + "c")',
+        '("a" + ")")',
+        "(')' + \")\")",
+    ],
+)
 @pytest.mark.usefixtures("f2003_create")
 def test_parenthesis(string):
-    '''Test that Parenthesis types are matched by the Primary. As
+    """Test that Parenthesis types are matched by the Primary. As
     fparser2 implements this match as a separate class called
     `Parenthesis`, also check this class directly.
 
-    '''
-    assert_subclass_parse(
-        string, f2003.Parenthesis,
-        expected_str=string)
+    """
+    assert_subclass_parse(string, f2003.Parenthesis, expected_str=string)
 
     result = f2003.Parenthesis(string)
     assert isinstance(result, f2003.Parenthesis)
@@ -236,10 +246,10 @@ def test_parenthesis(string):
 @pytest.mark.parametrize("cls", [f2003.Primary, f2003.Parenthesis])
 @pytest.mark.usefixtures("f2003_create")
 def test_parenthesis_no_match(string, cls):
-    '''Test that invalid Parenthesis input is not matched by Primary or
+    """Test that invalid Parenthesis input is not matched by Primary or
     Parenthesis classes.
 
-    '''
+    """
     with pytest.raises(NoMatchError) as error:
         _ = cls(string)
     assert "{0}: '{1}'".format(cls.__name__, string) in str(error.value)
@@ -247,32 +257,32 @@ def test_parenthesis_no_match(string, cls):
 
 @pytest.mark.usefixtures("f2003_create")
 def test_no_match():
-    '''Test that a NoMatchError is raised if we provide code
+    """Test that a NoMatchError is raised if we provide code
     that isn't allowed as a Primary type (e.g. a comment).
-    '''
+    """
     with pytest.raises(NoMatchError):
-        _ = f2003.Primary('! A comment')
+        _ = f2003.Primary("! A comment")
 
 
 @pytest.mark.xfail(reason="Requires more parse context (#190)")
 @pytest.mark.usefixtures("f2003_create")
 def test_c701_no_assumed_size_array():
-    '''Test C701 (R701) The type-param-name shall be the name of a type.
+    """Test C701 (R701) The type-param-name shall be the name of a type.
     This test cannot be passed without more parse context of things like
     defined types.
-    '''
+    """
     context = f2003.Type_Declaration_Stmt("INTEGER :: not_a_type")
     with pytest.raises(NoMatchError):
-        f2003.Primary('not_a_type',)  # context)
+        f2003.Primary("not_a_type")  # context)
 
 
 @pytest.mark.xfail(reason="Requires more parse context (#190)")
 @pytest.mark.usefixtures("f2003_create")
 def test_c702_no_assumed_size_array():
-    '''Test C702 (R701) The designator shall not be a whole assumed-size array.
+    """Test C702 (R701) The designator shall not be a whole assumed-size array.
     This test cannot be passed without more parse context of things like
     defined types.
-    '''
+    """
     context = f2003.Type_Declaration_Stmt("integer(*) :: assumed_size_array")
     with pytest.raises(NoMatchError):
-        f2003.Primary('assumed_size_array',)  # context)
+        f2003.Primary("assumed_size_array")  # context)

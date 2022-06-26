@@ -32,7 +32,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-''' Test the walk() routine provided by utils.py. '''
+""" Test the walk() routine provided by utils.py. """
 
 import pytest
 from fparser.api import get_reader
@@ -42,11 +42,13 @@ from fparser.two import Fortran2003
 
 @pytest.mark.usefixtures("f2003_create")
 def test_walk():
-    ''' Test the walk() utility. '''
-    reader = get_reader("program hello\n"
-                        "write(*,*) 'hello'\n"
-                        "write(*,*) 'goodbye'\n"
-                        "end program hello\n")
+    """Test the walk() utility."""
+    reader = get_reader(
+        "program hello\n"
+        "write(*,*) 'hello'\n"
+        "write(*,*) 'goodbye'\n"
+        "end program hello\n"
+    )
     main = Fortran2003.Program(reader)
     # Check that walk produces the same result whether or not the
     # starting node is in a list.
@@ -68,12 +70,14 @@ def test_walk():
 
 @pytest.mark.usefixtures("f2003_create")
 def test_walk_debug(capsys):
-    ''' Test the debug output of the walk() utility. '''
-    reader = get_reader("program just_a_test\n"
-                        "if(.true.)then\n"
-                        "  b = 1\n"
-                        "end if\n"
-                        "end program just_a_test\n")
+    """Test the debug output of the walk() utility."""
+    reader = get_reader(
+        "program just_a_test\n"
+        "if(.true.)then\n"
+        "  b = 1\n"
+        "end if\n"
+        "end program just_a_test\n"
+    )
     main = Fortran2003.Program(reader)
     _ = walk(main, debug=True)
     stdout, _ = capsys.readouterr()
@@ -87,5 +91,5 @@ def test_walk_debug(capsys):
     if_constructs = walk(main, Fortran2003.If_Construct)
     _ = walk(if_constructs[0], indent=4, debug=True)
     stdout, _ = capsys.readouterr()
-    assert stdout.startswith(8*" "+"child type =")
+    assert stdout.startswith(8 * " " + "child type =")
     assert "Program" not in stdout

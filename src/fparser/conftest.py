@@ -35,9 +35,9 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ##############################################################################
-'''
+"""
 Shared fixtures.
-'''
+"""
 
 import logging
 import fparser.common.tests.logging_utils
@@ -46,10 +46,10 @@ import pytest
 
 @pytest.fixture
 def log():
-    '''
+    """
     Prepare a fixture to capture logged events for inspection.
-    '''
-    logger = logging.getLogger('fparser')
+    """
+    logger = logging.getLogger("fparser")
     handler = fparser.common.tests.logging_utils.CaptureLoggingHandler()
     logger.addHandler(handler)
     logger.setLevel(logging.DEBUG)

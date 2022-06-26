@@ -79,34 +79,36 @@ import fparser.common.sourceinfo
 # have to create our own function that simply wraps print and returns
 # a value.
 def print_wrapper(arg):
-    ''' A wrapper that allows us to call print as a function. Used for
-    monkeypatching logging calls. '''
+    """A wrapper that allows us to call print as a function. Used for
+    monkeypatching logging calls."""
     print(arg)
     return None
 
 
 def test_case():
-    ''' Basic tests for parsing of individual case statements '''
+    """Basic tests for parsing of individual case statements"""
     from fparser.one.tests.test_parser import parse
     from fparser.one.block_statements import Case
-    assert parse(Case, 'case (1)') == 'CASE ( 1 )'
-    assert parse(Case, 'case (1:)') == 'CASE ( 1 : )'
-    assert parse(Case, 'case (:1)') == 'CASE ( : 1 )'
-    assert parse(Case, 'case (1:2)') == 'CASE ( 1 : 2 )'
-    assert parse(Case, 'case (a(1,2))') == 'CASE ( a(1,2) )'
+
+    assert parse(Case, "case (1)") == "CASE ( 1 )"
+    assert parse(Case, "case (1:)") == "CASE ( 1 : )"
+    assert parse(Case, "case (:1)") == "CASE ( : 1 )"
+    assert parse(Case, "case (1:2)") == "CASE ( 1 : 2 )"
+    assert parse(Case, "case (a(1,2))") == "CASE ( a(1,2) )"
     assert parse(Case, 'case ("ab")') == 'CASE ( "ab" )'
-    assert parse(Case, 'case default') == 'CASE DEFAULT'
-    assert parse(Case, 'case (1:2 ,3:4)') == 'CASE ( 1 : 2, 3 : 4 )'
-    assert parse(Case, 'case (a(1,:):)') == 'CASE ( a(1,:) : )'
-    assert parse(Case, 'case default') == 'CASE DEFAULT'
+    assert parse(Case, "case default") == "CASE DEFAULT"
+    assert parse(Case, "case (1:2 ,3:4)") == "CASE ( 1 : 2, 3 : 4 )"
+    assert parse(Case, "case (a(1,:):)") == "CASE ( a(1,:) : )"
+    assert parse(Case, "case default") == "CASE DEFAULT"
 
 
 def test_case_internal_error(monkeypatch, capsys):
-    ''' Check that expected errors are raised when invalid case
-    statements are encountered '''
+    """Check that expected errors are raised when invalid case
+    statements are encountered"""
     from fparser.one.block_statements import Case
     from fparser.common.readfortran import FortranStringReader
-    reader = FortranStringReader('CASE (yes)')
+
+    reader = FortranStringReader("CASE (yes)")
     reader.set_format(fparser.common.sourceinfo.FortranFormat(True, False))
     item = next(reader)
     stmt = Case(item, item)
@@ -114,8 +116,7 @@ def test_case_internal_error(monkeypatch, capsys):
     # returns something invalid. We have to do it this way
     # because if we started with this text then we wouldn't get
     # past the match() method
-    monkeypatch.setattr(stmt.item, "get_line",
-                        lambda: "case invalid")
+    monkeypatch.setattr(stmt.item, "get_line", lambda: "case invalid")
     # Monkeypatch the Case object so that a call to self.warning
     # (which normally results in a call to the logger) gets replaced
     # with a call to our print_wrapper() function
@@ -127,11 +128,12 @@ def test_case_internal_error(monkeypatch, capsys):
 
 
 def test_class_internal_error(monkeypatch, capsys):
-    ''' Check that expected errors are raised when invalid CLASS
-    statements are encountered '''
+    """Check that expected errors are raised when invalid CLASS
+    statements are encountered"""
     from fparser.one.block_statements import ClassIs
     from fparser.common.readfortran import FortranStringReader
-    reader = FortranStringReader('CLASS IS (yes)')
+
+    reader = FortranStringReader("CLASS IS (yes)")
     reader.set_format(fparser.common.sourceinfo.FortranFormat(True, False))
     item = next(reader)
     stmt = ClassIs(item, item)
@@ -139,8 +141,7 @@ def test_class_internal_error(monkeypatch, capsys):
     # returns something invalid. We have to do it this way
     # because if we started with this text then we wouldn't get
     # past the match() method
-    monkeypatch.setattr(stmt.item, "get_line",
-                        lambda: "class invalid")
+    monkeypatch.setattr(stmt.item, "get_line", lambda: "class invalid")
     # Monkeypatch the Case object so that a call to self.warning
     # (which normally results in a call to the logger) gets replaced
     # with a call to our print_wrapper() function
@@ -151,9 +152,10 @@ def test_class_internal_error(monkeypatch, capsys):
 
 
 def test_select_case():
-    '''Test that fparser correctly recognises select case'''
+    """Test that fparser correctly recognises select case"""
     from fparser import api
-    source_str = '''
+
+    source_str = """
     subroutine foo
     integer :: iflag = 1
     real    :: aval = 0.0
@@ -171,9 +173,8 @@ def test_select_case():
       aval = 0.0
     end select
     end subroutine foo
-    '''
-    tree = api.parse(source_str, isfree=True, isstrict=False,
-                     ignore_comments=True)
+    """
+    tree = api.parse(source_str, isfree=True, isstrict=False, ignore_comments=True)
     assert tree
     select_list = []
     for statement in tree.content[0].content:
@@ -184,8 +185,7 @@ def test_select_case():
         assert isinstance(statement, fparser.one.block_statements.SelectCase)
         assert isinstance(statement.content[0], fparser.one.statements.Case)
         assert isinstance(statement.content[2], fparser.one.statements.Case)
-        assert isinstance(statement.content[3],
-                          fparser.one.statements.Assignment)
+        assert isinstance(statement.content[3], fparser.one.statements.Assignment)
     gen = str(tree)
     print(gen)
     assert "SELECT CASE ( iflag )" in gen
@@ -193,9 +193,10 @@ def test_select_case():
 
 @pytest.mark.xfail(reason="fparser does not work with named select statements")
 def test_named_select_case():
-    '''Test that fparser correctly recognises a named select case'''
+    """Test that fparser correctly recognises a named select case"""
     from fparser import api
-    source_str = '''
+
+    source_str = """
     subroutine foo
     integer :: iflag = 1
     real    :: aval = 0.0
@@ -206,7 +207,7 @@ def test_named_select_case():
       aval = 0.0
     end select  incase
     end subroutine foo
-    '''
+    """
     tree = api.parse(source_str, isfree=True, isstrict=False)
     assert tree
     select_list = []
@@ -218,18 +219,18 @@ def test_named_select_case():
         assert isinstance(statement, fparser.one.block_statements.SelectCase)
         assert isinstance(statement.content[0], fparser.one.statements.Case)
         assert isinstance(statement.content[2], fparser.one.statements.Case)
-        assert isinstance(statement.content[3],
-                          fparser.one.statements.Assignment)
+        assert isinstance(statement.content[3], fparser.one.statements.Assignment)
     gen = str(tree)
     print(gen)
     assert "incase: SELECT CASE ( iflag )" in gen
 
 
 def test_select_case_brackets():
-    '''Test that fparser correctly parses a select case involving
-    parentheses '''
+    """Test that fparser correctly parses a select case involving
+    parentheses"""
     from fparser import api
-    source_str = '''
+
+    source_str = """
     subroutine foo
     integer :: iflag(2) = 1
     real    :: aval = 0.0
@@ -240,7 +241,7 @@ def test_select_case_brackets():
       aval = 0.0
     end select
     end subroutine foo
-    '''
+    """
     tree = api.parse(source_str, isfree=True, isstrict=False)
     assert tree
     statement = None  # Keep pylint happy
@@ -257,9 +258,10 @@ def test_select_case_brackets():
 
 
 def test_select_type():
-    '''Test that fparser correctly recognises select type'''
+    """Test that fparser correctly recognises select type"""
     from fparser import api
-    source_str = '''
+
+    source_str = """
     subroutine foo(an_object)
     class(*) :: an_object
     real    :: aval = 0.0
@@ -281,7 +283,7 @@ def test_select_type():
       aval = -1.0
     end select
     end subroutine foo
-    '''
+    """
     tree = api.parse(source_str, isfree=True, isstrict=False)
     assert tree
     select_list = []
@@ -293,8 +295,7 @@ def test_select_type():
         assert isinstance(statement, fparser.one.block_statements.SelectType)
         assert isinstance(statement.content[0], fparser.one.statements.TypeIs)
         assert isinstance(statement.content[2], fparser.one.statements.ClassIs)
-        assert isinstance(statement.content[3],
-                          fparser.one.statements.Assignment)
+        assert isinstance(statement.content[3], fparser.one.statements.Assignment)
         assert isinstance(statement.content[4], fparser.one.statements.ClassIs)
     gen = str(tree)
     print(gen)
@@ -307,9 +308,10 @@ def test_select_type():
 
 
 def test_type_is_process_item(monkeypatch, capsys):
-    ''' Test error condition raised in TypeIs.process_item() method '''
+    """Test error condition raised in TypeIs.process_item() method"""
     from fparser import api
-    source_str = '''
+
+    source_str = """
     subroutine foo(an_object)
     class(*) :: an_object
     real    :: aval = 0.0
@@ -320,7 +322,7 @@ def test_type_is_process_item(monkeypatch, capsys):
       aval = 0.0
     end select
     end subroutine foo
-    '''
+    """
     tree = api.parse(source_str, isfree=True, isstrict=False)
     assert tree
     statement = None  # Keeps pylint happy
@@ -331,8 +333,7 @@ def test_type_is_process_item(monkeypatch, capsys):
     assert isinstance(statement.content[0], fparser.one.statements.TypeIs)
     typeis = statement.content[0]
     typeis.parent.name = "not_a_name"
-    monkeypatch.setattr(typeis.item, "get_line",
-                        lambda: "type is (blah): wrong_name")
+    monkeypatch.setattr(typeis.item, "get_line", lambda: "type is (blah): wrong_name")
     # Monkeypatch the typeis object so that a call to self.warning
     # (which normally results in a call to the logger) gets replaced
     # with a call to our print_wrapper() function
@@ -344,10 +345,11 @@ def test_type_is_process_item(monkeypatch, capsys):
 
 
 def test_type_is_to_fortran():
-    ''' Test error condition raised in TypeIs.to_fortran() method '''
+    """Test error condition raised in TypeIs.to_fortran() method"""
     from fparser import api
     from fparser.common.utils import ParseError
-    source_str = '''
+
+    source_str = """
     subroutine foo(an_object)
     class(*) :: an_object
     real    :: aval = 0.0
@@ -358,7 +360,7 @@ def test_type_is_to_fortran():
       aval = 0.0
     end select
     end subroutine foo
-    '''
+    """
     tree = api.parse(source_str, isfree=True, isstrict=False)
     assert tree
     statement = None  # Keeps pylint happy
@@ -379,9 +381,10 @@ def test_type_is_to_fortran():
 
 
 def test_class_is_process_item(monkeypatch, capsys):
-    ''' Test error condition raised in ClassIs.process_item() method '''
+    """Test error condition raised in ClassIs.process_item() method"""
     from fparser import api
-    source_str = '''
+
+    source_str = """
     subroutine foo(an_object)
     class(*) :: an_object
     real    :: aval = 0.0
@@ -392,7 +395,7 @@ def test_class_is_process_item(monkeypatch, capsys):
       aval = -1.0
     end select
     end subroutine foo
-    '''
+    """
     tree = api.parse(source_str, isfree=True, isstrict=False)
     assert tree
     statement = None  # Keeps pylint happy
@@ -403,8 +406,7 @@ def test_class_is_process_item(monkeypatch, capsys):
     assert isinstance(statement.content[0], fparser.one.statements.ClassIs)
     clsis = statement.content[0]
     clsis.parent.name = "not_a_name"
-    monkeypatch.setattr(clsis.item, "get_line",
-                        lambda: "class is (blah): wrong_name")
+    monkeypatch.setattr(clsis.item, "get_line", lambda: "class is (blah): wrong_name")
     # Monkeypatch the typeis object so that a call to self.warning
     # (which normally results in a call to the logger) gets replaced
     # with a call to our print_wrapper() function
@@ -416,9 +418,10 @@ def test_class_is_process_item(monkeypatch, capsys):
 
 
 def test_class_is_to_fortran():
-    ''' Test ClassIs.to_fortran() method '''
+    """Test ClassIs.to_fortran() method"""
     from fparser import api
-    source_str = '''
+
+    source_str = """
     subroutine foo(an_object)
     class(*) :: an_object
     real    :: aval = 0.0
@@ -427,7 +430,7 @@ def test_class_is_to_fortran():
       aval = 0.0
     end select
     end subroutine foo
-    '''
+    """
     tree = api.parse(source_str, isfree=True, isstrict=False)
     assert tree
     statement = None  # Keeps pylint happy

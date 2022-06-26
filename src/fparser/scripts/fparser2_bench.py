@@ -33,12 +33,12 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-'''
+"""
 Generates a large Fortran program in memory and then measures how long
 it takes fparser2 to parse it. This is based on the benchmark suggested
 by Ondřej Čertík via Ioannis Nikiteas.
 
-'''
+"""
 from time import perf_counter
 
 from fparser.common.sourceinfo import FortranFormat
@@ -47,7 +47,7 @@ from fparser.two.parser import ParserFactory
 
 
 def gen_sub(num: int):
-    '''
+    """
     Constructs a Fortran subroutine named g<num>.
 
     :param num: the number of the subroutine (used to name it).
@@ -55,7 +55,7 @@ def gen_sub(num: int):
     :returns: Fortran subroutine.
     :rtype: str
 
-    '''
+    """
     sub = f"""subroutine g{num}(x)
     integer, intent(inout) :: x
     integer :: i
@@ -70,7 +70,7 @@ end subroutine
 
 
 def create_bench(num_routines: int):
-    '''
+    """
     Creates the Fortran benchmark code.
 
     :param num_routines: the number of subroutines to create.
@@ -78,18 +78,15 @@ def create_bench(num_routines: int):
     :returns: benchmark Fortran code.
     :rtype: str
 
-    '''
-    code = ["program bench3",
-            "implicit none",
-            "integer :: c",
-            "c = 0"]
-    for i in range(1, num_routines+1):
+    """
+    code = ["program bench3", "implicit none", "integer :: c", "c = 0"]
+    for i in range(1, num_routines + 1):
         code.append(f"call g{i}(c)")
 
     code.append("print *, c")
     code.append("contains")
 
-    for i in range(1, num_routines+1):
+    for i in range(1, num_routines + 1):
         code.append(gen_sub(i))
     code.append("end program")
 
@@ -97,7 +94,7 @@ def create_bench(num_routines: int):
 
 
 def runner(num_routines: int):
-    '''
+    """
     Entry point for running the benchmark.
 
     :param num_routines: the number of subroutines to create in the \
@@ -105,10 +102,12 @@ def runner(num_routines: int):
 
     :raises ValueError: if num_routines < 1.
 
-    '''
+    """
     if num_routines < 1:
-        raise ValueError(f"Number of routines to create must be a positive, "
-                         f"non-zero integer but got: {num_routines}")
+        raise ValueError(
+            f"Number of routines to create must be a positive, "
+            f"non-zero integer but got: {num_routines}"
+        )
 
     print(f"Constructing benchmark code with {num_routines} subroutines...")
     code = create_bench(num_routines)

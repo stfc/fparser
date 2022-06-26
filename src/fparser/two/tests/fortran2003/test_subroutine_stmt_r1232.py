@@ -32,10 +32,10 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-'''Test Fortran 2003 rule R1232 : the majority of the tests for this
+"""Test Fortran 2003 rule R1232 : the majority of the tests for this
 are still in test_fortran2003.py and need to be moved here TODO #306.
 
-'''
+"""
 
 import pytest
 from fparser.api import get_reader
@@ -44,22 +44,23 @@ from fparser.two.symbol_table import SYMBOL_TABLES
 
 
 def test_sub_stmt_new_symbol_table(f2003_create):
-    '''
+    """
     Test that valid code is parsed correctly and an associated symbol table
     created.
 
-    '''
+    """
     obj = Subroutine_Subprogram(get_reader("subroutine a\nend subroutine"))
     assert isinstance(obj, Subroutine_Subprogram)
-    assert str(obj) == 'SUBROUTINE a\nEND SUBROUTINE'
-    assert repr(obj) == ("Subroutine_Subprogram(Subroutine_Stmt(None, "
-                         "Name('a'), None, None), End_Subroutine_Stmt('"
-                         "SUBROUTINE', None))")
+    assert str(obj) == "SUBROUTINE a\nEND SUBROUTINE"
+    assert repr(obj) == (
+        "Subroutine_Subprogram(Subroutine_Stmt(None, "
+        "Name('a'), None, None), End_Subroutine_Stmt('"
+        "SUBROUTINE', None))"
+    )
     assert "a" in SYMBOL_TABLES._symbol_tables
 
 
 def test_subroutine_get_name():
-    """Test we can get the name of the subroutine
-    """
+    """Test we can get the name of the subroutine"""
     obj = Subroutine_Stmt("subroutine foo")
     assert obj.get_name() == Name("foo")

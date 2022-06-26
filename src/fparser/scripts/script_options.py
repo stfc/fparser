@@ -63,67 +63,83 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 # DAMAGE.
 
-__all__ = ['set_read_options', 'set_parse_options',
-           'get_fortran_code_group']
+__all__ = ["set_read_options", "set_parse_options", "get_fortran_code_group"]
 from optparse import OptionGroup, NO_DEFAULT
 
+
 def set_read_options(parser):
-    parser.set_usage('''\
+    parser.set_usage(
+        """\
 %prog [options] <Fortran files>
 
 Description:
-  %prog reads Fortran codes.''')
-    parser.add_option('--task',
-                      default = 'show',
-                      choices = ['show'],
-                      help = 'Specify reading task. Default: %default.'
-                      )
+  %prog reads Fortran codes."""
+    )
+    parser.add_option(
+        "--task",
+        default="show",
+        choices=["show"],
+        help="Specify reading task. Default: %default.",
+    )
     parser.add_option_group(get_fortran_code_group(parser))
+
 
 def set_parse_options(parser):
-    parser.set_usage('''\
+    parser.set_usage(
+        """\
 %prog [options] <Fortran files>
 
 Description:
-  %prog parses Fortran codes.''')
-    parser.add_option('--task',
-                      default = 'show',
-                      choices = ['show', 'none'],
-                      help = 'Specify parsing result task. Default: %default.'
-                      )
+  %prog parses Fortran codes."""
+    )
+    parser.add_option(
+        "--task",
+        default="show",
+        choices=["show", "none"],
+        help="Specify parsing result task. Default: %default.",
+    )
     parser.add_option_group(get_fortran_code_group(parser))
 
+
 def set_fparser_options(parser):
-    ''' Command line options used by the fparser2 script.
+    """Command line options used by the fparser2 script.
 
     :param parser: The OptionParser object.
     :type parser: :py:class:`optparse.OptionParser`
 
-    '''
+    """
 
-    parser.set_usage('''\
+    parser.set_usage(
+        """\
 %prog [options] <Fortran files>
 
 Description:
-  %prog parses Fortran code.''')
-    parser.add_option('--task',
-                      default='show',
-                      choices=['show', 'repr', 'none'],
-                      help='Specify parsing result task. Default: %default.'
-                      )
-    parser.add_option('--std',
-                      default = 'f2003',
-                      choices = ['f2003', 'f2008'],
-                      help = 'Specify the Fortran standard to use. Default: %default.'
-                      )
+  %prog parses Fortran code."""
+    )
+    parser.add_option(
+        "--task",
+        default="show",
+        choices=["show", "repr", "none"],
+        help="Specify parsing result task. Default: %default.",
+    )
+    parser.add_option(
+        "--std",
+        default="f2003",
+        choices=["f2003", "f2008"],
+        help="Specify the Fortran standard to use. Default: %default.",
+    )
 
 
 def get_fortran_code_group(parser):
-    group = OptionGroup (parser, 'Fortran code options',
-                         description = 'Specify information about Fortran codes.')
-    group.add_option('--mode',
-                      default = 'auto',
-                      choices = ['auto', 'free', 'fix', 'f77', 'pyf'],
-                      help = 'Specify Fortran code mode. Default: %default.'
-                      )
+    group = OptionGroup(
+        parser,
+        "Fortran code options",
+        description="Specify information about Fortran codes.",
+    )
+    group.add_option(
+        "--mode",
+        default="auto",
+        choices=["auto", "free", "fix", "f77", "pyf"],
+        help="Specify Fortran code mode. Default: %default.",
+    )
     return group

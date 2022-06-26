@@ -32,14 +32,14 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-'''Test Fortran 2003 : This file tests the support for a Hollerith
+"""Test Fortran 2003 : This file tests the support for a Hollerith
 string. Hollerith strings take the form `nHx`, where `n` is an integer
 and `x` is a sequence of characters of length `n`.
 
 Note, the Hollerith format was deprecated in Fortran77 and removed in
 Fortran95. However, Fortran compilers still support it.
 
-'''
+"""
 
 import pytest
 from fparser.two.Fortran2003 import Hollerith_Item
@@ -47,24 +47,26 @@ from fparser.two.utils import NoMatchError, InternalError
 
 
 def test_hollerith(f2003_create, monkeypatch):
-    '''Check that a valid hollerith string is parsed correctly.'''
+    """Check that a valid hollerith string is parsed correctly."""
     from fparser.two import utils
+
     monkeypatch.setattr(utils, "EXTENSIONS", ["hollerith"])
     for myinput in ["2Hab", "  2Hab", "1h ", "7h1234567", " 1 1 H01234567890"]:
         ast = Hollerith_Item(myinput)
         expected = myinput.upper()
         # Remove any spaces before the H (but not after).
-        lhs, rhs = expected.split('H')
-        expected = lhs.replace(' ', '')+'H'+rhs
+        lhs, rhs = expected.split("H")
+        expected = lhs.replace(" ", "") + "H" + rhs
         assert str(ast).upper() == expected
 
 
 def test_repr(f2003_create, monkeypatch):
-    '''Check that the repr output of a hollerith string gives the expected
+    """Check that the repr output of a hollerith string gives the expected
     result.
 
-    '''
+    """
     from fparser.two import utils
+
     monkeypatch.setattr(utils, "EXTENSIONS", ["hollerith"])
     myinput = "2Hab"
     ast = Hollerith_Item(myinput)
@@ -72,11 +74,12 @@ def test_repr(f2003_create, monkeypatch):
 
 
 def test_syntaxerror(f2003_create, monkeypatch):
-    '''test that an exception is raised if the supplied format is
+    """test that an exception is raised if the supplied format is
     invalid.
 
-    '''
+    """
     from fparser.two import utils
+
     monkeypatch.setattr(utils, "EXTENSIONS", ["hollerith"])
     for myinput in [None, "", "  ", "0H", "1H", "2Hx" "2Hxxx", "H20", "xH"]:
         with pytest.raises(NoMatchError):
@@ -84,11 +87,12 @@ def test_syntaxerror(f2003_create, monkeypatch):
 
 
 def test_internal_error1(f2003_create, monkeypatch):
-    '''Check that an internal error is raised if the length of the Items
+    """Check that an internal error is raised if the length of the Items
     list is not 1 as the str() method assumes that it is.
 
-    '''
+    """
     from fparser.two import utils
+
     monkeypatch.setattr(utils, "EXTENSIONS", ["hollerith"])
     myinput = "2Hab"
     ast = Hollerith_Item(myinput)
@@ -99,12 +103,13 @@ def test_internal_error1(f2003_create, monkeypatch):
 
 
 def test_internal_error2(f2003_create, monkeypatch):
-    '''Check that an internal error is raised if the string value (entry 0
+    """Check that an internal error is raised if the string value (entry 0
     of Items) is empty or None as the str() method assumes that it is
     a string with content.
 
-    '''
+    """
     from fparser.two import utils
+
     monkeypatch.setattr(utils, "EXTENSIONS", ["hollerith"])
     myinput = "2hab"
     ast = Hollerith_Item(myinput)
@@ -112,19 +117,20 @@ def test_internal_error2(f2003_create, monkeypatch):
         monkeypatch.setattr(ast, "items", [content])
         with pytest.raises(InternalError) as excinfo:
             str(ast)
-        assert ("entry 0 should be a valid Hollerith string but it is "
-                "empty") in str(excinfo.value)
+        assert ("entry 0 should be a valid Hollerith string but it is " "empty") in str(
+            excinfo.value
+        )
 
 
 def test_invalid_hollerith(f2003_create, monkeypatch):
-    '''Test that the hollerith extension to the standard raises an
+    """Test that the hollerith extension to the standard raises an
     exception if it is not named as a valid extension.
 
-    '''
+    """
     from fparser.two import utils
+
     monkeypatch.setattr(utils, "EXTENSIONS", [])
     myinput = "2Hab"
     with pytest.raises(NoMatchError) as excinfo:
         _ = Hollerith_Item(myinput)
-    assert "Hollerith_Item: '{0}'".format(myinput) \
-        in str(excinfo.value)
+    assert "Hollerith_Item: '{0}'".format(myinput) in str(excinfo.value)

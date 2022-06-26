@@ -32,10 +32,10 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-'''Test Fortran 2003 Cray-pointers: This file tests the support for the
+"""Test Fortran 2003 Cray-pointers: This file tests the support for the
 Cray-pointer statement.
 
-'''
+"""
 
 import pytest
 from fparser.api import get_reader
@@ -44,17 +44,20 @@ from fparser.two.utils import NoMatchError
 
 
 def test_cray_pointer_stmt(f2003_create):
-    '''Check that a basic Cray-pointer statement is parsed
+    """Check that a basic Cray-pointer statement is parsed
     correctly. Input separately as a string and as a reader object
 
-    '''
+    """
+
     def check_use(reader):
-        '''Internal helper function to avoid code replication.'''
+        """Internal helper function to avoid code replication."""
         ast = Cray_Pointer_Stmt(reader)
         assert "POINTER(a, b)" in str(ast)
-        assert (repr(ast).replace('u', '') ==
-                "Cray_Pointer_Stmt('POINTER', Cray_Pointer_Decl_List(',', "
-                "(Cray_Pointer_Decl(Name('a'), Name('b')),)))")
+        assert (
+            repr(ast).replace("u", "")
+            == "Cray_Pointer_Stmt('POINTER', Cray_Pointer_Decl_List(',', "
+            "(Cray_Pointer_Decl(Name('a'), Name('b')),)))"
+        )
 
     line = "pointer (a, b)"
     check_use(line)
@@ -63,55 +66,61 @@ def test_cray_pointer_stmt(f2003_create):
 
 
 def test_spaces(f2003_create):
-    '''Check that spaces are allowed.'''
+    """Check that spaces are allowed."""
     line = "  pointer  ( a , b )  "
     ast = Cray_Pointer_Stmt(line)
     assert "POINTER(a, b)" in str(ast)
 
 
 def test_case(f2003_create):
-    '''Check that different case is allowed.'''
+    """Check that different case is allowed."""
     line = "PoInTeR (a, b)"
     ast = Cray_Pointer_Stmt(line)
     assert "POINTER(a, b)" in str(ast)
 
 
 def test_list(f2003_create):
-    '''Check that a list of Cray-pointers is supported.'''
+    """Check that a list of Cray-pointers is supported."""
     line = "pointer (a, b), (c, d(1:n)), (e, f)"
     ast = Cray_Pointer_Stmt(line)
     assert "POINTER(a, b), (c, d(1 : n)), (e, f)" in str(ast)
 
 
 def test_errors(f2003_create):
-    '''Check that syntax errors produce a NoMatchError exception.'''
-    for line in ["", "  ", "ponter (a, b)", "pointer", "pointer a, b"
-                 "pointer (a, b) (a, b)"]:
+    """Check that syntax errors produce a NoMatchError exception."""
+    for line in [
+        "",
+        "  ",
+        "ponter (a, b)",
+        "pointer",
+        "pointer a, b" "pointer (a, b) (a, b)",
+    ]:
         with pytest.raises(NoMatchError) as excinfo:
             _ = Cray_Pointer_Stmt(line)
         assert "Cray_Pointer_Stmt: '{0}'".format(line) in str(excinfo.value)
 
 
 def test_invalid_cray_pointer(f2003_create, monkeypatch):
-    '''Test that the cray-pointer extension to the standard raises an
+    """Test that the cray-pointer extension to the standard raises an
     exception if it is not named as a valid extension.
 
-    '''
+    """
     from fparser.two import utils
+
     monkeypatch.setattr(utils, "EXTENSIONS", [])
     myinput = "pointer (mypointer, mypointee)"
     with pytest.raises(NoMatchError) as excinfo:
         _ = Cray_Pointer_Stmt(myinput)
-        assert "Cray_Pointer_Stmt: '{0}'".format(myinput) \
-            in str(excinfo.value)
+        assert "Cray_Pointer_Stmt: '{0}'".format(myinput) in str(excinfo.value)
 
 
 def test_valid_cray_pointer(f2003_create, monkeypatch):
-    '''Test that the cray-pointer extension to the standard produces the
+    """Test that the cray-pointer extension to the standard produces the
     expected output if it is named as a valid extension.
 
-    '''
+    """
     from fparser.two import utils
+
     monkeypatch.setattr(utils, "EXTENSIONS", ["cray-pointer"])
     myinput = "pointer(mypointer, mypointee)"
     result = Cray_Pointer_Stmt(myinput)

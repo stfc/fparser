@@ -149,29 +149,32 @@ import fparser.common.sourceinfo
 from fparser.common.splitline import String, string_replace_map, splitquote
 
 
-__all__ = ['FortranFileReader',
-           'FortranStringReader',
-           'FortranReaderError',
-           'Line',
-           'SyntaxErrorLine',
-           'Comment',
-           'MultiLine',
-           'SyntaxErrorMultiLine']
+__all__ = [
+    "FortranFileReader",
+    "FortranStringReader",
+    "FortranReaderError",
+    "Line",
+    "SyntaxErrorLine",
+    "Comment",
+    "MultiLine",
+    "SyntaxErrorMultiLine",
+]
 
-_SPACEDIGITS = ' 0123456789'
-_CF2PY_RE = re.compile(r'(?P<indent>\s*)!f2py(?P<rest>.*)', re.I)
-_LABEL_RE = re.compile(r'\s*(?P<label>\d+)\s*(\b|(?=&)|\Z)', re.I)
-_CONSTRUCT_NAME_RE = re.compile(r'\s*(?P<name>\w+)\s*:\s*(\b|(?=&)|\Z)', re.I)
-_IS_INCLUDE_LINE = re.compile(r'\s*include\s*("[^"]+"'
-                              + r'|\'[^\']+\')\s*\Z', re.I).match
+_SPACEDIGITS = " 0123456789"
+_CF2PY_RE = re.compile(r"(?P<indent>\s*)!f2py(?P<rest>.*)", re.I)
+_LABEL_RE = re.compile(r"\s*(?P<label>\d+)\s*(\b|(?=&)|\Z)", re.I)
+_CONSTRUCT_NAME_RE = re.compile(r"\s*(?P<name>\w+)\s*:\s*(\b|(?=&)|\Z)", re.I)
+_IS_INCLUDE_LINE = re.compile(
+    r'\s*include\s*("[^"]+"' + r"|\'[^\']+\')\s*\Z", re.I
+).match
 
 
 def _is_fix_cont(line):
-    return line and len(line) > 5 and line[5] != ' ' and line[:5] == 5 * ' '
+    return line and len(line) > 5 and line[5] != " " and line[:5] == 5 * " "
 
 
 def _is_fix_comment(line, isstrict, f2py_enabled):
-    '''
+    """
     Check whether line is a comment line in fixed format Fortran source.
 
     References
@@ -185,14 +188,14 @@ def _is_fix_comment(line, isstrict, f2py_enabled):
     :returns: whether or not the supplied line is a fixed-format comment.
     :rtype: bool
 
-    '''
+    """
     if line:
-        if line[0] in '*cC!':
+        if line[0] in "*cC!":
             if f2py_enabled and line[1:5].lower() == "f2py":
                 return False
             return True
         if not isstrict:
-            i = line.find('!')
+            i = line.find("!")
             if i != -1:
                 start = line[:i].lstrip()
                 if not start:
@@ -204,18 +207,19 @@ def _is_fix_comment(line, isstrict, f2py_enabled):
                     # inline comment or ! is used in character context
                     # inline comments are handled elsewhere
                     pass
-    elif line == '':
+    elif line == "":
         return True
     return False
 
 
-_HOLLERITH_START_SEARCH = re.compile(r'(?P<pre>\A|,\s*)'
-                                     + r'(?P<num>\d+)h', re.I).search
-_IS_CALL_STMT = re.compile(r'call\b', re.I).match
+_HOLLERITH_START_SEARCH = re.compile(
+    r"(?P<pre>\A|,\s*)" + r"(?P<num>\d+)h", re.I
+).search
+_IS_CALL_STMT = re.compile(r"call\b", re.I).match
 
 
 def extract_label(line):
-    '''Look for an integer label at the start of 'line' and if there is
+    """Look for an integer label at the start of 'line' and if there is
     one then remove it from 'line' and store it as an integer in
     'label', returning both in a tuple.
 
@@ -227,17 +231,17 @@ def extract_label(line):
         not found.
     :rtype: (int or NoneType, str)
 
-    '''
+    """
     label = None
     match = _LABEL_RE.match(line)
     if match:
-        label = int(match.group('label'))
-        line = line[match.end():].lstrip()
+        label = int(match.group("label"))
+        line = line[match.end() :].lstrip()
     return label, line
 
 
 def extract_construct_name(line):
-    '''Look for a construct name at the start of 'line' and if there is
+    """Look for a construct name at the start of 'line' and if there is
     one then remove it from 'line' and return it as a string in
     'name', returning both in a tuple.
 
@@ -249,24 +253,25 @@ def extract_construct_name(line):
         a construct name is not found.
     :rtype: (str or NoneType, str)
 
-    '''
+    """
     construct_name = None
     match = _CONSTRUCT_NAME_RE.match(line)
     if match:
-        construct_name = match.group('name')
-        line = line[match.end():].lstrip()
+        construct_name = match.group("name")
+        line = line[match.end() :].lstrip()
     return construct_name, line
 
 
 class FortranReaderError(Exception):
-    '''
+    """
     Thrown when there is an error reading the Fortran source file.
-    '''
+    """
+
     pass
 
 
-class Line():
-    """ Holds a Fortran source line.
+class Line:
+    """Holds a Fortran source line.
 
     Attributes
     ----------
@@ -283,15 +288,17 @@ class Line():
     is_f2py_directive : bool
       the line contains f2py directive
     """
+
     def __init__(self, line, linenospan, label, name, reader):
         self.line = line.strip()
         if not self.line:
-            raise FortranReaderError("Got empty line: '{0}'. linenospan={1}, "
-                                     "label='{2}'".format(line,
-                                                          linenospan, label))
+            raise FortranReaderError(
+                "Got empty line: '{0}'. linenospan={1}, "
+                "label='{2}'".format(line, linenospan, label)
+            )
         self.span = linenospan
         assert label is None or isinstance(label, int), repr(label)
-        assert name is None or isinstance(name, str) and name != '', repr(name)
+        assert name is None or isinstance(name, str) and name != "", repr(name)
         self.label = label
         self.name = name
         self.reader = reader
@@ -300,27 +307,27 @@ class Line():
         self.parse_cache = {}
 
     def has_map(self):
-        '''
+        """
         Returns true when a substitution map has been registered.
-        '''
-        return hasattr(self, 'strlinemap') and self.strlinemap
+        """
+        return hasattr(self, "strlinemap") and self.strlinemap
 
     def apply_map(self, line):
-        '''
+        """
         Substitutes magic strings in a line with values specified in a map.
-        '''
-        if not hasattr(self, 'strlinemap') or not self.strlinemap:
+        """
+        if not hasattr(self, "strlinemap") or not self.strlinemap:
             return line
         return self.strlinemap(line)
 
     def copy(self, line=None, apply_map=False):
-        '''
+        """
         Creates a Line object from a string.
 
         If no line argument is specified a copy is made of this Line.
 
         If a substitution map is provided it is used while making the copy.
-        '''
+        """
         if line is None:
             line = self.line
         if apply_map:
@@ -328,29 +335,31 @@ class Line():
         return Line(line, self.span, self.label, self.name, self.reader)
 
     def clone(self, line):
-        '''
+        """
         This Line has its contents overwitten by the passed string. The
         incoming string has substitution applied.
-        '''
+        """
         self.line = self.apply_map(line)
         self.strline = None
 
     def __repr__(self):
-        return self.__class__.__name__+'(%r,%s,%r,%r,<reader>)' \
-               % (self.line, self.span, self.label, self.name)
+        return self.__class__.__name__ + "(%r,%s,%r,%r,<reader>)" % (
+            self.line,
+            self.span,
+            self.label,
+            self.name,
+        )
 
     def __str__(self):
-        s = 'line #%s' % (self.span[0])
+        s = "line #%s" % (self.span[0])
         if self.label is not None:
-            s += ' %s ' % (self.label)
+            s += " %s " % (self.label)
         if self.name is not None:
-            s += '%s: ' % (self.name)
+            s += "%s: " % (self.name)
         return s + repr(self.line)
 
     def isempty(self, ignore_comments=False):
-        return not (self.line
-                    or self.label is not None
-                    or self.name is not None)
+        return not (self.line or self.label is not None or self.name is not None)
 
     def get_line(self, apply_map=False):
         if apply_map:
@@ -370,25 +379,24 @@ class Line():
             # todo: Handle hollerith constants in DATA statement
             if _IS_CALL_STMT(line):
                 l2 = self.line[4:].lstrip()
-                i = l2.find('(')
-                if i != -1 and l2[-1] == ')':
-                    substrings = ['call '+l2[:i+1]]
+                i = l2.find("(")
+                if i != -1 and l2[-1] == ")":
+                    substrings = ["call " + l2[: i + 1]]
                     start_search = _HOLLERITH_START_SEARCH
-                    l2 = l2[i+1:-1].strip()
+                    l2 = l2[i + 1 : -1].strip()
                     m = start_search(l2)
                     while m:
-                        substrings.append(l2[:m.start()])
-                        substrings.append(m.group('pre'))
-                        num = int(m.group('num'))
-                        substrings.append("'"+l2[m.end():m.end()+num]+"'")
-                        l2 = l2[m.end()+num:]
+                        substrings.append(l2[: m.start()])
+                        substrings.append(m.group("pre"))
+                        num = int(m.group("num"))
+                        substrings.append("'" + l2[m.end() : m.end() + num] + "'")
+                        l2 = l2[m.end() + num :]
                         m = start_search(l2)
                     substrings.append(l2)
-                    substrings.append(')')
-                    line = ''.join(substrings)
+                    substrings.append(")")
+                    line = "".join(substrings)
 
-        line, str_map = string_replace_map(line,
-                                           lower=not self.reader.format.is_pyf)
+        line, str_map = string_replace_map(line, lower=not self.reader.format.is_pyf)
         self.strline = line
         self.strlinemap = str_map
         return line
@@ -413,16 +421,17 @@ class Line():
 
 
 class SyntaxErrorLine(Line, FortranReaderError):
-    '''
+    """
     Indicates a syntax error while processing a line.
-    '''
+    """
+
     def __init__(self, line, linenospan, label, name, reader, message):
         Line.__init__(self, line, linenospan, label, name, reader)
         FortranReaderError.__init__(self, message)
 
 
-class Comment():
-    '''Holds a Fortran comment.
+class Comment:
+    """Holds a Fortran comment.
 
     :param str comment: String containing the text of a single or \
     multi-line comment
@@ -433,7 +442,8 @@ class Comment():
     source.
     :type reader: :py:class:`fparser.common.readfortran.FortranReaderBase`
 
-    '''
+    """
+
     def __init__(self, comment, linenospan, reader):
 
         self.comment = comment
@@ -446,23 +456,22 @@ class Comment():
         self.line = comment
 
     def __repr__(self):
-        return self.__class__.__name__+'(%r,%s)' \
-               % (self.comment, self.span)
+        return self.__class__.__name__ + "(%r,%s)" % (self.comment, self.span)
 
     def isempty(self, ignore_comments=False):
-        '''
+        """
         Whether or not this comment is in fact empty (or we are ignoring
         it). Provided for compatibility with Line.isempty()
 
         :param bool ignore_comments: whether we ignore comments
         :return: True if we are ignoring comments, False otherwise
         :rtype: bool
-        '''
+        """
         return ignore_comments
 
 
-class MultiLine():
-    """ Holds PYF file multiline.
+class MultiLine:
+    """Holds PYF file multiline.
 
     PYF file multiline is represented as follows::
       prefix+'''+lines+'''+suffix.
@@ -477,6 +486,7 @@ class MultiLine():
       starting and ending line numbers
     reader : FortranReaderBase
     """
+
     def __init__(self, prefix, block, suffix, linenospan, reader):
         self.prefix = prefix
         self.block = block
@@ -485,32 +495,35 @@ class MultiLine():
         self.reader = reader
 
     def __repr__(self):
-        string = '{cls}({prefix!r},{block},{suffix!r},{span})'
-        return string.format(cls=self.__class__.__name__,
-                             prefix=self.prefix,
-                             block=self.block,
-                             suffix=self.suffix,
-                             span=self.span)
+        string = "{cls}({prefix!r},{block},{suffix!r},{span})"
+        return string.format(
+            cls=self.__class__.__name__,
+            prefix=self.prefix,
+            block=self.block,
+            suffix=self.suffix,
+            span=self.span,
+        )
 
     def isempty(self, ignore_comments=False):
-        '''
+        """
         Returns true if there is no significant text in this multi-line
         string.
-        '''
+        """
         return not (self.prefix or self.block or self.suffix)
 
 
 class SyntaxErrorMultiLine(MultiLine, FortranReaderError):
-    '''
+    """
     Indicates a syntax error while processing Python multi-line strings.
-    '''
+    """
+
     def __init__(self, prefix, block, suffix, linenospan, reader, message):
         MultiLine.__init__(self, prefix, block, suffix, linenospan, reader)
         FortranReaderError.__init__(self, message)
 
 
 class CppDirective(Line):
-    '''Holds a preprocessor directive source line.
+    """Holds a preprocessor directive source line.
 
     :param str line: string containing the text of a single or \
                      multi-line preprocessor directive.
@@ -521,15 +534,16 @@ class CppDirective(Line):
                    source.
     :type reader: :py:class:`fparser.common.readfortran.FortranReaderBase`
 
-    '''
+    """
+
     def __init__(self, line, linenospan, reader):
-        super(CppDirective, self).__init__(
-            line, linenospan, None, None, reader)
+        super(CppDirective, self).__init__(line, linenospan, None, None, reader)
+
 
 ##############################################################################
 
 
-class FortranReaderBase():
+class FortranReaderBase:
     """
     Base class for reading Fortran sources.
 
@@ -556,7 +570,7 @@ class FortranReaderBase():
         self.source = source
         self._format = mode
 
-        self.linecount = 0   # the current number of consumed lines
+        self.linecount = 0  # the current number of consumed lines
         self.isclosed = False
         # This value for ignore_comments can be overridden by using the
         # ignore_comments optional argument to e.g. get_single_line()
@@ -569,27 +583,29 @@ class FortranReaderBase():
         self.f2py_comment_lines = []  # line numbers of f2py directives
 
         self.reader = None
-        self.include_dirs = ['.']
+        self.include_dirs = ["."]
 
         self.source_only = None
 
         self.exit_on_error = True
         self.restore_cache = []
 
-
     ##########################################################################
 
     def __repr__(self):
-        return '%s(%r, %r, %r)' % (self.__class__.__name__,
-                                   self.source,
-                                   self._format.is_free,
-                                   self._format.is_strict)
+        return "%s(%r, %r, %r)" % (
+            self.__class__.__name__,
+            self.source,
+            self._format.is_free,
+            self._format.is_strict,
+        )
 
     def find_module_source_file(self, mod_name):
-        '''
+        """
         Scans registered dependees for a named module.
-        '''
+        """
         from .utils import get_module_file, module_in_file
+
         if self.source_only:
             for sf in self.source_only:
                 if module_in_file(mod_name, sf):
@@ -602,40 +618,38 @@ class FortranReaderBase():
                     return fn
 
     def set_format(self, mode):
-        '''
+        """
         Set Fortran code mode (fixed/free format etc).
 
         :param mode: Object describing the desired mode for the reader
         :type mode: :py:class:`fparser.common.sourceinfo.FortranFormat`
-        '''
+        """
         self._format = mode
 
     @property
     def format(self):
-        '''
+        """
         :returns: the currently applicable format.
         :rtype: :py:class:`fparser.sourceinfo.FortranFormat`
-        '''
+        """
         return self._format
 
     @property
     def name(self):
-        '''
+        """
         :returns: the name of this reader.
         :rtype: str
-        '''
-        return '{source} mode={mode}'.format(source=self.source,
-                                             mode=self._format.mode)
+        """
+        return "{source} mode={mode}".format(source=self.source, mode=self._format.mode)
 
     def close_source(self):
-        """ Called when self.source.next() raises StopIteration.
-        """
+        """Called when self.source.next() raises StopIteration."""
         pass
 
     # For handling raw source lines:
 
     def put_single_line(self, line):
-        """ Put single line to FILO line buffer.
+        """Put single line to FILO line buffer.
 
         ``linecount`` will be decremented, that is, the line was
         returned by ``get_single_line`` call then it will be
@@ -690,7 +704,7 @@ class FortranReaderBase():
         self.linecount += 1
 
         # expand tabs, replace special symbols, get rid of nl characters
-        line = line.expandtabs().replace(u'\xa0', u' ').rstrip()
+        line = line.expandtabs().replace("\xa0", " ").rstrip()
 
         self.source_lines.append(line)
 
@@ -698,8 +712,11 @@ class FortranReaderBase():
             # Check for a fixed-format comment. If the current line *is*
             # a comment and we are ignoring them, then recursively call this
             # routine again to get the next source line.
-            if _is_fix_comment(line, isstrict=self._format.is_strict,
-                               f2py_enabled=self._format.f2py_enabled):
+            if _is_fix_comment(
+                line,
+                isstrict=self._format.is_strict,
+                f2py_enabled=self._format.f2py_enabled,
+            ):
                 return self.get_single_line(ignore_empty, ignore_comments)
 
         if ignore_empty and not line:
@@ -708,7 +725,7 @@ class FortranReaderBase():
         return line
 
     def get_next_line(self, ignore_empty=False, ignore_comments=None):
-        """ Return next non-empty line from FILO line buffer or from source.
+        """Return next non-empty line from FILO line buffer or from source.
 
         The line will be put to FILO line buffer. So, this method can
         be used for looking forward lines without consuming them.
@@ -728,8 +745,7 @@ class FortranReaderBase():
 
     # Parser methods:
     def get_item(self, ignore_comments=None):
-        """ Return next item.
-        """
+        """Return next item."""
         if ignore_comments is None:
             ignore_comments = self._ignore_comments
 
@@ -740,22 +756,20 @@ class FortranReaderBase():
         return item
 
     def put_item(self, item):
-        """ Insert item to FIFO item buffer.
-        """
+        """Insert item to FIFO item buffer."""
         self.fifo_item.insert(0, item)
 
     # Iterator methods:
 
     def __iter__(self):
-        """ Make FortranReader an iterator.
-        """
+        """Make FortranReader an iterator."""
         return self
 
     def __next__(self):
         return self.next()
 
     def next(self, ignore_comments=None):
-        '''Return the next Fortran code item. Include statements are dealt
+        """Return the next Fortran code item. Include statements are dealt
         with here.
 
         :param bool ignore_comments: When True then act as if Fortran \
@@ -770,7 +784,7 @@ class FortranReaderBase():
         :raises StopIteration: if no more lines are found.
         :raises StopIteration: if a general error has occured.
 
-        '''
+        """
         if ignore_comments is None:
             ignore_comments = self._ignore_comments
         try:
@@ -816,11 +830,10 @@ class FortranReaderBase():
                     # return it and let the parser deal with it.
                     #
                     return item
-                reader.info('including file %r' % (path), item)
+                reader.info("including file %r" % (path), item)
                 self.reader = FortranFileReader(
-                    path,
-                    include_dirs=include_dirs,
-                    ignore_comments=ignore_comments)
+                    path, include_dirs=include_dirs, ignore_comments=ignore_comments
+                )
                 result = self.reader.next(ignore_comments=ignore_comments)
                 return result
             return item
@@ -829,14 +842,14 @@ class FortranReaderBase():
         # TODO can we specify one or more specific exception types
         # rather than catching *every* exception.
         except Exception as err:
-            message = self.format_message('FATAL ERROR',
-                                          'while processing line',
-                                          self.linecount, self.linecount)
+            message = self.format_message(
+                "FATAL ERROR", "while processing line", self.linecount, self.linecount
+            )
             logging.getLogger(__name__).critical(message)
-            message = 'Traceback\n' + ''.join(traceback.format_stack())
+            message = "Traceback\n" + "".join(traceback.format_stack())
             logging.getLogger(__name__).debug(message)
             logging.getLogger(__name__).debug(str(err))
-            logging.getLogger(__name__).critical('STOPPED READING')
+            logging.getLogger(__name__).critical("STOPPED READING")
             raise StopIteration
 
     def _next(self, ignore_comments=None):
@@ -877,13 +890,16 @@ class FortranReaderBase():
 
         if not isinstance(item, Comment):
             # resolve `;` statement terminations
-            if not self._format.is_pyf and isinstance(item, Line) \
-                   and not item.is_f2py_directive \
-                   and ';' in item.get_line():
+            if (
+                not self._format.is_pyf
+                and isinstance(item, Line)
+                and not item.is_f2py_directive
+                and ";" in item.get_line()
+            ):
                 # ;-separator not recognized in pyf-mode
                 items = []
                 # Deal with each Fortran statement separately.
-                split_line_iter = iter(item.get_line().split(';'))
+                split_line_iter = iter(item.get_line().split(";"))
                 first = next(split_line_iter)
                 # The full line has already been processed as a Line
                 # object in 'item' (and may therefore have label
@@ -908,8 +924,9 @@ class FortranReaderBase():
                         # Create a new Line object and append to items
                         # using the existing span (line numbers) and
                         # reader.
-                        new_line = Line(item.apply_map(line), item.span, label,
-                                        name, item.reader)
+                        new_line = Line(
+                            item.apply_map(line), item.span, label, name, item.reader
+                        )
                         items.append(new_line)
                 items.reverse()
                 for newitem in items:
@@ -919,44 +936,30 @@ class FortranReaderBase():
 
     # Interface to returned items:
 
-    def line_item(self,
-                  line,
-                  startlineno,
-                  endlineno,
-                  label,
-                  name,
-                  errmessage=None):
-        """ Construct Line item.
-        """
+    def line_item(self, line, startlineno, endlineno, label, name, errmessage=None):
+        """Construct Line item."""
         if errmessage is None:
             return Line(line, (startlineno, endlineno), label, name, self)
-        return SyntaxErrorLine(line, (startlineno, endlineno),
-                               label, name, self, errmessage)
+        return SyntaxErrorLine(
+            line, (startlineno, endlineno), label, name, self, errmessage
+        )
 
-    def multiline_item(self, prefix, lines, suffix,
-                       startlineno, endlineno, errmessage=None):
-        """ Construct MultiLine item.
-        """
+    def multiline_item(
+        self, prefix, lines, suffix, startlineno, endlineno, errmessage=None
+    ):
+        """Construct MultiLine item."""
         if errmessage is None:
-            return MultiLine(prefix,
-                             lines,
-                             suffix,
-                             (startlineno, endlineno),
-                             self)
-        return SyntaxErrorMultiLine(prefix,
-                                    lines,
-                                    suffix,
-                                    (startlineno, endlineno),
-                                    self,
-                                    errmessage)
+            return MultiLine(prefix, lines, suffix, (startlineno, endlineno), self)
+        return SyntaxErrorMultiLine(
+            prefix, lines, suffix, (startlineno, endlineno), self, errmessage
+        )
 
     def comment_item(self, comment, startlineno, endlineno):
-        """ Construct Comment item.
-        """
+        """Construct Comment item."""
         return Comment(comment, (startlineno, endlineno), self)
 
     def cpp_directive_item(self, line, startlineno, endlineno):
-        '''
+        """
         Construct :py:class:`fparser.common.readfortran.CppDirective` item.
 
         :param str line: string containing the text of a single or \
@@ -966,76 +969,80 @@ class FortranReaderBase():
         :param int endlineno: end line number of the directive from \
                               the input source.
 
-        '''
+        """
         return CppDirective(line, (startlineno, endlineno), self)
 
     # For handling messages:
 
-    def format_message(self, kind, message, startlineno, endlineno,
-                       startcolno=0, endcolno=-1):
-        '''
+    def format_message(
+        self, kind, message, startlineno, endlineno, startcolno=0, endcolno=-1
+    ):
+        """
         Prepares a string for logging.
-        '''
-        back_index = {'warning': 2,
-                      'error': 3,
-                      'info': 0}.get(kind.lower(), 3)
-        r = ['While processing %r (mode=%r)..' % (self.id,
-                                                  self._format.mode)]
+        """
+        back_index = {"warning": 2, "error": 3, "info": 0}.get(kind.lower(), 3)
+        r = ["While processing %r (mode=%r).." % (self.id, self._format.mode)]
         for i in range(max(1, startlineno - back_index), startlineno):
-            r.append('%5d:%s' % (i, self.source_lines[i - 1]))
-        for i in range(startlineno, min(endlineno+back_index,
-                                        len(self.source_lines))+1):
+            r.append("%5d:%s" % (i, self.source_lines[i - 1]))
+        for i in range(
+            startlineno, min(endlineno + back_index, len(self.source_lines)) + 1
+        ):
             if i == 0 and not self.source_lines:
                 break
-            linenostr = '%5d:' % (i)
+            linenostr = "%5d:" % (i)
             if i == endlineno:
-                sourceline = self.source_lines[i-1]
-                l0 = linenostr+sourceline[:startcolno]
+                sourceline = self.source_lines[i - 1]
+                l0 = linenostr + sourceline[:startcolno]
                 if endcolno == -1:
                     l1 = sourceline[startcolno:]
-                    l2 = ''
+                    l2 = ""
                 else:
                     l1 = sourceline[startcolno:endcolno]
                     l2 = sourceline[endcolno:]
-                r.append('%s%s%s <== %s' % (l0, l1, l2, message))
+                r.append("%s%s%s <== %s" % (l0, l1, l2, message))
             else:
-                r.append(linenostr + self.source_lines[i-1])
-        return '\n'.join(r)
+                r.append(linenostr + self.source_lines[i - 1])
+        return "\n".join(r)
 
-    def format_error_message(self, message, startlineno, endlineno,
-                             startcolno=0, endcolno=-1):
-        '''Create a string with an error message.'''
-        return self.format_message('ERROR', message, startlineno,
-                                   endlineno, startcolno, endcolno)
+    def format_error_message(
+        self, message, startlineno, endlineno, startcolno=0, endcolno=-1
+    ):
+        """Create a string with an error message."""
+        return self.format_message(
+            "ERROR", message, startlineno, endlineno, startcolno, endcolno
+        )
 
-    def format_warning_message(self, message, startlineno, endlineno,
-                               startcolno=0, endcolno=-1):
-        '''Create a string with a warning message. '''
-        return self.format_message('WARNING', message, startlineno,
-                                   endlineno, startcolno, endcolno)
+    def format_warning_message(
+        self, message, startlineno, endlineno, startcolno=0, endcolno=-1
+    ):
+        """Create a string with a warning message."""
+        return self.format_message(
+            "WARNING", message, startlineno, endlineno, startcolno, endcolno
+        )
 
     def info(self, message, item=None):
-        '''
+        """
         Logs an information message.
-        '''
+        """
         if item is None:
-            m = self.format_message('INFORMATION',
-                                    message,
-                                    len(self.source_lines)-2,
-                                    len(self.source_lines))
+            m = self.format_message(
+                "INFORMATION",
+                message,
+                len(self.source_lines) - 2,
+                len(self.source_lines),
+            )
         else:
-            m = self.format_message('INFORMATION',
-                                    message,
-                                    item.span[0], item.span[1])
+            m = self.format_message("INFORMATION", message, item.span[0], item.span[1])
         logging.getLogger(__name__).info(m)
 
     def error(self, message, item=None):
-        '''
+        """
         Logs an error message.
-        '''
+        """
         if item is None:
-            m = self.format_error_message(message, len(self.source_lines)-2,
-                                          len(self.source_lines))
+            m = self.format_error_message(
+                message, len(self.source_lines) - 2, len(self.source_lines)
+            )
         else:
             m = self.format_error_message(message, item.span[0], item.span[1])
         logging.getLogger(__name__).error(m)
@@ -1043,23 +1050,21 @@ class FortranReaderBase():
             sys.exit(1)
 
     def warning(self, message, item=None):
-        '''
+        """
         Logs a warning message.
-        '''
+        """
         if item is None:
-            m = self.format_warning_message(message,
-                                            len(self.source_lines) - 2,
-                                            len(self.source_lines))
+            m = self.format_warning_message(
+                message, len(self.source_lines) - 2, len(self.source_lines)
+            )
         else:
-            m = self.format_warning_message(message,
-                                            item.span[0],
-                                            item.span[1])
+            m = self.format_warning_message(message, item.span[0], item.span[1])
         logging.getLogger(__name__).warning(m)
 
     # Auxiliary methods for processing raw source lines:
 
     def handle_cpp_directive(self, line):
-        '''
+        """
         Determine whether the current line is likely to hold
         C preprocessor directive.
 
@@ -1077,13 +1082,13 @@ class FortranReaderBase():
                  whether it holds a C preprocessor directive.
         :rtype: (str, bool)
 
-        '''
+        """
         if not line or self._format.is_pyf:
             return (line, False)
-        return (line, line.lstrip().startswith('#'))
+        return (line, line.lstrip().startswith("#"))
 
     def handle_cf2py_start(self, line):
-        '''
+        """
         Process any f2py directives contained in the supplied line. If
         support for such directives has been disabled then the line is
         returned unchanged.
@@ -1099,19 +1104,19 @@ class FortranReaderBase():
                   enabled in the reader).
         :rtype: str
 
-        '''
+        """
         if not line or self._format.is_pyf or not self._format.f2py_enabled:
             return line
         if self._format.is_fixed:
-            if line[0] in '*cC!#':
-                if line[1:5].lower() == 'f2py':
-                    line = 5*' ' + line[5:]
+            if line[0] in "*cC!#":
+                if line[1:5].lower() == "f2py":
+                    line = 5 * " " + line[5:]
                     self.f2py_comment_lines.append(self.linecount)
             if self._format.is_f77:
                 return line
         m = _CF2PY_RE.match(line)
         if m:
-            newline = m.group('indent')+5*' '+m.group('rest')
+            newline = m.group("indent") + 5 * " " + m.group("rest")
             self.f2py_comment_lines.append(self.linecount)
             assert len(newline) == len(line), repr((newline, line))
             return newline
@@ -1133,18 +1138,22 @@ class FortranReaderBase():
         :rtype: 3-tuple of str, str, bool
         """
         had_comment = False
-        if quotechar is None and '!' not in line and \
-           '"' not in line and "'" not in line:
+        if (
+            quotechar is None
+            and "!" not in line
+            and '"' not in line
+            and "'" not in line
+        ):
             # There's no comment on this line
             return line, quotechar, had_comment
 
-        idx = line.find('!')
+        idx = line.find("!")
         put_item = self.fifo_item.append
         if quotechar is None and idx != -1:
             # first try a quick method:
             newline = line[:idx]
-            if '"' not in newline and '\'' not in newline:
-                if self.format.is_f77 or not line[idx:].startswith('!f2py'):
+            if '"' not in newline and "'" not in newline:
+                if self.format.is_f77 or not line[idx:].startswith("!f2py"):
                     put_item(self.comment_item(line[idx:], lineno, lineno))
                     return newline, quotechar, True
 
@@ -1156,23 +1165,23 @@ class FortranReaderBase():
         commentline = None
         for k in range(n):
             item = items[k]
-            if isinstance(item, String) or '!' not in item:
+            if isinstance(item, String) or "!" not in item:
                 noncomment_items_append(item)
                 continue
-            j = item.find('!')
+            j = item.find("!")
             noncomment_items_append(item[:j])
             items[k] = item[j:]
-            commentline = ''.join(items[k:])
+            commentline = "".join(items[k:])
             break
         if commentline is not None:
-            if self._format.f2py_enabled and commentline.startswith('!f2py'):
+            if self._format.f2py_enabled and commentline.startswith("!f2py"):
                 # go to next iteration:
-                newline = ''.join(noncomment_items) + commentline[5:]
+                newline = "".join(noncomment_items) + commentline[5:]
                 self.f2py_comment_lines.append(lineno)
                 return self.handle_inline_comment(newline, lineno, quotechar)
             put_item(self.comment_item(commentline, lineno, lineno))
             had_comment = True
-        return ''.join(noncomment_items), newquotechar, had_comment
+        return "".join(noncomment_items), newquotechar, had_comment
 
     def handle_multilines(self, line, startlineno, mlstr):
         '''
@@ -1189,71 +1198,65 @@ class FortranReaderBase():
             prefix = line[:i]
             # skip fake multiline starts
             p, k = prefix, 0
-            while p.endswith('\\'):
+            while p.endswith("\\"):
                 p, k = p[:-1], k + 1
             if k % 2:
                 return
-        if i != -1 and '!' not in prefix:
+        if i != -1 and "!" not in prefix:
             # Note character constants like 'abc"""123',
             # so multiline prefix should better not contain `'' or `"' not `!'.
-            for quote in '"\'':
+            for quote in "\"'":
                 if prefix.count(quote) % 2:
-                    message = 'multiline prefix contains odd number of' \
-                              + ' {!r} characters'.format(quote)
-                    message = self.format_warning_message(message,
-                                                          startlineno,
-                                                          startlineno,
-                                                          0,
-                                                          len(prefix))
+                    message = (
+                        "multiline prefix contains odd number of"
+                        + " {!r} characters".format(quote)
+                    )
+                    message = self.format_warning_message(
+                        message, startlineno, startlineno, 0, len(prefix)
+                    )
                     logging.getLogger(__name__).warning(message)
 
             suffix = None
             multilines = []
-            line = line[i+3:]
+            line = line[i + 3 :]
             while line is not None:
                 j = line.find(mlstr)
-                if j != -1 and '!' not in line[:j]:
+                if j != -1 and "!" not in line[:j]:
                     multilines.append(line[:j])
-                    suffix = line[j+3:]
+                    suffix = line[j + 3 :]
                     break
                 multilines.append(line)
                 line = self.get_single_line()
             if line is None:
-                message = 'multiline block never ends'
-                message = self.format_error_message(message,
-                                                    startlineno,
-                                                    startlineno,
-                                                    i)
-                return self.multiline_item(prefix,
-                                           multilines,
-                                           suffix,
-                                           startlineno,
-                                           self.linecount,
-                                           message)
-            suffix, qc, had_comment \
-                = self.handle_inline_comment(suffix, self.linecount)
+                message = "multiline block never ends"
+                message = self.format_error_message(
+                    message, startlineno, startlineno, i
+                )
+                return self.multiline_item(
+                    prefix, multilines, suffix, startlineno, self.linecount, message
+                )
+            suffix, qc, had_comment = self.handle_inline_comment(suffix, self.linecount)
             # no line continuation allowed in multiline suffix
             if qc is not None:
-                message = 'following character continuation: {!r},' \
-                          + ' expected None.'
-                message = self.format_message('ASSERTION FAILURE(pyf)',
-                                              message.format(qc),
-                                              startlineno,
-                                              self.linecount)
+                message = "following character continuation: {!r}," + " expected None."
+                message = self.format_message(
+                    "ASSERTION FAILURE(pyf)",
+                    message.format(qc),
+                    startlineno,
+                    self.linecount,
+                )
                 logging.getLogger(__name__).warning(message)
             # XXX: should we do line.replace('\\'+mlstr[0],mlstr[0])
             #      for line in multilines?
-            return self.multiline_item(prefix,
-                                       multilines,
-                                       suffix,
-                                       startlineno,
-                                       self.linecount)
+            return self.multiline_item(
+                prefix, multilines, suffix, startlineno, self.linecount
+            )
 
     # The main method of interpreting raw source lines within
     # the following contexts: f77, fixed, free, pyf.
 
     def get_source_item(self):
-        '''
+        """
         Return the next source item.
 
         A source item is ..
@@ -1271,7 +1274,7 @@ class FortranReaderBase():
             :py:class:`fparser.common.readfortran.SyntaxErrorLine` or \
             :py:class:`fparser.common.readfortran.SyntaxErrorMultiLine`
 
-        '''
+        """
         get_single_line = self.get_single_line
         line = get_single_line()
         if line is None:
@@ -1281,18 +1284,18 @@ class FortranReaderBase():
         if is_cpp_directive:
             # CPP directive line
             lines = []
-            while line.rstrip().endswith('\\'):
+            while line.rstrip().endswith("\\"):
                 # Line continuation
                 lines.append(line.rstrip()[:-1])
                 line = get_single_line()
             lines.append(line)
             endlineno = self.linecount
-            return self.cpp_directive_item(''.join(lines), startlineno,
-                                           endlineno)
+            return self.cpp_directive_item("".join(lines), startlineno, endlineno)
 
         line = self.handle_cf2py_start(line)
-        is_f2py_directive = (self._format.f2py_enabled and
-                             startlineno in self.f2py_comment_lines)
+        is_f2py_directive = (
+            self._format.f2py_enabled and startlineno in self.f2py_comment_lines
+        )
         isstrict = self._format.is_strict
         have_comment = False
         label = None
@@ -1313,46 +1316,40 @@ class FortranReaderBase():
                 # check that fixed format line starts according to Fortran
                 # standard
                 if line[i] not in _SPACEDIGITS:
-                    message = 'non-space/digit char %r found in column %i'\
-                              ' of fixed Fortran code' % (line[i], i + 1)
+                    message = (
+                        "non-space/digit char %r found in column %i"
+                        " of fixed Fortran code" % (line[i], i + 1)
+                    )
                     if i == 0:
-                        message += ', interpreting line as comment line'
+                        message += ", interpreting line as comment line"
                     if self._format.is_fix:
                         if i != 0:
-                            message += ', switching to free format mode'
-                        message = self.format_warning_message(message,
-                                                              startlineno,
-                                                              self.linecount)
+                            message += ", switching to free format mode"
+                        message = self.format_warning_message(
+                            message, startlineno, self.linecount
+                        )
                         logging.getLogger(__name__).warning(message)
                         if i == 0:
                             # non standard comment line:
-                            return self.comment_item(line,
-                                                     startlineno,
-                                                     startlineno)
-                        mode = fparser.common.sourceinfo.FortranFormat(True,
-                                                                       False)
+                            return self.comment_item(line, startlineno, startlineno)
+                        mode = fparser.common.sourceinfo.FortranFormat(True, False)
                         self.set_format(mode)
                     else:
-                        message = self.format_warning_message(message,
-                                                              startlineno,
-                                                              self.linecount)
+                        message = self.format_warning_message(
+                            message, startlineno, self.linecount
+                        )
                         logging.getLogger(__name__).warning(message)
                         if i == 0:
                             # non standard comment line:
-                            return self.comment_item(line,
-                                                     startlineno,
-                                                     startlineno)
+                            return self.comment_item(line, startlineno, startlineno)
                         # return line item with error message
                         # TODO: handle cases with line[6:]==''
-                        message = self.format_error_message(message,
-                                                            startlineno,
-                                                            self.linecount)
-                        return self.line_item(line[6:],
-                                              startlineno,
-                                              self.linecount,
-                                              label,
-                                              name,
-                                              message)
+                        message = self.format_error_message(
+                            message, startlineno, self.linecount
+                        )
+                        return self.line_item(
+                            line[6:], startlineno, self.linecount, label, name, message
+                        )
             if self._format.is_fixed:  # Check for switched to free format
                 # check for label
                 s = line[:5].strip().lower()
@@ -1361,16 +1358,17 @@ class FortranReaderBase():
                 if not self._format.is_f77:
                     m = _CONSTRUCT_NAME_RE.match(line[6:])
                     if m:
-                        name = m.group('name')
-                        line = line[:6] + line[6:][m.end():].lstrip()
+                        name = m.group("name")
+                        line = line[:6] + line[6:][m.end() :].lstrip()
                 if not line[6:].strip():
                     # check for a blank line
                     if name is not None:
-                        self.error('No construct following construct-name.')
+                        self.error("No construct following construct-name.")
                     elif label is not None:
-                        self.warning('Label must follow nonblank character'
-                                     + ' (F2008:3.2.5_2)')
-                    return self.comment_item('', startlineno, self.linecount)
+                        self.warning(
+                            "Label must follow nonblank character" + " (F2008:3.2.5_2)"
+                        )
+                    return self.comment_item("", startlineno, self.linecount)
                 # line is not a comment and the start of the line is valid
 
         if self._format.is_f77 and not is_f2py_directive:
@@ -1382,28 +1380,29 @@ class FortranReaderBase():
             # with the continued line and then handle them as though they
             # follow on after the single line constructed from the multiple
             # continued lines.
-            while _is_fix_cont(self.get_next_line(ignore_empty=True,
-                                                  ignore_comments=True)):
+            while _is_fix_cont(
+                self.get_next_line(ignore_empty=True, ignore_comments=True)
+            ):
                 # handle fix format line continuations for F77 code
                 line = get_single_line()
                 lines.append(line[6:72])
-            return self.line_item(''.join(lines), startlineno,
-                                  self.linecount, label, name)
+            return self.line_item(
+                "".join(lines), startlineno, self.linecount, label, name
+            )
 
         handle_inline_comment = self.handle_inline_comment
 
         endlineno = self.linecount
         if self._format.is_fix and not is_f2py_directive:
             # handle inline comment
-            newline, qc, had_comment = handle_inline_comment(line[6:],
-                                                             startlineno)
+            newline, qc, had_comment = handle_inline_comment(line[6:], startlineno)
             have_comment |= had_comment
             lines = [newline]
             next_line = self.get_next_line()
 
-            while (_is_fix_cont(next_line) or
-                   _is_fix_comment(next_line, isstrict,
-                                   self._format.f2py_enabled)):
+            while _is_fix_cont(next_line) or _is_fix_comment(
+                next_line, isstrict, self._format.f2py_enabled
+            ):
                 # handle fix format line continuations for F90 or
                 # newer code.  Mixing fix format and free format line
                 # continuations is not allowed nor detected, just
@@ -1412,46 +1411,41 @@ class FortranReaderBase():
                 if _is_fix_comment(line2, isstrict, self._format.f2py_enabled):
                     # handle fix format comments inside line continuations
                     # after the line construction
-                    citem = self.comment_item(line2,
-                                              self.linecount,
-                                              self.linecount)
+                    citem = self.comment_item(line2, self.linecount, self.linecount)
                     self.fifo_item.append(citem)
                 else:
                     # line continuation
-                    newline, qc, had_comment \
-                        = self.handle_inline_comment(line2[6:],
-                                                     self.linecount,
-                                                     qc)
+                    newline, qc, had_comment = self.handle_inline_comment(
+                        line2[6:], self.linecount, qc
+                    )
                     have_comment |= had_comment
                     lines.append(newline)
                     endlineno = self.linecount
                 next_line = self.get_next_line()
             # no character continuation should follows now
             if qc is not None:
-                message = 'following character continuation: ' \
-                          + '{!r}, expected None.'
-                message = self.format_message('ASSERTION FAILURE(fix)',
-                                              message.format(qc),
-                                              startlineno,
-                                              self.linecount)
+                message = "following character continuation: " + "{!r}, expected None."
+                message = self.format_message(
+                    "ASSERTION FAILURE(fix)",
+                    message.format(qc),
+                    startlineno,
+                    self.linecount,
+                )
                 logging.getLogger(__name__).warning(message)
             if len(lines) > 1:
                 for i in range(len(lines)):
                     line = lines[i]
-                    if line.rstrip().endswith('&'):
-                        message = 'free format line continuation character ' \
-                                  + "`&' detected in fix format code"
-                        location = line.rfind('&') + 5
-                        message = self.format_warning_message(message,
-                                                              startlineno + i,
-                                                              startlineno + i,
-                                                              location)
+                    if line.rstrip().endswith("&"):
+                        message = (
+                            "free format line continuation character "
+                            + "`&' detected in fix format code"
+                        )
+                        location = line.rfind("&") + 5
+                        message = self.format_warning_message(
+                            message, startlineno + i, startlineno + i, location
+                        )
                         logging.getLogger(__name__).warning(message)
-            return self.line_item(''.join(lines),
-                                  startlineno,
-                                  endlineno,
-                                  label,
-                                  name)
+            return self.line_item("".join(lines), startlineno, endlineno, label, name)
 
         # line is free format or fixed format with f2py directive (that
         # will be interpretted as free format line).
@@ -1465,20 +1459,22 @@ class FortranReaderBase():
         qc = None
         while line is not None:
             if start_index:  # fix format code
-                line, qc, had_comment \
-                    = handle_inline_comment(line[start_index:],
-                                            self.linecount, qc)
+                line, qc, had_comment = handle_inline_comment(
+                    line[start_index:], self.linecount, qc
+                )
                 have_comment |= had_comment
                 is_f2py_directive = self.linecount in self.f2py_comment_lines
             else:
                 # free format
                 line_lstrip = line.lstrip()
                 if lines:
-                    if line_lstrip.startswith('!'):
+                    if line_lstrip.startswith("!"):
                         # check for comment line within line continuation
-                        put_item(self.comment_item(line_lstrip,
-                                                   self.linecount,
-                                                   self.linecount))
+                        put_item(
+                            self.comment_item(
+                                line_lstrip, self.linecount, self.linecount
+                            )
+                        )
                         have_comment = True
                         line = get_single_line()
                         continue
@@ -1492,14 +1488,13 @@ class FortranReaderBase():
                     label, line = extract_label(line)
                     name, line = extract_construct_name(line)
 
-                line, qc, had_comment = \
-                    handle_inline_comment(line, self.linecount, qc)
+                line, qc, had_comment = handle_inline_comment(line, self.linecount, qc)
                 have_comment |= had_comment
                 is_f2py_directive = self.linecount in self.f2py_comment_lines
 
-            i = line.rfind('&')
+            i = line.rfind("&")
             if i != -1:
-                line_i1_rstrip = line[i+1:].rstrip()
+                line_i1_rstrip = line[i + 1 :].rstrip()
             if not lines:
                 # first line
                 if i == -1 or line_i1_rstrip:
@@ -1515,35 +1510,29 @@ class FortranReaderBase():
             k = -1
             if i != -1:
                 # handle the beggining of continued line
-                k = line[:i].find('&')
+                k = line[:i].find("&")
                 if k != 1 and line[:k].lstrip():
                     k = -1
             endlineno = self.linecount
-            lines_append(line[k+1:i])
+            lines_append(line[k + 1 : i])
             if i == len(line):
                 break
             line = get_single_line()
 
         if qc is not None:
-            message = 'following character continuation: {!r}, ' \
-                      + 'expected None.'
-            message = self.format_message('ASSERTION FAILURE(free)',
-                                          message.format(qc),
-                                          startlineno,
-                                          endlineno)
+            message = "following character continuation: {!r}, " + "expected None."
+            message = self.format_message(
+                "ASSERTION FAILURE(free)", message.format(qc), startlineno, endlineno
+            )
             logging.getLogger(__name__).error(message)
-        line_content = ''.join(lines).strip()
+        line_content = "".join(lines).strip()
         if line_content:
-            return self.line_item(line_content,
-                                  startlineno,
-                                  endlineno,
-                                  label,
-                                  name)
+            return self.line_item(line_content, startlineno, endlineno, label, name)
         if label is not None:
-            message = 'Label must follow nonblank character (F2008:3.2.5_2)'
+            message = "Label must follow nonblank character (F2008:3.2.5_2)"
             self.warning(message)
         if name is not None:
-            self.error('No construct following construct-name.')
+            self.error("No construct following construct-name.")
 
         # If this point is reached, the line is a comment or is
         # blank. If it is a comment, it has been pushed onto the
@@ -1552,11 +1541,11 @@ class FortranReaderBase():
             return self.fifo_item.pop(0)
         except IndexError:
             # A blank line is represented as an empty comment
-            return Comment('', (startlineno, endlineno), self)
+            return Comment("", (startlineno, endlineno), self)
 
 
 class FortranFileReader(FortranReaderBase):
-    '''
+    """
     Constructs a FortranFileReader object from a file.
 
     :param file_candidate: A filename or file-like object.
@@ -1571,9 +1560,11 @@ class FortranFileReader(FortranReaderBase):
     >>> import os
     >>> reader = FortranFileReader(\'myfile.f90\')
 
-    '''
-    def __init__(self, file_candidate, include_dirs=None, source_only=None,
-                 ignore_comments=True):
+    """
+
+    def __init__(
+        self, file_candidate, include_dirs=None, source_only=None, ignore_comments=True
+    ):
         # The filename is used as a unique ID. This is then used to cache the
         # contents of the file. Obviously if the file changes content but not
         # filename, problems will ensue.
@@ -1583,17 +1574,18 @@ class FortranFileReader(FortranReaderBase):
             self.id = file_candidate
             # The 'fparser-logging' handler for errors ensures that any invalid
             # characters in the input are skipped but logged.
-            self.file = open(file_candidate, 'r', encoding='UTF-8',
-                             errors='fparser-logging')
+            self.file = open(
+                file_candidate, "r", encoding="UTF-8", errors="fparser-logging"
+            )
             self._close_on_destruction = True
-        elif hasattr(file_candidate,
-                     'read') and hasattr(file_candidate,
-                                         'name'):  # Is likely a file
+        elif hasattr(file_candidate, "read") and hasattr(
+            file_candidate, "name"
+        ):  # Is likely a file
             self.id = file_candidate.name
             self.file = file_candidate
         else:  # Probably not something we can deal with
-            message = 'FortranFileReader is used with a filename'
-            message += ' or file-like object.'
+            message = "FortranFileReader is used with a filename"
+            message += " or file-like object."
             raise ValueError(message)
         mode = fparser.common.sourceinfo.get_source_info(file_candidate)
 
@@ -1615,7 +1607,7 @@ class FortranFileReader(FortranReaderBase):
 
 
 class FortranStringReader(FortranReaderBase):
-    '''
+    """
     Reads Fortran source code as a string.
 
     :param str string: string to read
@@ -1635,9 +1627,11 @@ class FortranStringReader(FortranReaderBase):
         \'\'\'
     >>> reader = FortranStringReader(code)
 
-    '''
-    def __init__(self, string, include_dirs=None, source_only=None,
-                 ignore_comments=True):
+    """
+
+    def __init__(
+        self, string, include_dirs=None, source_only=None, ignore_comments=True
+    ):
         # The Python ID of the string was used to uniquely identify it for
         # caching purposes. Unfortunately this ID is only unique for the
         # lifetime of the string. In CPython it is the address of the string
@@ -1647,11 +1641,10 @@ class FortranStringReader(FortranReaderBase):
         # For this reason the hash is used instead. A much better solution
         # anyway.
         #
-        self.id = 'string-' + str(hash(string))
+        self.id = "string-" + str(hash(string))
         source = StringIO(string)
         mode = fparser.common.sourceinfo.get_source_info_str(string)
-        FortranReaderBase.__init__(self, source, mode,
-                                   ignore_comments)
+        FortranReaderBase.__init__(self, source, mode, ignore_comments)
         if include_dirs is not None:
             self.include_dirs = include_dirs[:]
         if source_only is not None:

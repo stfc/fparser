@@ -33,18 +33,17 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # -----------------------------------------------------------------------------
 
-''' Module containing tests for the SymbolTables container functionality
- of fparser2. '''
+""" Module containing tests for the SymbolTables container functionality
+ of fparser2. """
 
 import pytest
 from fparser.two import Fortran2003
-from fparser.two.symbol_table import SymbolTables, SymbolTable, \
-    SymbolTableError
+from fparser.two.symbol_table import SymbolTables, SymbolTable, SymbolTableError
 
 
 def test_construction_addition_removal():
-    ''' Check that we can create a SymbolTables instance, add a table to it,
-    remove a table from it and query it. '''
+    """Check that we can create a SymbolTables instance, add a table to it,
+    remove a table from it and query it."""
     tables = SymbolTables()
     assert tables._current_scope is None
     assert tables._symbol_tables == {}
@@ -59,8 +58,10 @@ def test_construction_addition_removal():
     # We should not be able to add another table with the same name
     with pytest.raises(SymbolTableError) as err:
         tables.add("table1")
-    assert ("table of top-level (un-nested) symbol tables already contains "
-            "an entry for 'table1'" in str(err.value))
+    assert (
+        "table of top-level (un-nested) symbol tables already contains "
+        "an entry for 'table1'" in str(err.value)
+    )
     # Add a second table and then remove it
     table2 = tables.add("taBLe2")
     # Check that validation checks are disabled by default
@@ -80,8 +81,8 @@ def test_construction_addition_removal():
 
 
 def test_scoping_unit_classes_setter():
-    ''' Check that the setter for the list of classes used to define scoping
-    regions works as expected. '''
+    """Check that the setter for the list of classes used to define scoping
+    regions works as expected."""
     tables = SymbolTables()
     assert tables.scoping_unit_classes == []
     tables.scoping_unit_classes = [Fortran2003.Block_Data]
@@ -91,12 +92,13 @@ def test_scoping_unit_classes_setter():
     assert "Supplied value must be a list but got 'str'" in str(err.value)
     with pytest.raises(TypeError) as err:
         tables.scoping_unit_classes = ["hello"]
-    assert ("Supplied list must contain only classes but got: ['hello']" in
-            str(err.value))
+    assert "Supplied list must contain only classes but got: ['hello']" in str(
+        err.value
+    )
 
 
 def test_str_method():
-    ''' Tests for the str() method. '''
+    """Tests for the str() method."""
     tables = SymbolTables()
     text = str(tables)
     assert "SymbolTables: 0 tables" in text
@@ -104,16 +106,18 @@ def test_str_method():
     tables.exit_scope()
     tables.enter_scope("other_mod")
     text = str(tables)
-    assert ("SymbolTables: 2 tables\n"
-            "========================\n"
-            "other_mod\nsome_mod" in text)
+    assert (
+        "SymbolTables: 2 tables\n"
+        "========================\n"
+        "other_mod\nsome_mod" in text
+    )
     tables.clear()
     assert "SymbolTables: 0 tables" in str(tables)
 
 
 def test_nested_scoping():
-    ''' Test the functionality related to moving into and out of scoping
-    regions. '''
+    """Test the functionality related to moving into and out of scoping
+    regions."""
     tables = SymbolTables()
     tables.enter_scope("some_mod")
     outer_table = tables.lookup("some_mod")
@@ -144,16 +148,18 @@ def test_nested_scoping():
 
 
 def test_nested_removal():
-    ''' Tests the removal of symbol tables when we have nested scopes. '''
+    """Tests the removal of symbol tables when we have nested scopes."""
     tables = SymbolTables()
     tables.enter_scope("some_mod")
     tables.enter_scope("some_func")
     # Cannot find a symbol table if we are currently inside it
     with pytest.raises(SymbolTableError) as err:
         tables.remove("some_func")
-    assert ("Failed to find a table named 'some_func' in either the current "
-            "scope (which contains []) or the list of top-level symbol tables "
-            "(['some_mod'])." in str(err.value))
+    assert (
+        "Failed to find a table named 'some_func' in either the current "
+        "scope (which contains []) or the list of top-level symbol tables "
+        "(['some_mod'])." in str(err.value)
+    )
     tables.exit_scope()
     tables.remove("some_func")
     assert tables.current_scope.children == []
@@ -162,9 +168,10 @@ def test_nested_removal():
     # current scope.
     with pytest.raises(SymbolTableError) as err:
         tables.remove("some_mod")
-    assert ("Cannot remove top-level symbol table 'some_mod' because the "
-            "current scope 'another_func' has it as an ancestor" in
-            str(err.value))
+    assert (
+        "Cannot remove top-level symbol table 'some_mod' because the "
+        "current scope 'another_func' has it as an ancestor" in str(err.value)
+    )
     # Create a 2nd, top-level symbol table.
     tables.exit_scope()
     tables.exit_scope()

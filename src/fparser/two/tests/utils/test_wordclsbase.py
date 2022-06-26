@@ -32,7 +32,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-''' File containing unit tests for the WORDClsBase baseclass in utils.py '''
+""" File containing unit tests for the WORDClsBase baseclass in utils.py """
 
 import pytest
 from fparser.two.utils import WORDClsBase, NoMatchError
@@ -46,7 +46,7 @@ from fparser.two.Fortran2003 import Name
 
 
 def test_wordclsbase():
-    '''Test the wordclsbase match method with no optional arguments.'''
+    """Test the wordclsbase match method with no optional arguments."""
 
     token = "TOKEN"
     name = "name"
@@ -106,7 +106,7 @@ def test_wordclsbase():
 
 @pytest.mark.xfail(reason="multiple names are treated as one and concatenated")
 def test_wordclsbase_multi_names():
-    '''Create a separate test as these examples fail as the Name class
+    """Create a separate test as these examples fail as the Name class
     happily strips out spaces. I need to work out whether this is an
     issue for this class or for the Name class itself.
 
@@ -115,7 +115,7 @@ def test_wordclsbase_multi_names():
     with 'require_cls' is 'True' which means that valid content should
     exist for the class.
 
-    '''
+    """
 
     token = "TOKEN"
     name = "name"
@@ -132,11 +132,11 @@ def test_wordclsbase_multi_names():
 
 
 def test_wordclsbase_optional_colons():
-    '''Test the wordclsbase match method with colons as an optional
+    """Test the wordclsbase match method with colons as an optional
     argument. No need to check in combination with the require_cls
     optional argument as the code is independent.
 
-    '''
+    """
     token = "TOKEN"
     name = "name"
 
@@ -172,10 +172,10 @@ def test_wordclsbase_optional_colons():
 
 
 def test_wordclsbase_require_cls():
-    '''Test the wordclsbase match method with require_cls as an optional
+    """Test the wordclsbase match method with require_cls as an optional
     argument.
 
-    '''
+    """
     token = "TOKEN"
     name = "name"
 
@@ -186,30 +186,25 @@ def test_wordclsbase_require_cls():
 
     # token then :: (no spaces) with no following name - no match
     text = "{0}::".format(token)
-    result = WORDClsBase.match(token, Name, text, colons=True,
-                               require_cls=True)
+    result = WORDClsBase.match(token, Name, text, colons=True, require_cls=True)
     assert not result
 
     # token then :: with no following name - no match
     text = "{0} :: ".format(token)
-    result = WORDClsBase.match(token, Name, text, colons=True,
-                               require_cls=True)
+    result = WORDClsBase.match(token, Name, text, colons=True, require_cls=True)
     assert not result
 
     # token then name - match
     text = "{0} {1}".format(token, name)
-    result = WORDClsBase.match(token, Name, text, colons=True,
-                               require_cls=True)
+    result = WORDClsBase.match(token, Name, text, colons=True, require_cls=True)
     assert str(result) == "('{0}', Name('{1}'))".format(token, name)
 
     # token, :: then name (no spaces) - match
     text = "{0}::{1}".format(token, name)
-    result = WORDClsBase.match(token, Name, text, colons=True,
-                               require_cls=True)
+    result = WORDClsBase.match(token, Name, text, colons=True, require_cls=True)
     assert str(result) == "('{0}', Name('{1}'))".format(token, name)
 
     # token, :: then name - match
     text = "{0} :: {1}".format(token, name)
-    result = WORDClsBase.match(token, Name, text, colons=True,
-                               require_cls=True)
+    result = WORDClsBase.match(token, Name, text, colons=True, require_cls=True)
     assert str(result) == "('{0}', Name('{1}'))".format(token, name)

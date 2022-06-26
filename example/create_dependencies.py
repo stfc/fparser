@@ -35,7 +35,7 @@
 # ------------------------------------------------------------------------------
 # Author: Joerg Henrichs, Bureau of Meteorology
 
-'''This file contains an fparser script that parses Fortran files
+"""This file contains an fparser script that parses Fortran files
 and output the dependencies between these files suitable for a Makefile.
 
 It assumes that the module name in the use statement corresponds to the
@@ -43,7 +43,7 @@ name of the file (adding one of .F90/.f90/.x90). Only files in the current
 directory will be tested, so external dependencies will not be listed.
 
 Usage:  create_dependencies.py  file1.f90 file2.F90 ...
-'''
+"""
 
 
 import os
@@ -57,9 +57,9 @@ from fparser.two.utils import walk
 
 # -----------------------------------------------------------------------------
 def usage():
-    '''This function prints the usage information and exits. It is called if
+    """This function prints the usage information and exits. It is called if
     incorrect input parameters are supplied.
-    '''
+    """
     print("{0} file1 [file2...]".format(sys.argv[0]))
     sys.exit(-1)
 
@@ -82,8 +82,7 @@ if __name__ == "__main__":
         try:
             reader = FortranFileReader(filename)
         except IOError:
-            print("Could not open file '{0}'.".format(filename),
-                  file=sys.stderr)
+            print("Could not open file '{0}'.".format(filename), file=sys.stderr)
             sys.exit(-1)
 
         parser = ParserFactory().create(std="f2003")
@@ -94,17 +93,19 @@ if __name__ == "__main__":
         for node in walk(parse_tree, Use_Stmt):
             use_name = str(node.items[2])
             # Nothing else to do if the name is already in the list:
-            if use_name+".o" in all_use:
+            if use_name + ".o" in all_use:
                 continue
 
             # If you want to implement a specific naming convention,
             # you can modify the content of 'use_name' here. For example,
             # you could remove a '_mod' at the end if your file names do
             # not contains this.
-            if os.path.isfile(use_name+".f90") or \
-                    os.path.isfile(use_name+".x90") or \
-                    os.path.isfile(use_name+".F90"):
-                all_use.append(use_name+".o")
+            if (
+                os.path.isfile(use_name + ".f90")
+                or os.path.isfile(use_name + ".x90")
+                or os.path.isfile(use_name + ".F90")
+            ):
+                all_use.append(use_name + ".o")
 
         # Now output all dependencies for this file (if any):
         if all_use:
@@ -115,7 +116,7 @@ if __name__ == "__main__":
 
             # Assemble the output in a list of strings. You start with
             # listing this file first:
-            l_out = [os.path.splitext(filename)[0]+".o: "]
+            l_out = [os.path.splitext(filename)[0] + ".o: "]
             for dep_name in all_use:
                 # Start the next line if we would exceed 80 characters:
                 if len(l_out[-1]) + len(dep_name) > 80:

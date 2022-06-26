@@ -64,11 +64,11 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 # DAMAGE.
 
-'''Python script with command line options which calls the Fortran
+"""Python script with command line options which calls the Fortran
 File Reader with the supplied filename(s) and outputs the reader's
 representation of the code(s).
 
-'''
+"""
 import sys
 import logging
 from fparser.scripts.script_options import set_read_options
@@ -82,7 +82,7 @@ except ImportError:
 
 
 def runner(_, options, args):
-    '''Call the Fortran File reader for each filename in args and print
+    """Call the Fortran File reader for each filename in args and print
     out its content.
 
     :param options: command line argument information from the options \
@@ -94,22 +94,24 @@ def runner(_, options, args):
     :raises NotImplementedError: if the task option is not set to \
     "show".
 
-    '''
+    """
     from fparser.common.readfortran import FortranFileReader
+
     for filename in args:
         reader = FortranFileReader(filename)
-        if options.task == 'show':
+        if options.task == "show":
             for item in reader:
                 print(item)
                 sys.stdout.flush()
         else:
             raise NotImplementedError(
                 "The task option '{0}' is invalid. Currently only "
-                "'show' is supported.".format(repr(options.task)))
+                "'show' is supported.".format(repr(options.task))
+            )
 
 
 def main():
-    '''Check input options then call the runner function.'''
+    """Check input options then call the runner function."""
     parser = OptionParser()
     set_read_options(parser)
     options, args = parser.parse_args()

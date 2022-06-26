@@ -74,17 +74,18 @@ import logging
 from fparser.one.block_statements import BeginSource
 from fparser.common.utils import AnalyzeError
 
-__autodoc__ = ['FortranParser']
-__all__ = ['FortranParser']
+__autodoc__ = ["FortranParser"]
+__all__ = ["FortranParser"]
 
 
-class FortranParser():
-    '''
+class FortranParser:
+    """
     Parser of FortranReader structure.
 
     Use .parse() method for parsing, parsing result is saved in .block
     attribute.
-    '''
+    """
+
     cache = {}
 
     def __init__(self, reader, ignore_comments=True):
@@ -94,7 +95,7 @@ class FortranParser():
             parser = self.cache[reader.id]
             self.block = parser.block
             self.is_analyzed = parser.is_analyzed
-            logging.getLogger(__name__).info('using cached %s', (reader.id))
+            logging.getLogger(__name__).info("using cached %s", (reader.id))
         else:
             self.cache[reader.id] = self
             self.block = None
@@ -103,9 +104,9 @@ class FortranParser():
         return
 
     def get_item(self):
-        '''
+        """
         Retrieves the next item from the reader.
-        '''
+        """
         try:
             item = self.reader.next(ignore_comments=self.ignore_comments)
             return item
@@ -114,14 +115,14 @@ class FortranParser():
         return
 
     def put_item(self, item):
-        '''
+        """
         Pushes the given item to the reader.
-        '''
+        """
         self.reader.fifo_item.insert(0, item)
         return
 
     def parse(self):
-        '''Parses the program specified in the reader object.'''
+        """Parses the program specified in the reader object."""
         if self.block is not None:
             return
         try:
@@ -132,25 +133,27 @@ class FortranParser():
             reader = self.reader
             logger = logging.getLogger(__name__)
             while reader is not None:
-                message = \
-                    reader.format_message('FATAL ERROR',
-                                          'while processing line',
-                                          reader.linecount, reader.linecount)
+                message = reader.format_message(
+                    "FATAL ERROR",
+                    "while processing line",
+                    reader.linecount,
+                    reader.linecount,
+                )
                 logger.critical(message)
                 reader = reader.reader
-            logger.debug('An error occurred during parsing.', exc_info=error)
-            logger.critical('STOPPED PARSING')
+            logger.debug("An error occurred during parsing.", exc_info=error)
+            logger.critical("STOPPED PARSING")
             raise error
         return
 
     def analyze(self):
-        '''
+        """
         Attempts to analyse the parsed Fortran. It is not clear what for.
-        '''
+        """
         if self.is_analyzed:
             return
         if self.block is None:
-            logging.getLogger(__name__).info('Nothing to analyze.')
+            logging.getLogger(__name__).info("Nothing to analyze.")
             return
 
         try:

@@ -32,25 +32,21 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-'''Test Fortran 2003 rules R703 and R723 : This file tests the support
+"""Test Fortran 2003 rules R703 and R723 : This file tests the support
 for a Defined Unary Operator and a Defined Binary Operator,
 respectively. Both rules are included in a single test as, in terms of
 fparser implementation, they are identical. Therefore, to avoid code
 duplication we use a fixture.
 
-'''
+"""
 
 import pytest
 from fparser.two.utils import NoMatchError
 
 
 def test_defined_operator(f2003_create, op_type):
-    '''Check that basic unary and binary operators are parsed correctly.
-
-    '''
-    for line in [".myoperator.",
-                 "  .myoperator.  ",
-                 "."+63*"a"+"."]:
+    """Check that basic unary and binary operators are parsed correctly."""
+    for line in [".myoperator.", "  .myoperator.  ", "." + 63 * "a" + "."]:
         ast = op_type(line)
         target = line.strip().upper()
         assert target in str(ast)
@@ -58,22 +54,21 @@ def test_defined_operator(f2003_create, op_type):
 
 
 def test_syntax_error(f2003_create, op_type):
-    ''' Test that NoMatchError is raised for various syntax errors. '''
-    for line in ["", "  ", "x", ".x", "x.", "..", ".,.", ". x.", ".x .",
-                 ".x x."]:
+    """Test that NoMatchError is raised for various syntax errors."""
+    for line in ["", "  ", "x", ".x", "x.", "..", ".,.", ". x.", ".x .", ".x x."]:
         with pytest.raises(NoMatchError) as excinfo:
             _ = op_type(line)
         assert "_Op: '{0}'".format(line) in str(excinfo.value)
 
 
 def test_c703(f2003_create, op_type):
-    '''Test that we do not match if the name is more than 63 characters
+    """Test that we do not match if the name is more than 63 characters
     long, the name matches an existing intrinsic operator (e.g. .gt.),
     or the name matches an existing logical literal constant
     (e.g. .false.).
 
-    '''
-    for line in ["."+64*"a"+".", ".eq.", ".not.", ".false.", ".FALSE."]:
+    """
+    for line in ["." + 64 * "a" + ".", ".eq.", ".not.", ".false.", ".FALSE."]:
         with pytest.raises(NoMatchError) as excinfo:
             _ = op_type(line)
         assert "_Op: '{0}'".format(line) in str(excinfo.value)

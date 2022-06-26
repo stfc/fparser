@@ -32,10 +32,10 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-'''Module which provides pytest fixtures for use by files in this
+"""Module which provides pytest fixtures for use by files in this
 directory
 
-'''
+"""
 import pytest
 from fparser.two.parser import ParserFactory
 from fparser.two.Fortran2003 import Defined_Unary_Op, Defined_Binary_Op
@@ -43,14 +43,14 @@ from fparser.two.Fortran2003 import Defined_Unary_Op, Defined_Binary_Op
 
 @pytest.fixture(autouse=True)
 def f2003_create():
-    '''Create a fortran 2003 parser class hierarchy'''
+    """Create a fortran 2003 parser class hierarchy"""
     _ = ParserFactory().create(std="f2003")
 
 
 @pytest.fixture(scope="module", params=[Defined_Unary_Op, Defined_Binary_Op])
 def op_type(request):
-    '''Fixture for testing the two types of defined op (unary and
+    """Fixture for testing the two types of defined op (unary and
     binary).
 
-    '''
+    """
     return request.param

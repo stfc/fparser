@@ -32,7 +32,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-'''Test Fortran 2003 rule R603 : This file tests support for the
+"""Test Fortran 2003 rule R603 : This file tests support for the
 Designator class.
 
 Three of the rules in Designator class are currently not called as the
@@ -52,20 +52,28 @@ section. A data-ref of nonzero rank that ends with a substring-range
 is an array section. A data-ref of zero rank that ends with a
 substring-range is a substring.
 
-'''
+"""
 import pytest
-from fparser.two.Fortran2003 import Designator, Name, Part_Ref, \
-    Array_Section, Program, Data_Ref, NoMatchError, \
-    Section_Subscript_List, Array_Element
+from fparser.two.Fortran2003 import (
+    Designator,
+    Name,
+    Part_Ref,
+    Array_Section,
+    Program,
+    Data_Ref,
+    NoMatchError,
+    Section_Subscript_List,
+    Array_Element,
+)
 from fparser.api import get_reader
 
 
 @pytest.mark.usefixtures("f2003_create")
 def test_object_name():
-    '''Test that a Name object is returned when a valid object-name name
+    """Test that a Name object is returned when a valid object-name name
     is supplied
 
-    '''
+    """
     result = Designator("fred")
     assert str(result) == "fred"
     assert isinstance(result, Name)
@@ -73,7 +81,7 @@ def test_object_name():
 
 @pytest.mark.usefixtures("f2003_create")
 def test_array_element():
-    '''Test that the array-element rule is matched when the Designator
+    """Test that the array-element rule is matched when the Designator
     rule is supplied with an array-element.
 
     # Note that at this time this example would also match rules
@@ -83,7 +91,7 @@ def test_array_element():
     # and structure-component in the Designator class subclass_names
     # list so is matched first.
 
-    '''
+    """
     # A Part_Ref is returned (as array-element -> data-ref -> part-ref
     # and a data-ref is not returned if there is only one part-ref)
     result = Designator("a(7,b(i)+c)")
@@ -100,14 +108,13 @@ def test_array_element():
     assert isinstance(result.items[1], Part_Ref)  # a(1)
 
 
-@pytest.mark.xfail(reason="issue #201 Array section is parsed as an array "
-                   "element.")
+@pytest.mark.xfail(reason="issue #201 Array section is parsed as an array " "element.")
 @pytest.mark.usefixtures("f2003_create")
 def test_array_section():
-    '''Test that the array-section rule is matched when the Designator
+    """Test that the array-section rule is matched when the Designator
     rule is supplied with an array-section.
 
-    '''
+    """
     result = Designator("a(1:2)")
     assert str(result) == "a(1 : 2)"
     assert isinstance(result, Part_Ref)
@@ -128,23 +135,24 @@ def test_array_section():
 
 @pytest.mark.usefixtures("f2003_create")
 def test_array_section2():
-    '''Test that an Array_Section object is returned when a valid
+    """Test that an Array_Section object is returned when a valid
     array-section (followed by a substring-range) is supplied.
 
-    '''
+    """
     result = Designator("a(1:2:3)(:)")
     assert str(result) == "a(1 : 2 : 3)(:)"
     assert isinstance(result, Array_Section)
 
 
-@pytest.mark.xfail(reason="issue #201 Structure-component is parsed as an "
-                   "array element.")
+@pytest.mark.xfail(
+    reason="issue #201 Structure-component is parsed as an " "array element."
+)
 @pytest.mark.usefixtures("f2003_create")
 def test_structure_component():
-    '''Test that the structure-component rule is matched when the Designator
+    """Test that the structure-component rule is matched when the Designator
     rule is supplied with a structure component.
 
-    '''
+    """
     result = Designator("parent%scalar_field")
     assert str(result) == "parent % scalar_field"
     assert isinstance(result, Data_Ref)
@@ -163,22 +171,22 @@ def test_structure_component():
         _ = Array_Section("parent%scalar_field")
 
 
-@pytest.mark.xfail(reason="issue #201 Substring is parsed as an array "
-                   "element.")
+@pytest.mark.xfail(reason="issue #201 Substring is parsed as an array " "element.")
 @pytest.mark.usefixtures("f2003_create")
 def test_substring():
-    '''Test that an Substring object is returned when a valid substring is
+    """Test that an Substring object is returned when a valid substring is
     supplied. This example provides the context (i.e. 'a' is a
     character string) as otherwise it is not possible for the parser
     to distinguish between a substring and an array section and it
     defaults to the latter.
 
-    '''
+    """
     reader = get_reader(
         "program test\n"
         "character(len=10) :: a\n"
         "a(1:3)='hey'\n"
-        "end program test\n")
+        "end program test\n"
+    )
     result = Program(reader)
     assert "a(1 : 3) = 'hey'" in str(result)
     assert isinstance(result, Program)

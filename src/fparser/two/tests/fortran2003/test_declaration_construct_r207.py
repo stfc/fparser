@@ -32,7 +32,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-'''Test Fortran 2003 rule R207 : This file tests support for the
+"""Test Fortran 2003 rule R207 : This file tests support for the
 Declaration_Construct class.
 
 As this class just uses Base to match with a choice of subclasses we
@@ -40,7 +40,7 @@ test that an instance of each subclass can be succesfully
 parsed. Detailed checking of the subclass rules are performed by the
 subclass tests.
 
-'''
+"""
 
 import pytest
 from fparser.two.Fortran2003 import Declaration_Construct
@@ -48,12 +48,11 @@ from fparser.api import get_reader
 
 
 def test_derived_type_def(f2003_create):
-    '''Test a derived type definition statement is supported by the
+    """Test a derived type definition statement is supported by the
     declaration construct class.
 
-    '''
-    code = ("TYPE :: my_type\n"
-            "END TYPE my_type")
+    """
+    code = "TYPE :: my_type\n" "END TYPE my_type"
     reader = get_reader(code)
     result = Declaration_Construct(reader)
     assert str(result) == code
@@ -61,10 +60,10 @@ def test_derived_type_def(f2003_create):
 
 
 def test_entry_stmt(f2003_create):
-    '''Test an entry statement is supported by the declaration construct
+    """Test an entry statement is supported by the declaration construct
     class.
 
-    '''
+    """
     code = "ENTRY my_function()"
     reader = get_reader(code)
     result = Declaration_Construct(reader)
@@ -73,13 +72,11 @@ def test_entry_stmt(f2003_create):
 
 
 def test_enum_def(f2003_create):
-    '''Test an enum definition is supported by the declaration construct
+    """Test an enum definition is supported by the declaration construct
     class.
 
-    '''
-    code = ("ENUM, BIND(C)\n"
-            "  ENUMERATOR :: a = 1\n"
-            "END ENUM")
+    """
+    code = "ENUM, BIND(C)\n" "  ENUMERATOR :: a = 1\n" "END ENUM"
     reader = get_reader(code)
     result = Declaration_Construct(reader)
     assert str(result) == code
@@ -87,10 +84,10 @@ def test_enum_def(f2003_create):
 
 
 def test_format_statement(f2003_create):
-    '''Test a format statement is supported by the declaration construct
+    """Test a format statement is supported by the declaration construct
     class.
 
-    '''
+    """
     code = "FORMAT('(x)')"
     reader = get_reader(code)
     result = Declaration_Construct(reader)
@@ -99,12 +96,11 @@ def test_format_statement(f2003_create):
 
 
 def test_interface_block(f2003_create):
-    '''Test an interface block statement is supported by the declaration
+    """Test an interface block statement is supported by the declaration
     construct class.
 
-    '''
-    code = ("INTERFACE\n"
-            "END INTERFACE")
+    """
+    code = "INTERFACE\n" "END INTERFACE"
     reader = get_reader(code)
     result = Declaration_Construct(reader)
     assert str(result) == code
@@ -112,10 +108,10 @@ def test_interface_block(f2003_create):
 
 
 def test_parameter_stmt(f2003_create):
-    '''Test a parameter statement is supported by the declaration
+    """Test a parameter statement is supported by the declaration
     construct class.
 
-    '''
+    """
     code = "PARAMETER(A = 2)"
     reader = get_reader(code)
     result = Declaration_Construct(reader)
@@ -124,10 +120,10 @@ def test_parameter_stmt(f2003_create):
 
 
 def test_procedure_declaration_stmt(f2003_create):
-    '''Test a procedure declaration statement is supported by the
+    """Test a procedure declaration statement is supported by the
     declaration construct class.
 
-    '''
+    """
     code = "PROCEDURE(REAL) FUNC"
     reader = get_reader(code)
     result = Declaration_Construct(reader)
@@ -136,11 +132,11 @@ def test_procedure_declaration_stmt(f2003_create):
 
 
 def test_specification_stmt(f2003_create):
-    '''Test a specification statement is supported by the declaration
+    """Test a specification statement is supported by the declaration
     construct class. An access statement is a specification statement,
     so check for this.
 
-    '''
+    """
     code = "PUBLIC :: A"
     reader = get_reader(code)
     result = Declaration_Construct(reader)
@@ -150,10 +146,10 @@ def test_specification_stmt(f2003_create):
 
 @pytest.mark.usefixtures("fake_symbol_table")
 def test_type_declaration_stmt(f2003_create):
-    '''Test a type declaration statement is supported by the declaration
+    """Test a type declaration statement is supported by the declaration
     construct class.
 
-    '''
+    """
     code = "INTEGER :: X"
     reader = get_reader(code)
     result = Declaration_Construct(reader)
@@ -163,10 +159,10 @@ def test_type_declaration_stmt(f2003_create):
 
 @pytest.mark.xfail(reason="#202. Statement Function support removed.")
 def test_stmt_function_stmt(f2003_create):
-    '''Test a statement function statement is supported by the declaration
+    """Test a statement function statement is supported by the declaration
     construct class.
 
-    '''
+    """
     code = "C(F) = 5.0*(F - 32.0)/9.0"
     reader = get_reader(code)
     result = Declaration_Construct(reader)

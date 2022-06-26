@@ -32,11 +32,11 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-'''Test Fortran 2008 rule 436
+"""Test Fortran 2008 rule 436
 
   data-component-def-stmt is declaration-type-spec [
            [ , component-attr-spec-list ] :: ] component-decl-list
 
 R436 (and its Fortran 2003 counterpart R440) are currently untested (see #465).
 
-'''
+"""

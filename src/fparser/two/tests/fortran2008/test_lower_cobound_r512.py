@@ -32,11 +32,11 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-'''Test Fortran 2008 rule R512
+"""Test Fortran 2008 rule R512
 
     lower-cobound is specification-expr
 
-'''
+"""
 
 import pytest
 from fparser.two.Fortran2008 import Lower_Cobound
@@ -44,24 +44,27 @@ from fparser.two import Fortran2003
 
 
 @pytest.mark.usefixtures("f2008_create")
-@pytest.mark.parametrize('attr, _type', [
-    ('aaa', Fortran2003.Name),
-    ('aAa', Fortran2003.Name),
-    ('1', Fortran2003.Int_Literal_Constant),
-    ('5  + 7', Fortran2003.Level_2_Expr),
-    ('3-9', Fortran2003.Level_2_Expr)
-])
+@pytest.mark.parametrize(
+    "attr, _type",
+    [
+        ("aaa", Fortran2003.Name),
+        ("aAa", Fortran2003.Name),
+        ("1", Fortran2003.Int_Literal_Constant),
+        ("5  + 7", Fortran2003.Level_2_Expr),
+        ("3-9", Fortran2003.Level_2_Expr),
+    ],
+)
 def test_lower_cobound(attr, _type):
-    '''Test that lower_cobound is parsed correctly.'''
+    """Test that lower_cobound is parsed correctly."""
     obj = Lower_Cobound(attr)
     assert isinstance(obj, _type), repr(obj)
-    ref = attr.replace(' ', '').replace('+', ' + ').replace('-', ' - ')
+    ref = attr.replace(" ", "").replace("+", " + ").replace("-", " - ")
     assert str(obj) == ref
 
 
 @pytest.mark.usefixtures("f2008_create")
-@pytest.mark.parametrize('attr', ['', '*'])
+@pytest.mark.parametrize("attr", ["", "*"])
 def test_invalid_lower_cobound(attr):
-    '''Test that invalid lower_cobound raise exception.'''
+    """Test that invalid lower_cobound raise exception."""
     with pytest.raises(Fortran2003.NoMatchError):
         _ = Lower_Cobound(attr)

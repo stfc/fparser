@@ -43,20 +43,29 @@ import sys
 
 from fparser.common.readfortran import FortranReaderBase, CppDirective
 from fparser.two import pattern_tools as pattern
-from fparser.two.utils import (Base, StringBase, WORDClsBase)
+from fparser.two.utils import Base, StringBase, WORDClsBase
 
 
 # The list of classes that implement preprocessor directives
 # This list is used in match_cpp_directive() and
 # fparser.two.utils.BlockBase.match().
-CPP_CLASS_NAMES = ['Cpp_If_Stmt', 'Cpp_Elif_Stmt', 'Cpp_Else_Stmt',
-                   'Cpp_Endif_Stmt', 'Cpp_Include_Stmt', 'Cpp_Macro_Stmt',
-                   'Cpp_Undef_Stmt', 'Cpp_Line_Stmt', 'Cpp_Error_Stmt',
-                   'Cpp_Warning_Stmt', 'Cpp_Null_Stmt']
+CPP_CLASS_NAMES = [
+    "Cpp_If_Stmt",
+    "Cpp_Elif_Stmt",
+    "Cpp_Else_Stmt",
+    "Cpp_Endif_Stmt",
+    "Cpp_Include_Stmt",
+    "Cpp_Macro_Stmt",
+    "Cpp_Undef_Stmt",
+    "Cpp_Line_Stmt",
+    "Cpp_Error_Stmt",
+    "Cpp_Warning_Stmt",
+    "Cpp_Null_Stmt",
+]
 
 
 def match_cpp_directive(reader):
-    '''Creates single-line C99 preprocessor directive object from the
+    """Creates single-line C99 preprocessor directive object from the
     current line, if any is found.
 
     :param reader: the fortran file reader containing the line \
@@ -69,7 +78,7 @@ def match_cpp_directive(reader):
     :rtype: one of (:py:class:`fparser.two.C99Preprocess.Cpp_*_Stmt`,) or \
             `NoneType`
 
-    '''
+    """
     # Assume we have potentially a CPP directive and only check for an
     # instance of CppDirective if reader is a subclass of FortranReaderBase
     is_potential_cpp_directive = True
@@ -96,16 +105,17 @@ def match_cpp_directive(reader):
 # 6.10 Preprocessing directives
 #
 
+
 class Cpp_Pp_Tokens(Base):
-    '''Generic class for preprocessor tokens that form the right hand
+    """Generic class for preprocessor tokens that form the right hand
     side of a preprocessor directive (such as #error, #line, #if, etc.).
-    '''
+    """
 
     subclass_names = []
 
     @staticmethod
     def match(string):
-        '''Implements the matching for arbitrary preprocessor tokens
+        """Implements the matching for arbitrary preprocessor tokens
         that form the right hand side of a preprocessor directive. It
         does not impose any restrictions other than the string not
         being empty.
@@ -115,7 +125,7 @@ class Cpp_Pp_Tokens(Base):
         :return: a 1-tuple containing the matched string or None.
         :rtype: (str,) or NoneType
 
-        '''
+        """
         if not string:
             return None
         line = string.strip()
@@ -124,10 +134,10 @@ class Cpp_Pp_Tokens(Base):
         return (line,)
 
     def tostr(self):
-        '''
+        """
         :return: this pp-tokens as a string.
         :rtype: str
-        '''
+        """
         return self.items[0]
 
 
@@ -138,28 +148,28 @@ class Cpp_Pp_Tokens(Base):
 
 
 class Cpp_If_Stmt(WORDClsBase):
-    '''
+    """
     C99 6.10.1 Conditional inclusion
 
     if-stmt is  # if constant-expression new-line
                 or ifdef identifier new-line
                 or ifndef identifier new-line
 
-    '''
+    """
 
     subclass_names = []
-    use_names = ['Cpp_Macro_Identifier', 'Cpp_Pp_Tokens']
+    use_names = ["Cpp_Macro_Identifier", "Cpp_Pp_Tokens"]
 
     _regex = re.compile(r"#\s*(ifdef|ifndef|if)\b")
-    _if_pattern = pattern.Pattern('<if>', r'^\s*#\s*if\b', value='#if')
+    _if_pattern = pattern.Pattern("<if>", r"^\s*#\s*if\b", value="#if")
     _def_pattern = (
-        pattern.Pattern('<ifdef>', r'^\s*#\s*ifdef\b', value='#ifdef'),
-        pattern.Pattern('<ifndef>', r'^\s*#\s*ifndef\b', value='#ifndef')
+        pattern.Pattern("<ifdef>", r"^\s*#\s*ifdef\b", value="#ifdef"),
+        pattern.Pattern("<ifndef>", r"^\s*#\s*ifndef\b", value="#ifndef"),
     )
 
     @staticmethod
     def match(string):
-        '''Implements the matching for an if preprocessor directive
+        """Implements the matching for an if preprocessor directive
         (or its variations ifdef, ifndef). For ifdef and ifndef
         statements it matches the macro identifier using
         :py:class:`fparser.two.C99Preprocesser.Cpp_Macro_Identifier`
@@ -175,40 +185,48 @@ class Cpp_If_Stmt(WORDClsBase):
           or (`str`, py:class:`fparser.two.C99Preprocessor.Cpp_Pp_Tokens`) \
           or `NoneType`
 
-        '''
+        """
         if not string:
             return None
         result = WORDClsBase.match(
-            Cpp_If_Stmt._if_pattern, Cpp_Pp_Tokens, string, colons=False,
-            require_cls=True)
+            Cpp_If_Stmt._if_pattern,
+            Cpp_Pp_Tokens,
+            string,
+            colons=False,
+            require_cls=True,
+        )
         return result or WORDClsBase.match(
-            Cpp_If_Stmt._def_pattern, Cpp_Macro_Identifier, string,
-            colons=False, require_cls=True)
+            Cpp_If_Stmt._def_pattern,
+            Cpp_Macro_Identifier,
+            string,
+            colons=False,
+            require_cls=True,
+        )
 
     def tostr(self):
-        '''
+        """
         :return: this if-stmt as a string.
         :rtype: str
-        '''
-        return '{0} {1}'.format(*self.items)
+        """
+        return "{0} {1}".format(*self.items)
 
 
 class Cpp_Elif_Stmt(WORDClsBase):
-    '''
+    """
     C99 6.10.1 Conditional inclusion
 
     elif-stmt is  # elif constant-expression new-line
 
-    '''
+    """
 
     subclass_names = []
-    use_names = ['Cpp_Pp_Tokens']
+    use_names = ["Cpp_Pp_Tokens"]
 
-    _pattern = pattern.Pattern('<elif-stmt>', r'^\s*#\s*elif\b', value='#elif')
+    _pattern = pattern.Pattern("<elif-stmt>", r"^\s*#\s*elif\b", value="#elif")
 
     @staticmethod
     def match(string):
-        '''Implements the matching for an elif preprocessor directive.
+        """Implements the matching for an elif preprocessor directive.
 
         :param str string: the string to match with as an elif statement.
 
@@ -218,36 +236,40 @@ class Cpp_Elif_Stmt(WORDClsBase):
             (`str`, :py:class:`fparser.two.C99_Preprocessor.Cpp_Pp_Tokens`) \
             or `NoneType`
 
-        '''
+        """
         if not string:
             return None
         return WORDClsBase.match(
-            Cpp_Elif_Stmt._pattern, Cpp_Pp_Tokens, string, colons=False,
-            require_cls=True)
+            Cpp_Elif_Stmt._pattern,
+            Cpp_Pp_Tokens,
+            string,
+            colons=False,
+            require_cls=True,
+        )
 
     def tostr(self):
-        '''
+        """
         :return: this elif-stmt as a string.
         :rtype: str
-        '''
-        return '{0} {1}'.format(*self.items)
+        """
+        return "{0} {1}".format(*self.items)
 
 
 class Cpp_Else_Stmt(StringBase):
-    '''
+    """
     C99 6.10.1 Conditional inclusion
 
     else-stmt is  # else new-line
 
-    '''
+    """
 
     subclass_names = []
 
-    _pattern = pattern.Pattern('<else>', r'^\s*#\s*else\b')
+    _pattern = pattern.Pattern("<else>", r"^\s*#\s*else\b")
 
     @staticmethod
     def match(string):
-        '''Implements the matching for an else preprocessor directive.
+        """Implements the matching for an else preprocessor directive.
 
         :param str string: the string to match with as an else statement.
 
@@ -255,34 +277,34 @@ class Cpp_Else_Stmt(StringBase):
                   there is no match.
         :rtype: (str,) or NoneType
 
-        '''
+        """
         if not string:
             return None
         return StringBase.match(Cpp_Else_Stmt._pattern, string)
 
     def tostr(self):
-        '''
+        """
         :return: this else-stmt as a string.
         :rtype: str
-        '''
+        """
         return self.string
 
 
 class Cpp_Endif_Stmt(StringBase):
-    '''
+    """
     C99 6.10.1 Conditional inclusion
 
     endif-stmt is  # endif new-line
 
-    '''
+    """
 
     subclass_names = []
 
-    _pattern = pattern.Pattern('<endif>', r'^\s*#\s*endif\b', value='#endif')
+    _pattern = pattern.Pattern("<endif>", r"^\s*#\s*endif\b", value="#endif")
 
     @staticmethod
     def match(string):
-        '''Implements the matching for an endif preprocessor directive.
+        """Implements the matching for an endif preprocessor directive.
 
         :param str string: the string to match with as an endif statement.
 
@@ -290,35 +312,35 @@ class Cpp_Endif_Stmt(StringBase):
                   there is no match.
         :rtype: (str,) or NoneType
 
-        '''
+        """
         if not string:
             return None
         return StringBase.match(Cpp_Endif_Stmt._pattern, string)
 
     def tostr(self):
-        '''
+        """
         :return: this endif-stmt as a string.
         :rtype: str
-        '''
+        """
         return self.string
 
 
 class Cpp_Include_Stmt(Base):  # 6.10.2 Source file inclusion
-    '''
+    """
     C99 6.10.2 Source file inclusion
 
     include_stmt is # include [ <h-char-sequence>
                                or "q-char-sequence"
                                or pp-tokens ] new-line
-    '''
+    """
 
     _regex = re.compile(r"#\s*include\b")
 
-    use_names = ['Include_Filename']
+    use_names = ["Include_Filename"]
 
     @staticmethod
     def match(string):
-        '''Implements the matching for an include statement.
+        """Implements the matching for an include statement.
 
         Allows for the filename to appear in double quotes or angle
         brackets. Only very loose restrictions are enforced for the
@@ -334,8 +356,9 @@ class Cpp_Include_Stmt(Base):  # 6.10.2 Source file inclusion
         :rtype: (:py:class:`fparser.two.Fortran2003.Include_Filename`, ) \
                 or `NoneType`
 
-        '''
+        """
         from fparser.two.Fortran2003 import Include_Filename
+
         if not string:
             return None
         line = string.strip()
@@ -343,14 +366,15 @@ class Cpp_Include_Stmt(Base):  # 6.10.2 Source file inclusion
         if not found:
             # The line does not match an include statement
             return None
-        rhs = line[found.end():].strip()
+        rhs = line[found.end() :].strip()
         if rhs is None or len(rhs) < 3:
             # Either we didn't find any includes or the content after
             # the include token is too short to be valid (it must at
             # least contain quotes and one character.
             return None
-        if not (rhs[0] == '"' and rhs[-1] == '"') and \
-           not (rhs[0] == '<' and rhs[-1] == '>'):
+        if not (rhs[0] == '"' and rhs[-1] == '"') and not (
+            rhs[0] == "<" and rhs[-1] == ">"
+        ):
             # The filename should be surrounded by double
             # quotes or '<...>' but this is not the case.
             return None
@@ -360,10 +384,10 @@ class Cpp_Include_Stmt(Base):  # 6.10.2 Source file inclusion
         return (Include_Filename(file_name),)
 
     def tostr(self):
-        '''
+        """
         :return: this include-stmt as a string.
         :rtype: str
-        '''
+        """
         return '#include "{0}"'.format(self.items[0])
 
 
@@ -379,14 +403,13 @@ class Cpp_Macro_Stmt(Base):  # 6.10.3 Macro replacement
     the bracket is considered part of the replacement-list.
     """
 
-    use_names = ['Cpp_Macro_Identifier', 'Cpp_Macro_Identifier_List',
-                 'Cpp_Pp_Tokens']
+    use_names = ["Cpp_Macro_Identifier", "Cpp_Macro_Identifier_List", "Cpp_Pp_Tokens"]
 
     _regex = re.compile(r"#\s*define\b")
 
     @staticmethod
     def match(string):
-        '''Implements the matching for a preprocessor macro definition.
+        """Implements the matching for a preprocessor macro definition.
 
         It matches define directives with macro identifier, optional
         identifier list, and optional replacement list. The macro
@@ -411,7 +434,7 @@ class Cpp_Macro_Stmt(Base):  # 6.10.3 Macro replacement
            py:class:`fparser.two.C99Preprocessor.Cpp_Pp_Tokens` or NoneType) \
           or `NoneType`
 
-        '''
+        """
         if not string:
             return None
         line = string.strip()
@@ -419,17 +442,17 @@ class Cpp_Macro_Stmt(Base):  # 6.10.3 Macro replacement
         if not found:
             # The line does not match a define statement
             return None
-        rhs = line[found.end():].strip()
+        rhs = line[found.end() :].strip()
         found = pattern.macro_name.match(rhs)
         if not found:
             return None
         name = Cpp_Macro_Identifier(found.group())
-        definition = rhs[found.end():]
+        definition = rhs[found.end() :]
         # note no strip here because '#define MACRO(x)' and
         # '#define MACRO (x)' are functionally different
         if not definition:
             return (name, None, None)
-        if definition[0] == '(':
+        if definition[0] == "(":
             found = Cpp_Macro_Identifier_List._pattern.match(definition)
             if not found:
                 # The definition starts with a bracket (without preceding
@@ -440,7 +463,7 @@ class Cpp_Macro_Stmt(Base):  # 6.10.3 Macro replacement
             # which is nonetheless included explicitly to distinguish a
             # macro definition with arguments from one without but with
             # a definition
-            definition = definition[found.end():]
+            definition = definition[found.end() :]
         else:
             parameter_list = None
         # now that definition only holds the replacement list, we can strip
@@ -452,24 +475,27 @@ class Cpp_Macro_Stmt(Base):  # 6.10.3 Macro replacement
         return (name, parameter_list, definition)
 
     def tostr(self):
-        '''
+        """
         :return: this macro-stmt as a string.
         :rtype: str
-        '''
-        return '#define {0}{1}{2}{3}'.format(
-            self.items[0], self.items[1] or '', ' ' if self.items[2] else '',
-            self.items[2] or '')
+        """
+        return "#define {0}{1}{2}{3}".format(
+            self.items[0],
+            self.items[1] or "",
+            " " if self.items[2] else "",
+            self.items[2] or "",
+        )
 
 
 class Cpp_Macro_Identifier(StringBase):  # pylint: disable=invalid-name
-    '''Implements the matching of a macro identifier.'''
+    """Implements the matching of a macro identifier."""
 
     # There are no other classes. This is a simple string match.
     subclass_names = []
 
     @staticmethod
     def match(string):
-        '''Implements the matching of a macro identifier.
+        """Implements the matching of a macro identifier.
 
         It matches the string with the regular expression abs_macro_name
         in the pattern_tools file. The macro identifier may contain
@@ -481,27 +507,29 @@ class Cpp_Macro_Identifier(StringBase):  # pylint: disable=invalid-name
                  matched name if there is a match, or None if there is not.
         :rtype: (str)  or NoneType
 
-        '''
+        """
         return StringBase.match(pattern.abs_macro_name, string.strip())
 
 
 class Cpp_Macro_Identifier_List(StringBase):
-    '''Implements the matching of an identifier list in a macro definition.
+    """Implements the matching of an identifier list in a macro definition.
 
     identifier-list is (identifier [, identifier-list or ...])
                        or (...)
-    '''
+    """
 
     subclass_names = []
 
-    _pattern = pattern.Pattern('<identifier-list>',
-                               r'\((\s*[A-Za-z_]\w*'
-                               r'(?:\s*,\s*[A-Za-z_]\w*)*'
-                               r'(?:\s*,\s*\.{3})?|\.{3})?\s*\)')
+    _pattern = pattern.Pattern(
+        "<identifier-list>",
+        r"\((\s*[A-Za-z_]\w*"
+        r"(?:\s*,\s*[A-Za-z_]\w*)*"
+        r"(?:\s*,\s*\.{3})?|\.{3})?\s*\)",
+    )
 
     @staticmethod
     def match(string):
-        '''Implements the matching of a macro identifier list as part of
+        """Implements the matching of a macro identifier list as part of
         a macro definition. It must consist of one or more macro
         identifier separated by comma, or "..." for a variadic argument
         list, and must be surrouned by parentheses.
@@ -517,38 +545,38 @@ class Cpp_Macro_Identifier_List(StringBase):
                  there is not.
         :rtype: (`str`,) or `NoneType`
 
-        '''
+        """
         if not string:
             return None
         return StringBase.match(Cpp_Macro_Identifier_List._pattern, string)
 
     def tostr(self):
-        '''
+        """
         :return: this macro-identifier-list as a string.
         :rtype: str
-        '''
+        """
         return self.string
 
 
 class Cpp_Undef_Stmt(WORDClsBase):
-    '''Implements the matching of a preprocessor undef statement for a macro.
+    """Implements the matching of a preprocessor undef statement for a macro.
 
     undef-stmt is # undef identifier new-line
 
     Strictly, this is part of 6.10.3 but since it is identified by a different
     directive keyword (undef instead of define) we treat it separately.
 
-    '''
+    """
 
     subclass_names = []
 
-    use_names = ['Cpp_Macro_Identifier']
+    use_names = ["Cpp_Macro_Identifier"]
 
-    _pattern = pattern.Pattern('<undef>', r'^\s*(#\s*undef)\b', value='#undef')
+    _pattern = pattern.Pattern("<undef>", r"^\s*(#\s*undef)\b", value="#undef")
 
     @staticmethod
     def match(string):
-        '''Implements the matching for a preprocessor undef statement
+        """Implements the matching for a preprocessor undef statement
         for a macro. The macro identifier is matched using
         :py:class:`fparser.two.C99Preprocessor.Cpp_Macro_Identifier`.
 
@@ -559,37 +587,41 @@ class Cpp_Undef_Stmt(WORDClsBase):
         :rtype: (py:class:`fparser.two.C99Preprocessor.Cpp_Macro_Identifier`) \
                 or `NoneType`
 
-        '''
+        """
         if not string:
             return None
         return WORDClsBase.match(
-            Cpp_Undef_Stmt._pattern, Cpp_Macro_Identifier, string,
-            colons=False, require_cls=True)
+            Cpp_Undef_Stmt._pattern,
+            Cpp_Macro_Identifier,
+            string,
+            colons=False,
+            require_cls=True,
+        )
 
     def tostr(self):
-        '''
+        """
         :return: this undef-stmt as a string.
         :rtype: str
-        '''
-        return '{0} {1}'.format(*self.items)
+        """
+        return "{0} {1}".format(*self.items)
 
 
 class Cpp_Line_Stmt(WORDClsBase):  # 6.10.4 Line control
-    '''
+    """
     C99 6.10.4 Line control
 
     line-stmt is # line digit-sequence [ "s-char-sequence" ] new-line
                         or pp-tokens new-line
-    '''
+    """
 
     subclass_names = []
-    use_names = ['Cpp_Pp_Tokens']
+    use_names = ["Cpp_Pp_Tokens"]
 
-    _pattern = pattern.Pattern('<line>', r'^\s*#\s*line\b', value='#line')
+    _pattern = pattern.Pattern("<line>", r"^\s*#\s*line\b", value="#line")
 
     @staticmethod
     def match(string):
-        '''Implements the matching for a line preprocessor directive.
+        """Implements the matching for a line preprocessor directive.
         The right hand side of the directive is not matched any further
         but simply kept as a string.
 
@@ -599,37 +631,41 @@ class Cpp_Line_Stmt(WORDClsBase):  # 6.10.4 Line control
                   or `None` if there is no match.
         :rtype: (`str`) or `NoneType`
 
-        '''
+        """
         if not string:
             return None
         return WORDClsBase.match(
-            Cpp_Line_Stmt._pattern, Cpp_Pp_Tokens, string, colons=False,
-            require_cls=True)
+            Cpp_Line_Stmt._pattern,
+            Cpp_Pp_Tokens,
+            string,
+            colons=False,
+            require_cls=True,
+        )
 
     def tostr(self):
-        '''
+        """
         :return: this line-stmt as a string.
         :rtype: str
-        '''
-        return '{0} {1}'.format(*self.items)
+        """
+        return "{0} {1}".format(*self.items)
 
 
 class Cpp_Error_Stmt(WORDClsBase):  # 6.10.5 Error directive
-    '''
+    """
     C99 6.10.5 Error directive
 
     error-stmt is # error [pp-tokens] new-line
 
-    '''
+    """
 
     subclass_names = []
-    use_names = ['Cpp_Pp_Tokens']
+    use_names = ["Cpp_Pp_Tokens"]
 
-    _pattern = pattern.Pattern('<error>', r'^\s*#\s*error\b', value='#error')
+    _pattern = pattern.Pattern("<error>", r"^\s*#\s*error\b", value="#error")
 
     @staticmethod
     def match(string):
-        '''Implements the matching for an error preprocessor directive.
+        """Implements the matching for an error preprocessor directive.
         The optional right hand side of the directive is not matched any
         further but simply kept as a string.
 
@@ -639,41 +675,44 @@ class Cpp_Error_Stmt(WORDClsBase):  # 6.10.5 Error directive
                   side as a string, or `None` if there is no match.
         :rtype: () or (`str`) or `NoneType`
 
-        '''
+        """
         if not string:
             return None
         return WORDClsBase.match(
-            Cpp_Error_Stmt._pattern, Cpp_Pp_Tokens, string, colons=False,
-            require_cls=False)
+            Cpp_Error_Stmt._pattern,
+            Cpp_Pp_Tokens,
+            string,
+            colons=False,
+            require_cls=False,
+        )
 
     def tostr(self):
-        '''
+        """
         :return: this error-stmt as a string.
         :rtype: str
-        '''
+        """
         if self.items[1]:
-            return '{0} {1}'.format(*self.items)
+            return "{0} {1}".format(*self.items)
         return self.items[0]
 
 
 class Cpp_Warning_Stmt(WORDClsBase):
-    '''
+    """
     Not actually part of C99 but supported by most preprocessors and
     with syntax identical to Cpp_Error_Stmt
 
     warning-stmt is # warning [pp-tokens] new-line
 
-    '''
+    """
 
     subclass_names = []
-    use_names = ['Cpp_Pp_Tokens']
+    use_names = ["Cpp_Pp_Tokens"]
 
-    _pattern = pattern.Pattern('<warning>', r'^\s*#\s*warning\b',
-                               value='#warning')
+    _pattern = pattern.Pattern("<warning>", r"^\s*#\s*warning\b", value="#warning")
 
     @staticmethod
     def match(string):
-        '''Implements the matching for a warning preprocessor directive.
+        """Implements the matching for a warning preprocessor directive.
         The optional right hand side of the directive is not matched any
         further but simply kept as a string.
 
@@ -683,20 +722,24 @@ class Cpp_Warning_Stmt(WORDClsBase):
                   side as a string, or `None` if there is no match.
         :rtype: () or (`str`) or `NoneType`
 
-        '''
+        """
         if not string:
             return None
         return WORDClsBase.match(
-            Cpp_Warning_Stmt._pattern, Cpp_Pp_Tokens, string, colons=False,
-            require_cls=False)
+            Cpp_Warning_Stmt._pattern,
+            Cpp_Pp_Tokens,
+            string,
+            colons=False,
+            require_cls=False,
+        )
 
     def tostr(self):
-        '''
+        """
         :return: this warning-stmt as a string.
         :rtype: str
-        '''
+        """
         if self.items[1]:
-            return '{0} {1}'.format(*self.items)
+            return "{0} {1}".format(*self.items)
         return self.items[0]
 
 
@@ -707,35 +750,35 @@ class Cpp_Warning_Stmt(WORDClsBase):
 
 
 class Cpp_Null_Stmt(Base):  # 6.10.7 Null directive
-    '''
+    """
     C99 6.10.7  Null directive
 
     null-stmt is # new-line
 
-    '''
+    """
 
     subclass_names = []
 
     @staticmethod
     def match(string):
-        '''Implements the matching for a Null (empty) directive.
+        """Implements the matching for a Null (empty) directive.
 
         :param str string: the string to match with as a line statement.
 
         :return: an empty tuple or `None` if there is no match.
         :rtype: () or `NoneType`
 
-        '''
+        """
         if not string:
             return None
         line = string.strip()
-        if not line == '#':
+        if not line == "#":
             return None
         return ()
 
     def tostr(self):
-        '''
+        """
         :return: this null-stmt as a string.
         :rtype: str
-        '''
-        return '#'
+        """
+        return "#"

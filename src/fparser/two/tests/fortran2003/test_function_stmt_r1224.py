@@ -32,10 +32,10 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-'''Test Fortran 2003 rule R1224 : the majority of the tests for this
+"""Test Fortran 2003 rule R1224 : the majority of the tests for this
 are still in test_fortran2003.py and need to be moved here TODO #306.
 
-'''
+"""
 
 from fparser.api import get_reader
 from fparser.two.Fortran2003 import Function_Subprogram, Function_Stmt, Name
@@ -43,24 +43,25 @@ from fparser.two.symbol_table import SYMBOL_TABLES
 
 
 def test_function_new_symbol_table(f2003_create):
-    '''
+    """
     Test that valid code is parsed correctly and an associated symbol table
     created.
 
-    '''
+    """
     obj = Function_Subprogram(get_reader("function a()\nend function a"))
     assert isinstance(obj, Function_Subprogram)
-    assert str(obj) == 'FUNCTION a()\nEND FUNCTION a'
+    assert str(obj) == "FUNCTION a()\nEND FUNCTION a"
     repr_text = repr(obj)
 
-    assert repr_text == ("Function_Subprogram(Function_Stmt(None, Name('a'), "
-                         "None, None), End_Function_Stmt('FUNCTION', "
-                         "Name('a')))")
+    assert repr_text == (
+        "Function_Subprogram(Function_Stmt(None, Name('a'), "
+        "None, None), End_Function_Stmt('FUNCTION', "
+        "Name('a')))"
+    )
     assert "a" in SYMBOL_TABLES._symbol_tables
 
 
 def test_function_get_name():
-    """Test we can get the name of the function
-    """
+    """Test we can get the name of the function"""
     obj = Function_Stmt("function foo()")
     assert obj.get_name() == Name("foo")

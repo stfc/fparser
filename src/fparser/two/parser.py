@@ -63,8 +63,8 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 # DAMAGE.
 
-'''This file provides utilities to create a Fortran parser suitable
-for a particular standard.'''
+"""This file provides utilities to create a Fortran parser suitable
+for a particular standard."""
 # pylint: disable=eval-used
 
 import inspect
@@ -73,19 +73,18 @@ from fparser.two.symbol_table import SYMBOL_TABLES
 
 
 def get_module_classes(input_module):
-    '''Return all classes local to a module.
+    """Return all classes local to a module.
 
     :param module input_module: the module containing the classes.
     :return: a `list` of tuples each containing a class name and a \
     class.
 
-    '''
+    """
     module_cls_members = []
     module_name = input_module.__name__
     # first find all classes in the module. This includes imported
     # classes.
-    all_cls_members = inspect.getmembers(sys.modules[module_name],
-                                         inspect.isclass)
+    all_cls_members = inspect.getmembers(sys.modules[module_name], inspect.isclass)
     # next only keep classes that are specified in the module.
     for cls_member in all_cls_members:
         if cls_member[1].__module__ == module_name:
@@ -93,11 +92,11 @@ def get_module_classes(input_module):
     return module_cls_members
 
 
-class ParserFactory():
-    '''Creates a parser suitable for the specified Fortran standard.'''
+class ParserFactory:
+    """Creates a parser suitable for the specified Fortran standard."""
 
     def create(self, std=None):
-        '''Creates a class hierarchy suitable for the specified Fortran
+        """Creates a class hierarchy suitable for the specified Fortran
         standard. Also sets-up the list of classes that define scoping
         regions in the global SymbolTables object and clears any existing
         symbol table information.
@@ -120,7 +119,7 @@ class ParserFactory():
         >>> ast = f2008_parser(reader)
         >>> print(ast)
 
-        '''
+        """
         # Clear any existing symbol tables.
         SYMBOL_TABLES.clear()
 
@@ -128,6 +127,7 @@ class ParserFactory():
         # always need these.
         # pylint: disable=import-outside-toplevel
         from fparser.two import Fortran2003
+
         f2003_cls_members = get_module_classes(Fortran2003)
         if not std:
             # default to f2003.
@@ -140,10 +140,12 @@ class ParserFactory():
             # We can now specify which classes are taken as defining new
             # scoping regions. Programs without the optional program-stmt
             # are handled separately in the Fortran2003.Main_Program0 class.
-            SYMBOL_TABLES.scoping_unit_classes = [Fortran2003.Module_Stmt,
-                                                  Fortran2003.Subroutine_Stmt,
-                                                  Fortran2003.Program_Stmt,
-                                                  Fortran2003.Function_Stmt]
+            SYMBOL_TABLES.scoping_unit_classes = [
+                Fortran2003.Module_Stmt,
+                Fortran2003.Subroutine_Stmt,
+                Fortran2003.Program_Stmt,
+                Fortran2003.Function_Stmt,
+            ]
             # the class hierarchy has been set up so return the top
             # level class that we start from when parsing Fortran code.
             return Fortran2003.Program
@@ -155,6 +157,7 @@ class ParserFactory():
             # Fortran2008.
             # First find all Fortran2008 classes.
             from fparser.two import Fortran2008
+
             f2008_cls_members = get_module_classes(Fortran2008)
             # next add in Fortran2003 classes if they do not already
             # exist as a Fortran2008 class.
@@ -168,11 +171,13 @@ class ParserFactory():
             # We can now specify which classes are taken as defining new
             # scoping regions. Programs without the optional program-stmt
             # are handled separately in the Fortran2003.Main_Program0 class.
-            SYMBOL_TABLES.scoping_unit_classes = [Fortran2003.Module_Stmt,
-                                                  Fortran2003.Subroutine_Stmt,
-                                                  Fortran2003.Program_Stmt,
-                                                  Fortran2003.Function_Stmt,
-                                                  Fortran2008.Submodule_Stmt]
+            SYMBOL_TABLES.scoping_unit_classes = [
+                Fortran2003.Module_Stmt,
+                Fortran2003.Subroutine_Stmt,
+                Fortran2003.Program_Stmt,
+                Fortran2003.Function_Stmt,
+                Fortran2008.Submodule_Stmt,
+            ]
             # the class hierarchy has been set up so return the top
             # level class that we start from when parsing Fortran
             # code. Fortran2008 does not extend the top level class so
@@ -182,7 +187,7 @@ class ParserFactory():
         raise ValueError(f"'{std}' is an invalid standard")
 
     def _setup(self, input_classes):
-        '''Perform some Python magic to create the connections between classes
+        """Perform some Python magic to create the connections between classes
         and populate the baseclass with this information. This has
         been lifted from the original implementation and no attempt
         has been made to tidy up the code, other than making it
@@ -191,13 +196,14 @@ class ParserFactory():
         :param list input_classes: a list of tuples each containing a \
         class name and a class.
 
-        '''
+        """
 
         __autodoc__ = []
         base_classes = {}
 
         import logging
         import fparser.two.Fortran2003
+
         class_type = type(fparser.two.Fortran2003.Base)
 
         # Reset subclasses dictionary in case this function has been
@@ -209,9 +215,11 @@ class ParserFactory():
             clsname = "{0}.{1}".format(clsinfo[1].__module__, clsinfo[0])
             cls = eval(clsname)
             # ?? classtype is set to Base so why have issubclass?
-            if isinstance(cls, class_type) and \
-               issubclass(cls, fparser.two.Fortran2003.Base) \
-               and not cls.__name__.endswith('Base'):
+            if (
+                isinstance(cls, class_type)
+                and issubclass(cls, fparser.two.Fortran2003.Base)
+                and not cls.__name__.endswith("Base")
+            ):
                 base_classes[cls.__name__] = cls
                 if len(__autodoc__) < 10:
                     __autodoc__.append(cls.__name__)
@@ -224,15 +232,15 @@ class ParserFactory():
 
             def _rpl_list(clsname):
                 if clsname not in base_classes:
-                    error_string = 'Not implemented: {0}'.format(clsname)
+                    error_string = "Not implemented: {0}".format(clsname)
                     logging.getLogger(__name__).debug(error_string)
                     return []
                 # remove this code when all classes are implemented.
                 cls = base_classes[clsname]
-                if hasattr(cls, 'match'):
+                if hasattr(cls, "match"):
                     return [clsname]
                 bits = []
-                for names in getattr(cls, 'subclass_names', []):
+                for names in getattr(cls, "subclass_names", []):
                     list1 = _rpl_list(names)
                     for names1 in list1:
                         if names1 not in bits:
@@ -240,7 +248,7 @@ class ParserFactory():
                 return bits
 
             for cls in list(base_classes.values()):
-                if not hasattr(cls, 'subclass_names'):
+                if not hasattr(cls, "subclass_names"):
                     continue
                 opt_subclass_names = []
                 for names in cls.subclass_names:
@@ -252,9 +260,9 @@ class ParserFactory():
 
         # Initialize Base.subclasses dictionary:
         for clsname, cls in list(base_classes.items()):
-            subclass_names = getattr(cls, 'subclass_names', None)
+            subclass_names = getattr(cls, "subclass_names", None)
             if subclass_names is None:
-                message = '%s class is missing subclass_names list' % (clsname)
+                message = "%s class is missing subclass_names list" % (clsname)
                 logging.getLogger(__name__).debug(message)
                 continue
             try:
@@ -265,8 +273,7 @@ class ParserFactory():
                 if name in base_classes:
                     bits.append(base_classes[name])
                 else:
-                    message = '{0} not implemented needed by {1}'. \
-                              format(name, clsname)
+                    message = "{0} not implemented needed by {1}".format(name, clsname)
                     logging.getLogger(__name__).debug(message)
 
         if 1:
@@ -274,8 +281,8 @@ class ParserFactory():
                 # subclasses = fparser.two.Fortran2003.Base.subclasses.get(
                 #     cls.__name__, [])
                 # subclasses_names = [c.__name__ for c in subclasses]
-                subclass_names = getattr(cls, 'subclass_names', [])
-                use_names = getattr(cls, 'use_names', [])
+                subclass_names = getattr(cls, "subclass_names", [])
+                use_names = getattr(cls, "use_names", [])
                 # for name in subclasses_names:
                 #     break
                 #     if name not in subclass_names:
@@ -291,6 +298,5 @@ class ParserFactory():
                 #         logging.getLogger(__name__).debug(message)
                 for name in use_names + subclass_names:
                     if name not in base_classes:
-                        message = ('%s not defined used '
-                                   'by %s' % (name, cls.__name__))
+                        message = "%s not defined used " "by %s" % (name, cls.__name__)
                         logging.getLogger(__name__).debug(message)

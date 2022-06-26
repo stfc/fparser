@@ -32,12 +32,12 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-'''Test Fortran 2003 rule R430 : This file tests the support for the
+"""Test Fortran 2003 rule R430 : This file tests the support for the
 Derived Type Statement e.g.
 
 type, private, abstract :: my_type(b,c)
 
-'''
+"""
 
 import pytest
 from fparser.two.Fortran2003 import Derived_Type_Stmt
@@ -45,9 +45,7 @@ from fparser.two.utils import NoMatchError, InternalError
 
 
 def test_valid(f2003_create):
-    '''Check that valid input is parsed correctly.
-
-    '''
+    """Check that valid input is parsed correctly."""
 
     # simple minimal type statement
     ast = Derived_Type_Stmt("type a")
@@ -69,19 +67,23 @@ def test_valid(f2003_create):
     # type statement with attribute spec list
     ast = Derived_Type_Stmt("type, private, abstract :: a")
     assert "TYPE, PRIVATE, ABSTRACT :: a" in str(ast)
-    assert repr(ast) == ("Derived_Type_Stmt(Type_Attr_Spec_List(',', "
-                         "(Access_Spec('PRIVATE'), "
-                         "Type_Attr_Spec('ABSTRACT', None))), "
-                         "Type_Name('a'), None)")
+    assert repr(ast) == (
+        "Derived_Type_Stmt(Type_Attr_Spec_List(',', "
+        "(Access_Spec('PRIVATE'), "
+        "Type_Attr_Spec('ABSTRACT', None))), "
+        "Type_Name('a'), None)"
+    )
 
     # type statement with type parameter name list
     ast = Derived_Type_Stmt("type, private, abstract :: a(b,c)")
     assert "TYPE, PRIVATE, ABSTRACT :: a(b, c)" in str(ast)
-    assert repr(ast) == ("Derived_Type_Stmt(Type_Attr_Spec_List(',', "
-                         "(Access_Spec('PRIVATE'), "
-                         "Type_Attr_Spec('ABSTRACT', None))), "
-                         "Type_Name('a'), Type_Param_Name_List(',', "
-                         "(Name('b'), Name('c'))))")
+    assert repr(ast) == (
+        "Derived_Type_Stmt(Type_Attr_Spec_List(',', "
+        "(Access_Spec('PRIVATE'), "
+        "Type_Attr_Spec('ABSTRACT', None))), "
+        "Type_Name('a'), Type_Param_Name_List(',', "
+        "(Name('b'), Name('c'))))"
+    )
 
     # type statement with type parameter name list spaces
     ast = Derived_Type_Stmt("  type , private , abstract :: a ( b , c )  ")
@@ -97,23 +99,31 @@ def test_valid(f2003_create):
 
 
 def test_errors(f2003_create):
-    '''Check that invalid input does not match.
+    """Check that invalid input does not match."""
 
-    '''
-
-    for value in ["", "  ", "typ", "type", "type ::", "type, ::",
-                  "type x ::", "type a b", "type a()", "type a(  )",
-                  "type a(b) c"]:
+    for value in [
+        "",
+        "  ",
+        "typ",
+        "type",
+        "type ::",
+        "type, ::",
+        "type x ::",
+        "type a b",
+        "type a()",
+        "type a(  )",
+        "type a(b) c",
+    ]:
         with pytest.raises(NoMatchError) as excinfo:
             _ = Derived_Type_Stmt(value)
         assert "Derived_Type_Stmt: '{0}'".format(value) in str(excinfo.value)
 
 
 def test_tostr_1(f2003_create, monkeypatch):
-    '''Check that Derived_Type_Stmt.tostr() raises an exception if there
+    """Check that Derived_Type_Stmt.tostr() raises an exception if there
     is an invalid number of items.
 
-    '''
+    """
 
     ast = Derived_Type_Stmt("type a")
     monkeypatch.setattr(ast, "items", ["A"])
@@ -123,23 +133,25 @@ def test_tostr_1(f2003_create, monkeypatch):
 
 
 def test_tostr_2(f2003_create, monkeypatch):
-    '''Check that Derived_Type_Stmt.tostr() raises an exception if the
+    """Check that Derived_Type_Stmt.tostr() raises an exception if the
     content of items[1] is invalid.
 
-    '''
+    """
 
     ast = Derived_Type_Stmt("type a")
     monkeypatch.setattr(ast, "items", [None, None, None])
     with pytest.raises(InternalError) as excinfo:
         str(ast)
-    assert ("'items[1]' should be a Name instance containing the "
-            "derived type name but it is empty") in str(excinfo.value)
+    assert (
+        "'items[1]' should be a Name instance containing the "
+        "derived type name but it is empty"
+    ) in str(excinfo.value)
 
 
 def test_get_start_name(f2003_create):
-    '''Check that the appropriate name is returned from
+    """Check that the appropriate name is returned from
     get_start_name()
 
-    '''
+    """
     ast = Derived_Type_Stmt("type a")
     assert ast.get_start_name() == "a"

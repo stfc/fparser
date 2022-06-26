@@ -32,57 +32,62 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-'''Test Fortran 2008 rule R511
+"""Test Fortran 2008 rule R511
 
     explicit-coshape-spec is [ coshape-spec-list , ] [ lower-cobound : ] *
 
-'''
+"""
 
 import pytest
 from fparser.two.Fortran2008 import (
-    Explicit_Coshape_Spec, Coshape_Spec, Coshape_Spec_List)
+    Explicit_Coshape_Spec,
+    Coshape_Spec,
+    Coshape_Spec_List,
+)
 from fparser.two import Fortran2003
 
 
 @pytest.mark.usefixtures("f2008_create")
-@pytest.mark.parametrize('attr, types', [
-    ('*', (type(None), type(None))),
-    ('5 :*', (type(None), Fortran2003.Int_Literal_Constant)),
-    ('1:  3  ,  a: *', (Coshape_Spec_List, Fortran2003.Name)),
-    (' 1 ,  2,3:*', (Coshape_Spec_List, Fortran2003.Int_Literal_Constant)),
-    ('1:2,3,*', (Coshape_Spec_List, type(None))),
-])
+@pytest.mark.parametrize(
+    "attr, types",
+    [
+        ("*", (type(None), type(None))),
+        ("5 :*", (type(None), Fortran2003.Int_Literal_Constant)),
+        ("1:  3  ,  a: *", (Coshape_Spec_List, Fortran2003.Name)),
+        (" 1 ,  2,3:*", (Coshape_Spec_List, Fortran2003.Int_Literal_Constant)),
+        ("1:2,3,*", (Coshape_Spec_List, type(None))),
+    ],
+)
 def test_explicit_coshape_spec(attr, types):
-    '''Test that explicit_coshape_spec are parsed correctly.'''
+    """Test that explicit_coshape_spec are parsed correctly."""
     obj = Explicit_Coshape_Spec(attr)
     assert isinstance(obj, Explicit_Coshape_Spec), repr(obj)
     assert isinstance(obj.items[0], types[0])
     assert isinstance(obj.items[1], types[1])
-    ref = attr.replace(' ', '').replace(':', ' : ').replace(',', ', ')
+    ref = attr.replace(" ", "").replace(":", " : ").replace(",", ", ")
     assert str(obj) == ref
 
 
 @pytest.mark.usefixtures("f2008_create")
-@pytest.mark.parametrize('attr', [
-    '1:3', ':', ':b', 'a:', ':*', '', '1:,*', '1,,*'])
+@pytest.mark.parametrize("attr", ["1:3", ":", ":b", "a:", ":*", "", "1:,*", "1,,*"])
 def test_invalid_explicit_coshape_spec(attr):
-    '''Test that invalid explicit_coshape_spec raise exception.'''
+    """Test that invalid explicit_coshape_spec raise exception."""
     with pytest.raises(Fortran2003.NoMatchError):
         _ = Explicit_Coshape_Spec(attr)
 
 
 @pytest.mark.usefixtures("f2008_create")
-@pytest.mark.parametrize('attr', ['a', '10', '1:3', ' 5 : 123 ', '2:   b   '])
+@pytest.mark.parametrize("attr", ["a", "10", "1:3", " 5 : 123 ", "2:   b   "])
 def test_coshape_spec(attr):
-    '''Test that coshape_spec are parsed correctly.'''
+    """Test that coshape_spec are parsed correctly."""
     obj = Coshape_Spec(attr)
     assert isinstance(obj, Coshape_Spec), repr(obj)
-    assert str(obj) == attr.replace(' ', '').replace(':', ' : ')
+    assert str(obj) == attr.replace(" ", "").replace(":", " : ")
 
 
 @pytest.mark.usefixtures("f2008_create")
-@pytest.mark.parametrize('attr', [':', 'a:', ':b', '*', '', '1::3'])
+@pytest.mark.parametrize("attr", [":", "a:", ":b", "*", "", "1::3"])
 def test_invalid_coshape_spec(attr):
-    '''Test that invalid coshape_spec raise exception.'''
+    """Test that invalid coshape_spec raise exception."""
     with pytest.raises(Fortran2003.NoMatchError):
         _ = Coshape_Spec(attr)

@@ -32,10 +32,10 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-'''Test Fortran 2003 rule R1104 : the majority of the tests for this
+"""Test Fortran 2003 rule R1104 : the majority of the tests for this
 are still in test_fortran2003.py and need to be moved here TODO #306.
 
-'''
+"""
 
 import pytest
 from fparser.api import get_reader
@@ -44,22 +44,22 @@ from fparser.two.symbol_table import SYMBOL_TABLES
 
 
 def test_module_new_symbol_table(f2003_create):
-    '''
+    """
     Test that valid code is parsed correctly and an associated symbol table
     created.
 
-    '''
+    """
     # basic
     obj = Module(get_reader("module a\nend module"))
     assert isinstance(obj, Module)
-    assert str(obj) == 'MODULE a\nEND MODULE'
-    assert repr(obj) == ("Module(Module_Stmt('MODULE', Name('a')), "
-                         "End_Module_Stmt('MODULE', None))")
+    assert str(obj) == "MODULE a\nEND MODULE"
+    assert repr(obj) == (
+        "Module(Module_Stmt('MODULE', Name('a')), " "End_Module_Stmt('MODULE', None))"
+    )
     assert "a" in SYMBOL_TABLES._symbol_tables
 
 
 def test_module_get_name():
-    """Test we can get the name of the module
-    """
+    """Test we can get the name of the module"""
     obj = Module_Stmt("module foo")
     assert obj.get_name() == Name("foo")

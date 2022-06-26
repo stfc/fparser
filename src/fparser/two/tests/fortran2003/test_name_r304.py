@@ -32,10 +32,10 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-'''Test Fortran 2003 rule R304 : This file tests support for the Name
+"""Test Fortran 2003 rule R304 : This file tests support for the Name
 class.
 
-'''
+"""
 
 import pytest
 from fparser.two.utils import NoMatchError
@@ -45,23 +45,39 @@ from fparser.two.Fortran2003 import Name
 
 
 def test_valid_names():
-    '''Test the appropriate set of valid names. Note, '$' is not valid in
+    """Test the appropriate set of valid names. Note, '$' is not valid in
     the standard but is supported by some compilers so we allow it
     here.
 
-    '''
+    """
     for name in ["a", "abcde", "a_", "a1", "  a  ", "a$"]:
         result = Name(name)
         assert str(result) == name.strip()
 
 
 def test_invalid_names():
-    '''Test invalid names. There are too many to try all invalid
+    """Test invalid names. There are too many to try all invalid
     characters so just do a subset.
 
-    '''
-    for name in ["1", "_", "1a", "_a", "a a", "", " ", "a!", "a@", "a#",
-                 "a%", "a^", "a&", "a*", "a(", "a)"]:
+    """
+    for name in [
+        "1",
+        "_",
+        "1a",
+        "_a",
+        "a a",
+        "",
+        " ",
+        "a!",
+        "a@",
+        "a#",
+        "a%",
+        "a^",
+        "a&",
+        "a*",
+        "a(",
+        "a)",
+    ]:
         with pytest.raises(NoMatchError) as excinfo:
             _ = Name(name)
         assert "Name: '{0}'".format(name) in str(excinfo.value)

@@ -32,15 +32,16 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-''' Module containing functional tests - i.e. tests of specific functionality
-    within the context of parsing a piece of compilable Fortran '''
+""" Module containing functional tests - i.e. tests of specific functionality
+    within the context of parsing a piece of compilable Fortran """
 
 
 def test_procedure_interface():
-    ''' Test that parser copes with a procedure declaration in
-    a subroutine '''
+    """Test that parser copes with a procedure declaration in
+    a subroutine"""
     from fparser import api
-    source_str = '''  subroutine proc_interface_test()
+
+    source_str = """  subroutine proc_interface_test()
     use field_mod,                   only: field_type, write_interface
     use fs_continuity_mod,           only: W3
     use io_mod,                      only: write_field
@@ -53,8 +54,7 @@ def test_procedure_interface():
     tmp_ptr => write_field
     call divergence%set_write_field_behaviour(write_field)
   end subroutine proc_interface_test
-'''
-    tree = api.parse(source_str, isfree=True, isstrict=False,
-                     ignore_comments=False)
+"""
+    tree = api.parse(source_str, isfree=True, isstrict=False, ignore_comments=False)
     gen_code = str(tree)
     assert "PROCEDURE (write_interface) , POINTER :: tmp_ptr" in gen_code

@@ -33,9 +33,9 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-'''
+"""
 File containing tests for the one.block_statements module.
-'''
+"""
 
 import pytest
 
@@ -46,15 +46,16 @@ from fparser.common.readfortran import FortranStringReader
 
 
 def test_get_type_by_name(monkeypatch):
-    ''' Tests for HasImplicitStmt.get_type_by_name(). '''
+    """Tests for HasImplicitStmt.get_type_by_name()."""
     from fparser.one.typedecl_statements import Real, Integer
+
     # We can't just create a HasImplicitStmt object so we get the parser
     # to create a module object as that sub-classes HasImplicitStmt (amongst
     # other things).
-    string = '''\
+    string = """\
 module some_block
 end module some_block
-'''
+"""
     reader = FortranStringReader(string)
     reader.set_format(FortranFormat(True, False))
     parser = FortranParser(reader)
@@ -74,18 +75,19 @@ end module some_block
 
 
 def test_get_type_by_name_implicit():
-    ''' Tests for HasImplicitStmt.get_type_by_name() when the source code
-    contains IMPLICIT statements. '''
+    """Tests for HasImplicitStmt.get_type_by_name() when the source code
+    contains IMPLICIT statements."""
     from fparser.one.typedecl_statements import Real, Integer
+
     # We can't just create a HasImplicitStmt object so we get the parser
     # to create a module object as that sub-classes HasImplicitStmt (amongst
     # other things).
-    string = '''\
+    string = """\
 module some_block
   implicit real (a-e)
   implicit integer (f-z)
 end module some_block
-'''
+"""
     reader = FortranStringReader(string)
     reader.set_format(FortranFormat(True, False))
     parser = FortranParser(reader)
@@ -105,16 +107,16 @@ end module some_block
 
 
 def test_implicit_topyf(monkeypatch):
-    ''' Tests for the topyf() method of HasImplicitStmt. '''
+    """Tests for the topyf() method of HasImplicitStmt."""
     # We can't just create a HasImplicitStmt object so we get the parser
     # to create a module object as that sub-classes HasImplicitStmt (amongst
     # other things).
-    string = '''\
+    string = """\
 module some_block
   implicit real (a-e)
   implicit integer (f-z)
 end module some_block
-'''
+"""
     reader = FortranStringReader(string)
     reader.set_format(FortranFormat(True, False))
     parser = FortranParser(reader)

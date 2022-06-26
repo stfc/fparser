@@ -63,8 +63,9 @@
 # DAMAGE.
 from fparser import api
 
+
 def test_default_private():
-    src = '''\
+    src = """\
 module mod1
 private
 integer :: i
@@ -72,14 +73,15 @@ contains
 subroutine s1
 end subroutine
 end module mod1
-'''
+"""
     mod1 = api.parse(src, isfree=True, isstrict=False).content[0]
     assert mod1.get_provides() == {}, repr(mod1.get_provides())
-    assert list(mod1.a.variables.keys()) == ['i']
-    assert list(mod1.a.module_subprogram.keys()) == ['s1']
+    assert list(mod1.a.variables.keys()) == ["i"]
+    assert list(mod1.a.module_subprogram.keys()) == ["s1"]
+
 
 def test_access_spec():
-    src = '''\
+    src = """\
 module mod1
 private
 integer, public :: i
@@ -91,8 +93,8 @@ end subroutine
 subroutine s2
 end subroutine
 end module mod1
-'''
+"""
     mod1 = api.parse(src, isfree=True, isstrict=False).content[0]
-    assert sorted(mod1.get_provides().keys()) == sorted(['i', 'j', 's1'])
-    assert sorted(mod1.a.variables.keys()) == sorted(['i', 'j', 'k'])
-    assert sorted(mod1.a.module_subprogram.keys()) == sorted(['s2', 's1'])
+    assert sorted(mod1.get_provides().keys()) == sorted(["i", "j", "s1"])
+    assert sorted(mod1.a.variables.keys()) == sorted(["i", "j", "k"])
+    assert sorted(mod1.a.module_subprogram.keys()) == sorted(["s2", "s1"])

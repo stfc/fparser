@@ -67,19 +67,42 @@ Fortran type-declaration statements.
 
 """
 
-__all__ = ['Integer', 'Real', 'DoublePrecision', 'Complex', 'DoubleComplex',
-           'Character', 'Logical', 'Byte', 'TypeStmt','Class',
-           'intrinsic_type_spec', 'declaration_type_spec',
-           'Implicit']
+__all__ = [
+    "Integer",
+    "Real",
+    "DoublePrecision",
+    "Complex",
+    "DoubleComplex",
+    "Character",
+    "Logical",
+    "Byte",
+    "TypeStmt",
+    "Class",
+    "intrinsic_type_spec",
+    "declaration_type_spec",
+    "Implicit",
+]
 
 import re
 import string
-from fparser.common.base_classes import Statement, BeginStatement, EndStatement,\
-     AttributeHolder, Variable
-from fparser.common.utils import split_comma, AnalyzeError, name_re, is_entity_decl, \
-                   is_name, parse_array_spec
+from fparser.common.base_classes import (
+    Statement,
+    BeginStatement,
+    EndStatement,
+    AttributeHolder,
+    Variable,
+)
+from fparser.common.utils import (
+    split_comma,
+    AnalyzeError,
+    name_re,
+    is_entity_decl,
+    is_name,
+    parse_array_spec,
+)
 
 # Intrinsic type specification statements
+
 
 class TypeDeclarationStatement(Statement):
     """
@@ -139,7 +162,12 @@ class TypeDeclarationStatement(Statement):
     <digit-string> = <digit> [ <digit> ]..
     <kind-param> = <digit-string> | <scalar-int-constant-name>
     """
-    _repr_attr_names = ['selector','attrspec','entity_decls'] + Statement._repr_attr_names
+
+    _repr_attr_names = [
+        "selector",
+        "attrspec",
+        "entity_decls",
+    ] + Statement._repr_attr_names
 
     def process_item(self):
         item = self.item
@@ -153,28 +181,29 @@ class TypeDeclarationStatement(Statement):
             j = 0
             for c in line:
                 i += 1
-                if c==' ': continue
+                if c == " ":
+                    continue
                 j += 1
-                if j==len(clsname):
+                if j == len(clsname):
                     break
-            line = line[:i].replace(' ','') + line[i:]
+            line = line[:i].replace(" ", "") + line[i:]
 
-        assert line.lower().startswith(clsname),repr((line,clsname))
-        line = line[len(clsname):].lstrip()
+        assert line.lower().startswith(clsname), repr((line, clsname))
+        line = line[len(clsname) :].lstrip()
 
-        if line.startswith('('):
-            i = line.find(')')
-            selector = apply_map(line[:i+1].strip())
-            line = line[i+1:].lstrip()
-        elif line.startswith('*'):
-            selector = '*'
+        if line.startswith("("):
+            i = line.find(")")
+            selector = apply_map(line[: i + 1].strip())
+            line = line[i + 1 :].lstrip()
+        elif line.startswith("*"):
+            selector = "*"
             line = line[1:].lstrip()
-            if line.startswith('('):
-                i = line.find(')')
-                selector += apply_map(line[:i+1].rstrip())
-                line = line[i+1:].lstrip()
+            if line.startswith("("):
+                i = line.find(")")
+                selector += apply_map(line[: i + 1].rstrip())
+                line = line[i + 1 :].lstrip()
             else:
-                m = re.match(r'\d+(_\w+|)|[*]',line)
+                m = re.match(r"\d+(_\w+|)|[*]", line)
                 if not m:
                     self.isvalid = False
                     return
@@ -182,24 +211,23 @@ class TypeDeclarationStatement(Statement):
                 selector += line[:i].rstrip()
                 line = line[i:].lstrip()
         else:
-            selector = ''
+            selector = ""
 
         fm = Function.match(line)
         if fm:
-            l2 = line[:fm.end()]
-            m2 = re.match(r'.*?\b(?P<name>\w+)\Z',l2)
+            l2 = line[: fm.end()]
+            m2 = re.match(r".*?\b(?P<name>\w+)\Z", l2)
             if not m2:
                 self.isvalid = False
                 return
-            fname = m2.group('name')
-            fitem = item.copy(clsname+selector+' :: '+fname,
-                              apply_map=True)
+            fname = m2.group("name")
+            fitem = item.copy(clsname + selector + " :: " + fname, apply_map=True)
             self.parent.put_item(fitem)
             item.clone(line)
             self.isvalid = False
             return
 
-        if line.startswith(','):
+        if line.startswith(","):
             line = line[1:].lstrip()
 
         self.raw_selector = selector
@@ -208,115 +236,115 @@ class TypeDeclarationStatement(Statement):
         else:
             self.selector = self._parse_kind_selector(selector)
 
-        i = line.find('::')
-        if i==-1:
+        i = line.find("::")
+        if i == -1:
             self.attrspec = []
             self.entity_decls = split_comma(line, self.item)
         else:
             self.attrspec = split_comma(line[:i].rstrip(), self.item)
-            self.entity_decls = split_comma(line[i+2:].lstrip(), self.item)
+            self.entity_decls = split_comma(line[i + 2 :].lstrip(), self.item)
         for entity in self.entity_decls:
             if not is_entity_decl(entity):
                 self.isvalid = False
                 return
 
-        if isinstance(self.parent, Function) \
-               and self.parent.name in self.entity_decls:
-            assert self.parent.typedecl is None,repr(self.parent.typedecl)
+        if isinstance(self.parent, Function) and self.parent.name in self.entity_decls:
+            assert self.parent.typedecl is None, repr(self.parent.typedecl)
             self.parent.typedecl = self
             self.ignore = True
         if isinstance(self, Type):
             self.name = self.selector[1].lower()
-            assert is_name(self.name),repr(self.name)
+            assert is_name(self.name), repr(self.name)
         else:
             self.name = clsname
         return
 
     def _parse_kind_selector(self, selector):
         if not selector:
-            return '',''
-        length,kind = '',''
-        if selector.startswith('*'):
+            return "", ""
+        length, kind = "", ""
+        if selector.startswith("*"):
             length = selector[1:].lstrip()
         else:
-            assert selector[0]+selector[-1]=='()',repr(selector)
+            assert selector[0] + selector[-1] == "()", repr(selector)
             l = selector[1:-1].strip()
-            if l.lower().startswith('kind'):
+            if l.lower().startswith("kind"):
                 l = l[4:].lstrip()
-                if l[0]+l[-1]=='()':
-                    kind = 'kind'+l
+                if l[0] + l[-1] == "()":
+                    kind = "kind" + l
                 else:
-                    assert l.startswith('='),repr(l)
+                    assert l.startswith("="), repr(l)
                     kind = l[1:].lstrip()
             else:
                 kind = l
-        return length,kind
+        return length, kind
 
     def _split_char_selector(self, line):
         """line=``[key=]value`` -> key, value.
         If line does not have name part then return None, value.
         """
-        for name in ['len', 'kind']:
-            if line[:len(name)].lower()==name:
-                value_part = line[len(name):].lstrip()
-                if value_part.startswith('='):
+        for name in ["len", "kind"]:
+            if line[: len(name)].lower() == name:
+                value_part = line[len(name) :].lstrip()
+                if value_part.startswith("="):
                     return name, value_part[1:].lstrip()
         return None, line
 
     def _parse_char_selector(self, selector):
         if not selector:
-            return '',''
-        if selector.startswith('*'):
+            return "", ""
+        if selector.startswith("*"):
             l = selector[1:].lstrip()
-            if l.startswith('('):
-                if l.endswith(','): l = l[:-1].rstrip()
-                assert l.endswith(')'),repr(l)
+            if l.startswith("("):
+                if l.endswith(","):
+                    l = l[:-1].rstrip()
+                assert l.endswith(")"), repr(l)
                 l = l[1:-1].strip()
-                if l.lower().startswith('len'):
+                if l.lower().startswith("len"):
                     l = l[3:].lstrip()[1:].lstrip()
-            kind=''
+            kind = ""
         else:
-            assert selector[0]+selector[-1]=='()',repr(selector)
+            assert selector[0] + selector[-1] == "()", repr(selector)
             l = split_comma(selector[1:-1].strip(), self.item)
-            if len(l)==1:
+            if len(l) == 1:
                 l = l[0]
                 key, value = self._split_char_selector(l)
-                if key=='len':
-                    kind, l = '', value
-                elif key=='kind':
-                    kind, l = value, ''
+                if key == "len":
+                    kind, l = "", value
+                elif key == "kind":
+                    kind, l = value, ""
                 else:
-                    kind = ''
+                    kind = ""
             else:
-                assert len(l)==2,repr(l)
+                assert len(l) == 2, repr(l)
                 key0, value0 = self._split_char_selector(l[0])
                 key1, value1 = self._split_char_selector(l[1])
-                if key0=='len':
-                    assert key1 in [None, 'kind'],repr(key1)
-                    l,kind = value0, value1
-                elif key0=='kind':
-                    assert key1=='len',repr(key1)
-                    l,kind = value1, value0
-                else:
-                    assert key0 is None,repr(key0)
-                    assert key1 in [None,'kind'],repr(key1)
+                if key0 == "len":
+                    assert key1 in [None, "kind"], repr(key1)
                     l, kind = value0, value1
-        return l,kind
+                elif key0 == "kind":
+                    assert key1 == "len", repr(key1)
+                    l, kind = value1, value0
+                else:
+                    assert key0 is None, repr(key0)
+                    assert key1 in [None, "kind"], repr(key1)
+                    l, kind = value0, value1
+        return l, kind
 
     def tostr(self):
-        ''' Create a text representation of this object and return it '''
+        """Create a text representation of this object and return it"""
         clsname = self.__class__.__name__.upper()
-        text = ''
+        text = ""
         length, kind = self.selector
         if isinstance(self, Character):
             if length and kind:
-                text += '(LEN=%s, KIND=%s)' % (length, kind)
+                text += "(LEN=%s, KIND=%s)" % (length, kind)
             elif length:
-                text += '(LEN=%s)' % (length)
+                text += "(LEN=%s)" % (length)
             elif kind:
-                text += '(KIND=%s)' % (kind)
+                text += "(KIND=%s)" % (kind)
         elif isinstance(self, Type):
-            text += '(%s)' % (kind)
+            text += "(%s)" % (kind)
         elif isinstance(self, Class):
             if kind:
                 # For a class declaration, 'kind' is actually the class
@@ -325,23 +353,23 @@ class TypeDeclarationStatement(Statement):
                 text += "({0})".format(kind)
         else:
             if length:
-                text += '*%s' % (length)
+                text += "*%s" % (length)
             if kind:
-                text += '(KIND=%s)' % (kind)
+                text += "(KIND=%s)" % (kind)
 
         return clsname + text
 
-    def tofortran(self,isfix=None):
+    def tofortran(self, isfix=None):
         tab = self.get_indent_tab(isfix=isfix)
         s = self.tostr()
         if self.attrspec:
-            s += ', ' + ', '.join(self.attrspec)
+            s += ", " + ", ".join(self.attrspec)
         # If we were to change fparser so that it always produces the
         # '::' separator then we'd simply comment-out the if below.
-        if self.attrspec or '=' in str(self.entity_decls):
-            s += ' ::'
+        if self.attrspec or "=" in str(self.entity_decls):
+            s += " ::"
         if self.entity_decls:
-            s += ' ' + ', '.join(self.entity_decls)
+            s += " " + ", ".join(self.entity_decls)
         return tab + s
 
     def __str__(self):
@@ -350,7 +378,7 @@ class TypeDeclarationStatement(Statement):
     def __eq__(self, other):
         if self.__class__ is not other.__class__:
             return False
-        return self.selector==other.selector
+        return self.selector == other.selector
 
     def astypedecl(self):
         if self.entity_decls or self.attrspec:
@@ -363,7 +391,7 @@ class TypeDeclarationStatement(Statement):
         variables = self.parent.a.variables
         typedecl = self.astypedecl()
         attrspec = self.attrspec[:]
-        access_spec_lst = [a for a in attrspec if a.lower() in ['private','public']]
+        access_spec_lst = [a for a in attrspec if a.lower() in ["private", "public"]]
         if access_spec_lst:
             access_spec = access_spec_lst[0]
             attrspec.remove(access_spec)
@@ -382,37 +410,37 @@ class TypeDeclarationStatement(Statement):
             if value:
                 var.set_init(value)
             if access_spec is not None:
-                l = getattr(self.parent.a,access_spec.lower() + '_id_list')
+                l = getattr(self.parent.a, access_spec.lower() + "_id_list")
                 l.append(name)
             var.analyze()
         return
 
     def _parse_entity(self, line):
         m = name_re(line)
-        assert m,repr((line,self.item,self.__class__.__name__))
-        name = line[:m.end()]
-        line = line[m.end():].lstrip()
+        assert m, repr((line, self.item, self.__class__.__name__))
+        name = line[: m.end()]
+        line = line[m.end() :].lstrip()
         array_spec = None
         char_length = None
         value = None
         if line:
             item = self.item.copy(line)
             line = item.get_line()
-            if line.startswith('('):
-                i = line.find(')')
-                assert i!=-1,repr(line)
+            if line.startswith("("):
+                i = line.find(")")
+                assert i != -1, repr(line)
                 array_spec = parse_array_spec(line[1:i].strip(), item)
-                line = line[i+1:].lstrip()
+                line = line[i + 1 :].lstrip()
 
-            if line.startswith('*'):
-                i = line.find('=')
-                if i==-1:
+            if line.startswith("*"):
+                i = line.find("=")
+                if i == -1:
                     char_length = item.apply_map(line[1:].lstrip())
-                    line = ''
+                    line = ""
                 else:
                     char_length = item.apply_map(line[1:i].strip())
                     line = line[i:]
-            if line.startswith('='):
+            if line.startswith("="):
                 value = item.apply_map(line[1:].lstrip())
         return name, array_spec, char_length, value
 
@@ -420,7 +448,7 @@ class TypeDeclarationStatement(Statement):
         raise NotImplementedError(repr(self.__class__.__name__))
 
     def assign_expression(self, name, value):
-        return '%s = %s' % (name, value)
+        return "%s = %s" % (name, value)
 
     def get_kind(self):
         return self.selector[1] or self.default_kind
@@ -430,99 +458,122 @@ class TypeDeclarationStatement(Statement):
 
     def get_byte_size(self):
         length, kind = self.selector
-        if length: return int(length)
-        if kind: return int(kind)
+        if length:
+            return int(length)
+        if kind:
+            return int(kind)
         return self.default_kind
 
-    def is_intrinsic(self): return not isinstance(self,(Type,Class))
-    def is_derived(self): return isinstance(self,Type)
+    def is_intrinsic(self):
+        return not isinstance(self, (Type, Class))
 
-    def is_numeric(self): return isinstance(self,(Integer,Real, DoublePrecision,Complex,DoubleComplex,Byte))
-    def is_nonnumeric(self): return isinstance(self,(Character,Logical))
+    def is_derived(self):
+        return isinstance(self, Type)
+
+    def is_numeric(self):
+        return isinstance(
+            self, (Integer, Real, DoublePrecision, Complex, DoubleComplex, Byte)
+        )
+
+    def is_nonnumeric(self):
+        return isinstance(self, (Character, Logical))
 
 
 class Integer(TypeDeclarationStatement):
-    match = re.compile(r'integer\b',re.I).match
+    match = re.compile(r"integer\b", re.I).match
     default_kind = 4
 
     def get_zero_value(self):
         kind = self.get_kind()
-        if kind==self.default_kind: return '0'
-        return '0_%s' % (kind)
+        if kind == self.default_kind:
+            return "0"
+        return "0_%s" % (kind)
+
 
 class Real(TypeDeclarationStatement):
-    match = re.compile(r'real\b',re.I).match
+    match = re.compile(r"real\b", re.I).match
     default_kind = 4
 
     def get_zero_value(self):
         kind = self.get_kind()
-        if kind==self.default_kind: return '0.0'
-        return '0_%s' % (kind)
+        if kind == self.default_kind:
+            return "0.0"
+        return "0_%s" % (kind)
+
 
 class DoublePrecision(TypeDeclarationStatement):
-    match = re.compile(r'double\s*precision\b',re.I).match
+    match = re.compile(r"double\s*precision\b", re.I).match
     default_kind = 8
 
     def get_byte_size(self):
         return self.default_kind
 
     def get_zero_value(self):
-        return '0.0D0'
+        return "0.0D0"
+
 
 class Complex(TypeDeclarationStatement):
-    match = re.compile(r'complex\b',re.I).match
+    match = re.compile(r"complex\b", re.I).match
     default_kind = 4
 
     def get_byte_size(self):
         length, kind = self.selector
-        if length: return int(length)
-        if kind: return 2*int(kind)
-        return 2*self.default_kind
+        if length:
+            return int(length)
+        if kind:
+            return 2 * int(kind)
+        return 2 * self.default_kind
 
     def get_zero_value(self):
         kind = self.get_kind()
-        if kind==self.default_kind: return '(0.0, 0.0)'
-        return '(0.0_%s, 0.0_%s)' % (kind, kind)
+        if kind == self.default_kind:
+            return "(0.0, 0.0)"
+        return "(0.0_%s, 0.0_%s)" % (kind, kind)
 
     def get_part_typedecl(self):
-        bz = self.get_byte_size()/2
-        return Real(self.parent, self.item.copy('REAL*%s' % (bz)))
+        bz = self.get_byte_size() / 2
+        return Real(self.parent, self.item.copy("REAL*%s" % (bz)))
+
 
 class DoubleComplex(TypeDeclarationStatement):
     # not in standard
-    match = re.compile(r'double\s*complex\b',re.I).match
+    match = re.compile(r"double\s*complex\b", re.I).match
     default_kind = 8
 
     def get_byte_size(self):
-        return 2*self.default_kind
+        return 2 * self.default_kind
 
     def get_zero_value(self):
-        return '(0.0D0,0.0D0)'
+        return "(0.0D0,0.0D0)"
+
 
 class Logical(TypeDeclarationStatement):
-    match = re.compile(r'logical\b',re.I).match
+    match = re.compile(r"logical\b", re.I).match
     default_kind = 4
 
     def get_zero_value(self):
         return ".FALSE."
 
+
 class Character(TypeDeclarationStatement):
-    match = re.compile(r'character\b',re.I).match
+    match = re.compile(r"character\b", re.I).match
     default_kind = 1
 
     def get_zero_value(self):
         return "''"
 
+
 class Byte(TypeDeclarationStatement):
     # not in standard
-    match = re.compile(r'byte\b',re.I).match
+    match = re.compile(r"byte\b", re.I).match
     default_kind = 1
 
     def get_zero_value(self):
-        return '0'
+        return "0"
+
 
 class Type(TypeDeclarationStatement):
-    match = re.compile(r'type\s*\(', re.I).match
+    match = re.compile(r"type\s*\(", re.I).match
 
     def get_zero_value(self):
         type_decl = self.get_type_decl(self.name)
@@ -532,16 +583,19 @@ class Type(TypeDeclarationStatement):
         for name in component_names:
             var = components[name]
             l.append(var.typedecl.get_zero_value())
-        return '%s(%s)' % (type_decl.name, ', '.join(l))
+        return "%s(%s)" % (type_decl.name, ", ".join(l))
 
     def get_kind(self):
         # See 4.5.2, page 48
         raise NotImplementedError(repr(self.__class__.__name__))
 
+
 TypeStmt = Type
 
+
 class Class(TypeDeclarationStatement):
-    match = re.compile(r'class\s*\(', re.I).match
+    match = re.compile(r"class\s*\(", re.I).match
+
 
 class Implicit(Statement):
     """
@@ -550,30 +604,31 @@ class Implicit(Statement):
     <implicit-spec> = <declaration-type-spec> ( <letter-spec-list> )
     <letter-spec> = <letter> [ - <letter> ]
     """
-    match = re.compile(r'implicit\b',re.I).match
+
+    match = re.compile(r"implicit\b", re.I).match
 
     letters = string.ascii_lowercase
 
     def process_item(self):
         line = self.item.get_line()[8:].lstrip()
-        if line.lower()=='none':
+        if line.lower() == "none":
             self.items = []
             return
         items = []
         for item in split_comma(line, self.item):
-            i = item.find('(')
-            assert i!=-1 and item.endswith(')'),repr(item)
+            i = item.find("(")
+            assert i != -1 and item.endswith(")"), repr(item)
             specs = []
-            for spec in split_comma(item[i+1:-1].strip(), self.item):
-                if '-' in spec:
-                    s,e = spec.lower().split('-')
+            for spec in split_comma(item[i + 1 : -1].strip(), self.item):
+                if "-" in spec:
+                    s, e = spec.lower().split("-")
                     s = s.strip()
                     e = e.strip()
-                    assert s in self.letters and e in self.letters,repr((s,e))
+                    assert s in self.letters and e in self.letters, repr((s, e))
                 else:
                     e = s = spec.lower().strip()
-                    assert s in self.letters,repr((s,e))
-                specs.append((s,e))
+                    assert s in self.letters, repr((s, e))
+                specs.append((s, e))
             tspec = item[:i].rstrip()
             stmt = None
             for cls in declaration_type_spec:
@@ -581,52 +636,61 @@ class Implicit(Statement):
                     stmt = cls(self, self.item.copy(tspec))
                     if stmt.isvalid:
                         break
-            assert stmt is not None,repr((item,line))
-            items.append((stmt,specs))
+            assert stmt is not None, repr((item, line))
+            items.append((stmt, specs))
         self.items = items
         return
 
     def tofortran(self, isfix=None):
         tab = self.get_indent_tab(isfix=isfix)
         if not self.items:
-            return tab + 'IMPLICIT NONE'
+            return tab + "IMPLICIT NONE"
         l = []
-        for stmt,specs in self.items:
+        for stmt, specs in self.items:
             l1 = []
-            for s,e in specs:
-                if s==e:
+            for s, e in specs:
+                if s == e:
                     l1.append(s)
                 else:
-                    l1.append(s + '-' + e)
-            l.append('%s ( %s )' % (stmt.tostr(), ', '.join(l1)))
-        return tab + 'IMPLICIT ' + ', '.join(l)
+                    l1.append(s + "-" + e)
+            l.append("%s ( %s )" % (stmt.tostr(), ", ".join(l1)))
+        return tab + "IMPLICIT " + ", ".join(l)
 
     def analyze(self):
-        '''
+        """
         Analyze the Implicit statments constructed by the parser and
         set-up the associated implicit_rules belonging to the parent
         of this object in the AST.
-        '''
+        """
         implicit_rules = self.parent.a.implicit_rules
         if not self.items:
             if implicit_rules:
-                self.warning('overriding previously set implicit rule mapping'\
-                      ' %r.' % (implicit_rules))
+                self.warning(
+                    "overriding previously set implicit rule mapping"
+                    " %r." % (implicit_rules)
+                )
             self.parent.a.implicit_rules = None
             return
         if implicit_rules is None:
-            self.warning('overriding previously set IMPLICIT NONE')
+            self.warning("overriding previously set IMPLICIT NONE")
             self.parent.a.implicit_rules = implicit_rules = {}
         for stmt, specs in self.items:
             for start, end in specs:
                 start_idx = string.ascii_lowercase.index(start.lower())
                 end_idx = string.ascii_lowercase.index(end.lower())
-                for lchar in string.ascii_lowercase[start_idx:end_idx+1]:
+                for lchar in string.ascii_lowercase[start_idx : end_idx + 1]:
                     implicit_rules[lchar] = stmt
         return
 
-intrinsic_type_spec = [ \
-    Integer , Real,
-    DoublePrecision, Complex, DoubleComplex, Character, Logical, Byte
-    ]
-declaration_type_spec = intrinsic_type_spec + [ TypeStmt, Class ]
+
+intrinsic_type_spec = [
+    Integer,
+    Real,
+    DoublePrecision,
+    Complex,
+    DoubleComplex,
+    Character,
+    Logical,
+    Byte,
+]
+declaration_type_spec = intrinsic_type_spec + [TypeStmt, Class]

@@ -32,10 +32,10 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-'''Test Fortran 2003 rule R465: this file tests that both (/.../) and
+"""Test Fortran 2003 rule R465: this file tests that both (/.../) and
 [...] are supported when specifying an array constructor.
 
-'''
+"""
 
 import pytest
 from fparser.common.readfortran import FortranStringReader
@@ -45,8 +45,8 @@ from fparser.two import Fortran2003
 @pytest.mark.usefixtures("f2003_create")
 @pytest.mark.parametrize("left, right", [("(/", "/)"), ("[", "]")])
 def test_brackets_array_constructor(left, right):
-    ''' Test parsing of array constructor specified with both valid types of
-    bracket. '''
+    """Test parsing of array constructor specified with both valid types of
+    bracket."""
     fcode = "array = {0} 1, 2, 3{1}".format(left, right)
     reader = FortranStringReader(fcode)
     ast = Fortran2003.Assignment_Stmt(reader)
@@ -64,7 +64,7 @@ def test_brackets_array_constructor(left, right):
 @pytest.mark.usefixtures("f2003_create")
 @pytest.mark.parametrize("example", ["[1,2/)", "[1,2[]", "(/1,3]", "(/1,3)"])
 def test_array_constructor_no_match(example):
-    ''' Check that incorrect constructors are not matched. '''
+    """Check that incorrect constructors are not matched."""
     fcode = "array = " + example
     reader = FortranStringReader(fcode)
     ast = Fortran2003.Assignment_Stmt(reader)

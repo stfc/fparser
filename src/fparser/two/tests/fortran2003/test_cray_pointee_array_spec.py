@@ -32,10 +32,10 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-'''Test Fortran 2003 Cray-pointers: This file tests the support for a
+"""Test Fortran 2003 Cray-pointers: This file tests the support for a
 Cray-pointee array specification.
 
-'''
+"""
 
 import pytest
 from fparser.two.Fortran2003 import Cray_Pointee_Array_Spec
@@ -43,30 +43,26 @@ from fparser.two.utils import NoMatchError
 
 
 def test_cray_pointee_array_spec(f2003_create):
-    '''Check that Cray-pointee array specifications are parsed correctly.
-
-    '''
+    """Check that Cray-pointee array specifications are parsed correctly."""
     for myinput in ["n", "0 : n", "n, m", "5, *", "*", "0 : 1, 2 : *"]:
         ast = Cray_Pointee_Array_Spec(myinput)
         assert myinput in str(ast)
 
 
 def test_errors(f2003_create):
-    '''Check that syntax errors produce a NoMatchError exception.'''
+    """Check that syntax errors produce a NoMatchError exception."""
     for myinput in ["", "  ", "2n", "2 n", "*, n"]:
         with pytest.raises(NoMatchError) as excinfo:
             _ = Cray_Pointee_Array_Spec(myinput)
-        assert "Cray_Pointee_Array_Spec: '{0}'".format(myinput) in \
-            str(excinfo.value)
+        assert "Cray_Pointee_Array_Spec: '{0}'".format(myinput) in str(excinfo.value)
 
 
 def test_unsupported(f2003_create):
-    '''Check that unsupported specifications produce a
+    """Check that unsupported specifications produce a
     NoMatchError exception.
 
-    '''
+    """
     for myinput in [":", "2,:"]:
         with pytest.raises(NoMatchError) as excinfo:
             _ = Cray_Pointee_Array_Spec(myinput)
-        assert "Cray_Pointee_Array_Spec: '{0}'".format(myinput) in \
-            str(excinfo.value)
+        assert "Cray_Pointee_Array_Spec: '{0}'".format(myinput) in str(excinfo.value)

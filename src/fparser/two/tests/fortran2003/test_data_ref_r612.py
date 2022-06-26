@@ -32,10 +32,10 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-'''Test Fortran 2003 rule R612 : This file tests support for the
+"""Test Fortran 2003 rule R612 : This file tests support for the
 Data_Ref class.
 
-'''
+"""
 
 import pytest
 from fparser.two.utils import NoMatchError
@@ -43,10 +43,10 @@ from fparser.two.Fortran2003 import Data_Ref, Part_Ref, Name
 
 
 def test_valid_sequence(f2003_create):
-    '''Test that a data_ref object is returned when a valid sequence is
+    """Test that a data_ref object is returned when a valid sequence is
     supplied.
 
-    '''
+    """
     for string in ["a%b", " a % b ", "a%b%c", "A%B%C"]:
         result = Data_Ref(string)
         assert str(result) == str(result).strip()
@@ -54,10 +54,10 @@ def test_valid_sequence(f2003_create):
 
 
 def test_single_entry(f2003_create):
-    '''Test that a data_ref object is not returned when the sequence is
+    """Test that a data_ref object is not returned when the sequence is
     valid but contains a single entry.
 
-    '''
+    """
     for string in ["a", " a ", "A"]:
         result = Data_Ref(string)
         assert str(result) == str(result).strip()
@@ -69,7 +69,7 @@ def test_single_entry(f2003_create):
 
 
 def test_invalid(f2003_create):
-    '''Test that there is no match when the input is invalid. '''
+    """Test that there is no match when the input is invalid."""
 
     for string in ["", "  ", "1", "%", "a b"]:
         with pytest.raises(NoMatchError):

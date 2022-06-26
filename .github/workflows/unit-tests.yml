@@ -46,7 +46,21 @@ on:
     branches: [ master ]
 
 jobs:
-  build:
+
+  # Checks the whole code base for conformance with Black formatting.
+  # It is the responsibility of the developer to apply Black. (Auto-
+  # committing the results of running Black here is possible but
+  # then breaks the normal GitHub reviewing workflow.)
+  black:
+
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: psf/black@stable
+      with:
+        src: "./src ./example"
+
+  unit-tests:
 
     runs-on: ubuntu-latest
     strategy:
@@ -63,14 +77,8 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install flake8 pytest pytest-cov pytest-xdist
+        pip install pytest pytest-cov pytest-xdist
         pip install .
-    - name: Lint with flake8
-      run: |
-        # exit-zero treats all errors as warnings.
-        # The GitHub editor is 127 chars wide.
-        # Explicitly name the required directories.
-        flake8 --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics src/fparser
     - name: Test with pytest
       run: |
         # fparser should work even under limited terminal conditions so set

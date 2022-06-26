@@ -41,8 +41,7 @@ from fparser.two.utils import FortranSyntaxError
 
 
 def test_select_type_construct():
-    """Check 'select type' construct is parsed correctly
-    """
+    """Check 'select type' construct is parsed correctly"""
     tcls = Select_Type_Construct
     tree = tcls(
         get_reader(
@@ -95,7 +94,9 @@ def test_select_type_construct_missing_start_name(f2003_create, fake_symbol_tabl
             end select name"""
             )
         )
-    assert exc_info.value.args[0].endswith("Name 'name' has no corresponding starting name")
+    assert exc_info.value.args[0].endswith(
+        "Name 'name' has no corresponding starting name"
+    )
 
 
 def test_select_type_construct_missing_end_name(f2003_create, fake_symbol_table):

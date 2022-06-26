@@ -32,60 +32,76 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-'''Test Fortran 2003 rule R705 : This file tests support for the
+"""Test Fortran 2003 rule R705 : This file tests support for the
 Add_Operand class.
 
-'''
+"""
 
 import pytest
 from fparser.two.utils import NoMatchError
 from fparser.two.Fortran2003 import Add_Operand, Level_2_Expr
 from fparser.two.parser import ParserFactory
+
 # This is required to setup the fortran2003 classes (when matching
 # with Add_Operand)
 _ = ParserFactory().create(std="f2003")
 
 
-@pytest.mark.parametrize("string,str_repr", [
-    ("a ** b", "Mult_Operand(Name('a'), '**', Name('b'))"),
-    (".DEFINED. a", "Level_1_Expr('.DEFINED.', Name('a'))"),
-    ("1.0", "Real_Literal_Constant('1.0', None)"),
-    ("(a + b)", "Parenthesis('(', Level_2_Expr(Name('a'), '+', "
-     "Name('b')), ')')")])
+@pytest.mark.parametrize(
+    "string,str_repr",
+    [
+        ("a ** b", "Mult_Operand(Name('a'), '**', Name('b'))"),
+        (".DEFINED. a", "Level_1_Expr('.DEFINED.', Name('a'))"),
+        ("1.0", "Real_Literal_Constant('1.0', None)"),
+        (
+            "(a + b)",
+            "Parenthesis('(', Level_2_Expr(Name('a'), '+', " "Name('b')), ')')",
+        ),
+    ],
+)
 def test_mult(string, str_repr):
-    '''Test for a successful match with a valid mult-operand string'''
+    """Test for a successful match with a valid mult-operand string"""
     result = Add_Operand(string)
     assert str(result) == string
     assert repr(result) == str_repr
 
 
 def test_mult_fail():
-    '''Test for a failure to match an invalid multi-operand string'''
+    """Test for a failure to match an invalid multi-operand string"""
     with pytest.raises(NoMatchError) as info:
         Add_Operand("a .and. b")
     assert "Add_Operand: 'a .and. b'" in str(info.value)
 
 
-@pytest.mark.parametrize("string,str_repr", [
-    ("a * b", "Add_Operand(Name('a'), '*', Name('b'))"),
-    ("a * 1.0E-3", "Add_Operand(Name('a'), '*', "
-     "Real_Literal_Constant('1.0E-3', None))"),
-    ("a / b", "Add_Operand(Name('a'), '/', Name('b'))"),
-    ("a * b * c", "Add_Operand(Add_Operand(Name('a'), '*', Name('b')), "
-     "'*', Name('c'))"),
-    ("a * b / c", "Add_Operand(Add_Operand(Name('a'), '*', Name('b')), "
-     "'/', Name('c'))")])
+@pytest.mark.parametrize(
+    "string,str_repr",
+    [
+        ("a * b", "Add_Operand(Name('a'), '*', Name('b'))"),
+        (
+            "a * 1.0E-3",
+            "Add_Operand(Name('a'), '*', " "Real_Literal_Constant('1.0E-3', None))",
+        ),
+        ("a / b", "Add_Operand(Name('a'), '/', Name('b'))"),
+        (
+            "a * b * c",
+            "Add_Operand(Add_Operand(Name('a'), '*', Name('b')), " "'*', Name('c'))",
+        ),
+        (
+            "a * b / c",
+            "Add_Operand(Add_Operand(Name('a'), '*', Name('b')), " "'/', Name('c'))",
+        ),
+    ],
+)
 def test_add_operand(string, str_repr):
-    '''Test for a successful match with a valid add_operand'''
+    """Test for a successful match with a valid add_operand"""
     result = Add_Operand(string)
     assert str(result) == string
     assert repr(result) == str_repr
 
 
-@pytest.mark.parametrize("string", ["a + b", "_ * b", "a * _",
-                                    "a * b + c"])
+@pytest.mark.parametrize("string", ["a + b", "_ * b", "a * _", "a * b + c"])
 def test_add_operand_fail(string):
-    '''Test for a failure to match an invalid add-operand string'''
+    """Test for a failure to match an invalid add-operand string"""
     with pytest.raises(NoMatchError) as info:
         Add_Operand(string)
     assert "Add_Operand: '{0}'".format(string) in str(info.value)

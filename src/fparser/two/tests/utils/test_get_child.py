@@ -32,7 +32,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-''' Test the get_child routine provided by utils.py. '''
+""" Test the get_child routine provided by utils.py. """
 
 import pytest
 from fparser.api import get_reader
@@ -40,13 +40,16 @@ from fparser.api import get_reader
 
 @pytest.mark.usefixtures("f2003_create")
 def test_get_child():
-    ''' Test the get_child() utility. '''
+    """Test the get_child() utility."""
     from fparser.two import Fortran2003
     from fparser.two.utils import walk, get_child
-    reader = get_reader("program hello\n"
-                        "write(*,*) 'hello'\n"
-                        "write(*,*) 'goodbye'\n"
-                        "end program hello\n")
+
+    reader = get_reader(
+        "program hello\n"
+        "write(*,*) 'hello'\n"
+        "write(*,*) 'goodbye'\n"
+        "end program hello\n"
+    )
     main = Fortran2003.Program(reader)
     prog = get_child(main, Fortran2003.Main_Program)
     exe = get_child(prog, Fortran2003.Execution_Part)

@@ -72,7 +72,7 @@ logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 
 def log_decode_error_handler(err):
-    '''
+    """
     A custom error handler for use when reading files. Removes any
     characters that cause decoding errors and logs the error.
 
@@ -80,7 +80,7 @@ def log_decode_error_handler(err):
               and the position from where encoding should continue.
     :rtype: Tuple[str, int]
 
-    '''
+    """
     message = f"character in input file. Error returned was {str(err)}."
     # Log the fact that this character will be removed from the input file
     logging.getLogger(__name__).warning("Skipped bad %s", message)

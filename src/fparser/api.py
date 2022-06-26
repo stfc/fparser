@@ -76,12 +76,18 @@ Module content
 from fparser.common.base_classes import classes
 from fparser.common.utils import AnalyzeError
 
-__autodoc__ = ['get_reader', 'parse', 'walk']
+__autodoc__ = ["get_reader", "parse", "walk"]
 
 
-def get_reader(source, isfree=None, isstrict=None, include_dirs=None,
-               source_only=None, ignore_comments=True):
-    '''
+def get_reader(
+    source,
+    isfree=None,
+    isstrict=None,
+    include_dirs=None,
+    source_only=None,
+    ignore_comments=True,
+):
+    """
     Returns Fortran reader instance.
 
     If ``source`` is a C filename then the functions searches for comment
@@ -103,41 +109,45 @@ def get_reader(source, isfree=None, isstrict=None, include_dirs=None,
 
     :returns: a reader instance
     :rtype: :py:class:`fparser.common.readfortran.FortranReader`
-    '''
+    """
     import os
     import re
-    from fparser.common.readfortran import FortranFileReader, \
-        FortranStringReader
+    from fparser.common.readfortran import FortranFileReader, FortranStringReader
     from fparser.common.sourceinfo import FortranFormat
 
     if os.path.isfile(source):
         _name, ext = os.path.splitext(source)
-        if ext.lower() in ['.c']:
+        if ext.lower() in [".c"]:
             # get signatures from C file comments starting with
             # `/*f2py` and ending with `*/`.
             # TODO: improve parser to take line number offset making line
             #       numbers in parser messages correct.
-            f2py_c_comments = re.compile(r'/[*]\s*f2py\s.*[*]/', re.I | re.M)
-            handle = open(source, 'r')
-            c_input = ''
+            f2py_c_comments = re.compile(r"/[*]\s*f2py\s.*[*]/", re.I | re.M)
+            handle = open(source, "r")
+            c_input = ""
             for line in f2py_c_comments.findall(handle.read()):
-                c_input += line[2:-2].lstrip()[4:] + '\n'
+                c_input += line[2:-2].lstrip()[4:] + "\n"
             handle.close()
             if isfree is None:
                 isfree = True
             if isstrict is None:
                 isstrict = True
             return parse(c_input, isfree, isstrict, include_dirs)
-        reader = FortranFileReader(source, include_dirs=include_dirs,
-                                   source_only=source_only,
-                                   ignore_comments=ignore_comments)
+        reader = FortranFileReader(
+            source,
+            include_dirs=include_dirs,
+            source_only=source_only,
+            ignore_comments=ignore_comments,
+        )
     elif isinstance(source, str):
-        reader = FortranStringReader(source, include_dirs=include_dirs,
-                                     source_only=source_only,
-                                     ignore_comments=ignore_comments)
+        reader = FortranStringReader(
+            source,
+            include_dirs=include_dirs,
+            source_only=source_only,
+            ignore_comments=ignore_comments,
+        )
     else:
-        raise TypeError('Expected string or filename input but got %s' %
-                        (type(input)))
+        raise TypeError("Expected string or filename input but got %s" % (type(input)))
     if isfree is None:
         isfree = reader.format.is_free
     if isstrict is None:
@@ -146,9 +156,16 @@ def get_reader(source, isfree=None, isstrict=None, include_dirs=None,
     return reader
 
 
-def parse(source, isfree=None, isstrict=None, include_dirs=None,
-          source_only=None, ignore_comments=True, analyze=True,
-          clear_cache=True):
+def parse(
+    source,
+    isfree=None,
+    isstrict=None,
+    include_dirs=None,
+    source_only=None,
+    ignore_comments=True,
+    analyze=True,
+    clear_cache=True,
+):
     """
     Parse input and return Statement tree. Raises an AnalyzeError if the
     parser can not parse the Fortran code.
@@ -181,8 +198,14 @@ def parse(source, isfree=None, isstrict=None, include_dirs=None,
         # Wipe the parser cache if requested
         FortranParser.cache.clear()
 
-    reader = get_reader(source, isfree, isstrict, include_dirs, source_only,
-                        ignore_comments=ignore_comments)
+    reader = get_reader(
+        source,
+        isfree,
+        isstrict,
+        include_dirs,
+        source_only,
+        ignore_comments=ignore_comments,
+    )
     parser = FortranParser(reader, ignore_comments=ignore_comments)
     try:
         parser.parse()
@@ -195,7 +218,7 @@ def parse(source, isfree=None, isstrict=None, include_dirs=None,
 
 
 def walk(stmt, depth=-1, _initial_depth=None):
-    """ Generate Fortran statements by walking the stmt tree until given depth.
+    """Generate Fortran statements by walking the stmt tree until given depth.
 
     For each block statement in stmt, the walk functions yields a
     tuple ``(statement, depth)`` where ``depth`` is the depth of tree
@@ -255,8 +278,9 @@ def walk(stmt, depth=-1, _initial_depth=None):
             last_stmt = None
         if depth != 0:
             for substmt in stmt.content[:last_index]:
-                for statement, statement_depth in walk(substmt, depth-1,
-                                                       _initial_depth):
+                for statement, statement_depth in walk(
+                    substmt, depth - 1, _initial_depth
+                ):
                     yield statement, statement_depth
         if last_stmt is not None:
             yield last_stmt, _initial_depth - depth

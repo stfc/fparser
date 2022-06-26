@@ -32,40 +32,47 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-'''Test Fortran 2008 rule R509
+"""Test Fortran 2008 rule R509
 
     coarray-spec is deferred-coshape-spec-list
                     or explicit-coshape-spec-list
 
-'''
+"""
 
 import pytest
 from fparser.two.Fortran2008 import (
-    Coarray_Spec, Deferred_Coshape_Spec_List, Explicit_Coshape_Spec)
+    Coarray_Spec,
+    Deferred_Coshape_Spec_List,
+    Explicit_Coshape_Spec,
+)
 from fparser.two import Fortran2003
 
 
 @pytest.mark.usefixtures("f2008_create")
-@pytest.mark.parametrize('attr, _type', [
-    ('*', Explicit_Coshape_Spec),
-    ('5 :*', Explicit_Coshape_Spec),
-    ('1:  3  ,  a: *', Explicit_Coshape_Spec),
-    (' 1 ,  2,3:*', Explicit_Coshape_Spec),
-    ('1:2,3,*', Explicit_Coshape_Spec),
-    (':', Deferred_Coshape_Spec_List)
-])
+@pytest.mark.parametrize(
+    "attr, _type",
+    [
+        ("*", Explicit_Coshape_Spec),
+        ("5 :*", Explicit_Coshape_Spec),
+        ("1:  3  ,  a: *", Explicit_Coshape_Spec),
+        (" 1 ,  2,3:*", Explicit_Coshape_Spec),
+        ("1:2,3,*", Explicit_Coshape_Spec),
+        (":", Deferred_Coshape_Spec_List),
+    ],
+)
 def test_coarray_spec(attr, _type):
-    '''Test that coarray_spec are parsed correctly.'''
+    """Test that coarray_spec are parsed correctly."""
     obj = Coarray_Spec(attr)
     assert isinstance(obj, _type), repr(obj)
-    ref = attr.replace(' ', '').replace(':', ' : ').replace(',', ', ').strip()
+    ref = attr.replace(" ", "").replace(":", " : ").replace(",", ", ").strip()
     assert str(obj) == ref
 
 
 @pytest.mark.usefixtures("f2008_create")
-@pytest.mark.parametrize('attr', [
-    '1:3', '', ':b', 'a:', ':*', '', '1:,*', '1,,*', '::', '5'])
+@pytest.mark.parametrize(
+    "attr", ["1:3", "", ":b", "a:", ":*", "", "1:,*", "1,,*", "::", "5"]
+)
 def test_invalid_coarray_spec(attr):
-    '''Test that invalid coarray_spec raise exception.'''
+    """Test that invalid coarray_spec raise exception."""
     with pytest.raises(Fortran2003.NoMatchError):
         _ = Coarray_Spec(attr)

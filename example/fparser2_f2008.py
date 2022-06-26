@@ -32,13 +32,13 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-'''A simple fparser2 Fortran2008 example demonstrating support for
-submodules'''
+"""A simple fparser2 Fortran2008 example demonstrating support for
+submodules"""
 
 from fparser.two.parser import ParserFactory
 from fparser.common.readfortran import FortranStringReader
 
-MYFILE = '''
+MYFILE = """
 program hello
 integer a
 end program hello
@@ -46,7 +46,7 @@ submodule (hello2) world
 end submodule world
 subroutine world2
 end subroutine world2
-'''
+"""
 
 READER = FortranStringReader(MYFILE)
 F2008_PARSER = ParserFactory().create(std="f2008")

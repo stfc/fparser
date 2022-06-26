@@ -1,4 +1,4 @@
-# Modified work Copyright (c) 2017 Science and Technology Facilities Council
+# Modified work Copyright (c) 2017-2022 Science and Technology Facilities Council.
 # Original work Copyright (c) 1999-2008 Pearu Peterson
 
 # All rights reserved.
@@ -64,19 +64,20 @@
 
 from fparser import api
 
+
 def test_reproduce_issue():
-    source_str = '''\
+    source_str = """\
       subroutine foo
       do 10
  10   continue
       end subroutine
-'''
-    tree = api.parse(source_str, isfree=False, isstrict=False,
-                     ignore_comments=False)
-    assert str(tree).strip().split('\n')[1:]=='''
+"""
+    tree = api.parse(source_str, isfree=False, isstrict=False, ignore_comments=False)
+    expected = """
       !      BEGINSOURCE <cStringIO.StringI object at 0x1733ea0> mode=fix90
         SUBROUTINE foo()
           DO 10
  10       CONTINUE
         END SUBROUTINE foo
-    '''.strip().split('\n')[1:]
+    """
+    assert str(tree).strip().split("\n")[1:] == expected.strip().split("\n")[1:]

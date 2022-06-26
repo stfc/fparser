@@ -32,9 +32,9 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-'''Test fparser one scripts
+"""Test fparser one scripts
 
-'''
+"""
 
 import os
 import sys
@@ -44,7 +44,7 @@ from fparser.scripts import parse
 
 
 def test_runner(capsys, tmpdir, monkeypatch):
-    '''Test that the main function works as expected.'''
+    """Test that the main function works as expected."""
     # Create a temporary file containing Fortran code.
     my_file = tmpdir.mkdir("sub").join("hello.f90")
     my_file.write("program hello\nend program hello\n")
@@ -55,7 +55,7 @@ def test_runner(capsys, tmpdir, monkeypatch):
     # capture the output and check that the code has been output
     stdout, _ = capsys.readouterr()
     print(stdout)
-    assert(
+    assert (
         "    Program\n"
         "      blocktype='program'\n"
         "      name='hello'\n"
@@ -65,22 +65,23 @@ def test_runner(capsys, tmpdir, monkeypatch):
         "      blocktype='program'\n"
         "      name='hello'\n"
         "      item=Line('end program hello',"
-        "(2, 2),None,None,<reader>)") in stdout
+        "(2, 2),None,None,<reader>)"
+    ) in stdout
 
 
 def test_log(caplog, monkeypatch):
-    '''Test that logging is enabled and works as expected.'''
-    my_file = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                           "bad_char.f90")
+    """Test that logging is enabled and works as expected."""
+    my_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "bad_char.f90")
     # Use monkeypatch to spoof the command-line argument
     monkeypatch.setattr(sys, "argv", ["read", str(my_file)])
     # run the relevant script method (main())
     parse.main()
     # Check the log messages
     for record in caplog.records:
-        assert record.levelname != 'CRITICAL'
-    assert ("Skipped bad character in input file. Error returned was "
-            "'utf") in caplog.text
+        assert record.levelname != "CRITICAL"
+    assert (
+        "Skipped bad character in input file. Error returned was " "'utf"
+    ) in caplog.text
     # Output can be utf8 or utf-8 so split test in two.
     assert "8' codec can't decode byte " in caplog.text
     # Can't check the actual value as some versions of Python3 return

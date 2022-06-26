@@ -32,7 +32,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-'''Test Fortran Include file name: This file tests the filename in an
+"""Test Fortran Include file name: This file tests the filename in an
 include statement. Whilst include is not part of the standard Fortran
 rules (a compiler should parse any code from an include as the code is
 being parsed) there are cases where users might like to keep the
@@ -42,7 +42,7 @@ The test for a valid file name is very lightweight as it is unclear
 what would be invalid. The only things considered invalid are white
 space at the beginning and/or end of the filename, or an empty string.
 
-'''
+"""
 
 import pytest
 from fparser.two.Fortran2003 import Include_Filename
@@ -50,13 +50,22 @@ from fparser.two.utils import NoMatchError
 
 
 def test_valid_include_filename(f2003_create):
-    '''Try some valid include statement path names and check that the
+    """Try some valid include statement path names and check that the
     output is what we expect.
 
-    '''
-    for string in ["x", "/", ".", "./here.inc", "~/home/x.inc",
-                   "/local/y.inc", "/he/llo.world", "\\", "spaces are ok",
-                   "c:\\windogs\\include.bat"]:
+    """
+    for string in [
+        "x",
+        "/",
+        ".",
+        "./here.inc",
+        "~/home/x.inc",
+        "/local/y.inc",
+        "/he/llo.world",
+        "\\",
+        "spaces are ok",
+        "c:\\windogs\\include.bat",
+    ]:
         ast = Include_Filename(string)
         assert str(ast) == string
         # repr will escape any backslashes that it finds.
@@ -65,11 +74,11 @@ def test_valid_include_filename(f2003_create):
 
 
 def test_invalid_include_filename(f2003_create):
-    '''As the file name is not part of the Fortran standard, we apply very
+    """As the file name is not part of the Fortran standard, we apply very
     loose rules to what is valid. The only things we don't accept are
     an empty string or white space at the start or end of the string.
 
-    '''
+    """
     for string in ["", " ", " x.inc", "x.inc ", " x.inc "]:
         with pytest.raises(NoMatchError) as excinfo:
             _ = Include_Filename(string)

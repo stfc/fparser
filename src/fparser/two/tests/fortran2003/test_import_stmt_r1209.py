@@ -32,10 +32,10 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-'''Test Fortran 2003 rule R1209 : This file tests the support for an
+"""Test Fortran 2003 rule R1209 : This file tests the support for an
 import statement.
 
-'''
+"""
 
 import pytest
 from fparser.two.Fortran2003 import Import_Stmt
@@ -43,19 +43,22 @@ from fparser.two.utils import NoMatchError
 
 
 @pytest.mark.usefixtures("f2003_create")
-@pytest.mark.parametrize("example,result",
-                         [("IMPORT", "IMPORT"),
-                          ("iMpOrT", "IMPORT"),
-                          ("  IMPORT  ", "IMPORT"),
-                          ("IMPORT name1", "IMPORT :: name1"),
-                          ("IMPORT name1, name2", "IMPORT :: name1, name2"),
-                          ("IMPORT :: name1", "IMPORT :: name1"),
-                          ("IMPORT :: name1, name2", "IMPORT :: name1, name2"),
-                          ("IMPORT::name1,name2", "IMPORT :: name1, name2"),
-                          ("  IMPORT  ::  name1  ,  name2  ",
-                           "IMPORT :: name1, name2")])
+@pytest.mark.parametrize(
+    "example,result",
+    [
+        ("IMPORT", "IMPORT"),
+        ("iMpOrT", "IMPORT"),
+        ("  IMPORT  ", "IMPORT"),
+        ("IMPORT name1", "IMPORT :: name1"),
+        ("IMPORT name1, name2", "IMPORT :: name1, name2"),
+        ("IMPORT :: name1", "IMPORT :: name1"),
+        ("IMPORT :: name1, name2", "IMPORT :: name1, name2"),
+        ("IMPORT::name1,name2", "IMPORT :: name1, name2"),
+        ("  IMPORT  ::  name1  ,  name2  ", "IMPORT :: name1, name2"),
+    ],
+)
 def test_match_valid(example, result):
-    ''' Test that valid input is parsed correctly '''
+    """Test that valid input is parsed correctly"""
 
     obj = Import_Stmt(example)
     assert isinstance(obj, Import_Stmt), repr(obj)
@@ -63,12 +66,12 @@ def test_match_valid(example, result):
 
 
 @pytest.mark.usefixtures("f2003_create")
-@pytest.mark.parametrize("example", ["", "  ", "IMPOR", "IMPORT : name1",
-                                     "IMPORT ::", "IMPORTname1"])
+@pytest.mark.parametrize(
+    "example", ["", "  ", "IMPOR", "IMPORT : name1", "IMPORT ::", "IMPORTname1"]
+)
 def test_match_invalid(example):
-    ''' Test that invalid input raises an exception '''
+    """Test that invalid input raises an exception"""
 
     with pytest.raises(NoMatchError) as excinfo:
         _ = Import_Stmt(example)
-    assert "Import_Stmt: '{0}'".format(example) in \
-        str(excinfo.value)
+    assert "Import_Stmt: '{0}'".format(example) in str(excinfo.value)

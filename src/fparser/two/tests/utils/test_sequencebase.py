@@ -32,8 +32,8 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-'''File containing unit tests for the SequenceBase baseclass in
-utils.py'''
+"""File containing unit tests for the SequenceBase baseclass in
+utils.py"""
 
 import pytest
 from fparser.two.utils import SequenceBase, InternalError
@@ -41,31 +41,35 @@ from fparser.two.Fortran2003 import Name
 
 
 def test_match_invalid_separator(f2003_create):
-    '''Test the sequencebase match method raises the expected exception if
+    """Test the sequencebase match method raises the expected exception if
     arg separator is not a string.
 
-    '''
+    """
     for separator in [None, 12, Name]:
         with pytest.raises(InternalError) as excinfo:
             _ = SequenceBase.match(separator, Name, "hello")
-        assert ("SequenceBase class match method argument separator expected "
-                "to be a string but found " in str(excinfo.value))
+        assert (
+            "SequenceBase class match method argument separator expected "
+            "to be a string but found " in str(excinfo.value)
+        )
 
 
 def test_match_invalid_string(f2003_create):
-    '''Test the sequencebase match method raises the expected exception if
+    """Test the sequencebase match method raises the expected exception if
     arg string is not a string.
 
-    '''
+    """
     for string in [None, 12, Name]:
         with pytest.raises(InternalError) as excinfo:
             _ = SequenceBase.match(",", Name, string)
-        assert ("SequenceBase class match method argument string expected to "
-                "be a string but found " in str(excinfo.value))
+        assert (
+            "SequenceBase class match method argument string expected to "
+            "be a string but found " in str(excinfo.value)
+        )
 
 
 def test_match(f2003_create):
-    '''Test the sequencebase match method with 1 or more entries.'''
+    """Test the sequencebase match method with 1 or more entries."""
     separator = ","
     subcls = Name
     string = "a"
@@ -80,48 +84,53 @@ def test_match(f2003_create):
 
 
 def test_match_repmap(f2003_create):
-    '''Test the sequencebase match method works if the supplied separator
+    """Test the sequencebase match method works if the supplied separator
     is also used within the matching class.
 
-    '''
+    """
     from fparser.two.Fortran2003 import Entity_Decl_List
+
     separator = ","
     subcls = Entity_Decl_List
     string = "a(n, n), b(n, n)"
     result = SequenceBase.match(separator, subcls, string)
-    assert (str(result).replace('u', '') ==
-            "(',', (Entity_Decl_List(',', (Entity_Decl(Name('a'), "
-            "Explicit_Shape_Spec_List(',', (Explicit_Shape_Spec(None, "
-            "Name('n')), Explicit_Shape_Spec(None, Name('n')))), None, "
-            "None),)), Entity_Decl_List(',', (Entity_Decl(Name('b'), "
-            "Explicit_Shape_Spec_List(',', (Explicit_Shape_Spec(None, "
-            "Name('n')), Explicit_Shape_Spec(None, Name('n')))), None, "
-            "None),))))")
+    assert (
+        str(result).replace("u", "")
+        == "(',', (Entity_Decl_List(',', (Entity_Decl(Name('a'), "
+        "Explicit_Shape_Spec_List(',', (Explicit_Shape_Spec(None, "
+        "Name('n')), Explicit_Shape_Spec(None, Name('n')))), None, "
+        "None),)), Entity_Decl_List(',', (Entity_Decl(Name('b'), "
+        "Explicit_Shape_Spec_List(',', (Explicit_Shape_Spec(None, "
+        "Name('n')), Explicit_Shape_Spec(None, Name('n')))), None, "
+        "None),))))"
+    )
 
 
 def test_match_space(f2003_create):
-    '''Test the sequencebase match method raises an exception when the
+    """Test the sequencebase match method raises an exception when the
     separator is white space.
 
-    '''
+    """
     separator = " "
     subcls = Name
     with pytest.raises(InternalError) as excinfo:
         _ = SequenceBase.match(separator, subcls, "a b")
     assert (
         "SequenceBase class match method argument separator cannot be white "
-        "space." in str(excinfo.value))
+        "space." in str(excinfo.value)
+    )
 
 
 def test_match_instance(f2003_create):
-    '''Test the sequencebase init, tostr and torepr methods.'''
+    """Test the sequencebase init, tostr and torepr methods."""
     from fparser.two.Fortran2003 import Data_Ref, Type_Param_Name_List
 
     # ',' separator.
     obj = Type_Param_Name_List("a,b,c")
     assert obj.tostr() == "a, b, c"
-    assert (obj.torepr() ==
-            "Type_Param_Name_List(',', (Name('a'), Name('b'), Name('c')))")
+    assert (
+        obj.torepr() == "Type_Param_Name_List(',', (Name('a'), Name('b'), Name('c')))"
+    )
 
     # '%' separator.
     obj = Data_Ref("a%b%c")

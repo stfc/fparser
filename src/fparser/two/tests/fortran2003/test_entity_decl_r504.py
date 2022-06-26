@@ -66,15 +66,13 @@ def test_entity_decl_repr():
     ],
 )
 def test_entity_decl_str(declaration, expected_str):
-    """Test the string representations of various entity declarations
-    """
+    """Test the string representations of various entity declarations"""
     obj = Entity_Decl(declaration)
     assert isinstance(obj, Entity_Decl), repr(obj)
     assert str(obj) == expected_str
 
 
 def test_entity_decl_name():  # 504
-    """Test we can get the name of an entity declaration
-    """
+    """Test we can get the name of an entity declaration"""
     obj = Entity_Decl("a(1) = 2")
     assert obj.get_name() == Name("a")

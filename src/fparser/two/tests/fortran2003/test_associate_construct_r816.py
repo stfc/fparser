@@ -102,16 +102,14 @@ from fparser.two.utils import FortranSyntaxError
     ],
 )
 def test_associate_construct(fake_symbol_table, code, expected_string):
-    """Test some basic 'associate' constructs are parsed correctly
-    """
+    """Test some basic 'associate' constructs are parsed correctly"""
     obj = Associate_Construct(get_reader(code))
     assert isinstance(obj, Associate_Construct), repr(obj)
     assert str(obj) == expected_string
 
 
 def test_end_block_missing_name(f2003_create, fake_symbol_table):
-    """Check that a named associate block has a name at the end
-    """
+    """Check that a named associate block has a name at the end"""
     with pytest.raises(FortranSyntaxError) as exc_info:
         Associate_Construct(
             get_reader(
@@ -126,8 +124,7 @@ def test_end_block_missing_name(f2003_create, fake_symbol_table):
 
 
 def test_end_block_wrong_name(f2003_create, fake_symbol_table):
-    """Check that a named associate block has the correct name at the end
-    """
+    """Check that a named associate block has the correct name at the end"""
     with pytest.raises(FortranSyntaxError) as exc_info:
         Associate_Construct(
             get_reader(

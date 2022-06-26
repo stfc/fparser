@@ -31,7 +31,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-''' Module containing tests for the parser file '''
+""" Module containing tests for the parser file """
 
 import pytest
 from fparser.two.parser import ParserFactory
@@ -42,15 +42,13 @@ from fparser.two import Fortran2003, Fortran2008
 
 
 def test_parserfactory_std():
-    '''Test ParserFactory std argument options [none, f2003, f2008 and
+    """Test ParserFactory std argument options [none, f2003, f2008 and
     invalid]. Also tests that the SYMBOL_TABLES instance has been initialised
     correctly and that previous calls to the create method in the ParserFactory
     class do not affect current calls.
 
-    '''
-    fstring = (
-        "submodule (x) y\n"
-        "end\n")
+    """
+    fstring = "submodule (x) y\n" "end\n"
     parser = ParserFactory().create()
     reader = FortranStringReader(fstring)
     with pytest.raises(FortranSyntaxError) as excinfo:
@@ -58,10 +56,12 @@ def test_parserfactory_std():
     assert "at line 1\n>>>submodule (x) y\n" in str(excinfo.value)
     # Check that the list of classes used to define scoping regions is
     # correctly set.
-    assert SYMBOL_TABLES.scoping_unit_classes == [Fortran2003.Module_Stmt,
-                                                  Fortran2003.Subroutine_Stmt,
-                                                  Fortran2003.Program_Stmt,
-                                                  Fortran2003.Function_Stmt]
+    assert SYMBOL_TABLES.scoping_unit_classes == [
+        Fortran2003.Module_Stmt,
+        Fortran2003.Subroutine_Stmt,
+        Fortran2003.Program_Stmt,
+        Fortran2003.Function_Stmt,
+    ]
 
     parser = ParserFactory().create(std="f2003")
     reader = FortranStringReader(fstring)

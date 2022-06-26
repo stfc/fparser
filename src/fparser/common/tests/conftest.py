@@ -32,17 +32,17 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-'''Module which provides pytest fixtures for use by files in this
+"""Module which provides pytest fixtures for use by files in this
 directory
 
-'''
+"""
 import pytest
 
 
 @pytest.fixture(scope="module", params=[True, False])
 def ignore_comments(request):
-    '''Fixture for testing with and without the parser ignoring comments.
-       Returns the content of params in turn.
+    """Fixture for testing with and without the parser ignoring comments.
+    Returns the content of params in turn.
 
-    '''
+    """
     return request.param

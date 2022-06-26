@@ -32,10 +32,10 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-''' Test Fortran 2003 rule R471: this file tests the support for the
+""" Test Fortran 2003 rule R471: this file tests the support for the
 various forms of implicit loop control within an array constructor.
 
-'''
+"""
 
 import pytest
 from fparser.common.readfortran import FortranStringReader
@@ -45,8 +45,8 @@ from fparser.two import Fortran2003
 
 @pytest.mark.usefixtures("f2003_create", "fake_symbol_table")
 def test_implicit_loop_constructor():
-    ''' Test array constructor with implicit loop containing an intrinsic
-    call. '''
+    """Test array constructor with implicit loop containing an intrinsic
+    call."""
     fcode = "WHERE((/(JBODY,JBODY=1,SIZE(ARR1(:)))/)/=1) ARR1(:)=1.0"
     reader = FortranStringReader(fcode)
     ast = Fortran2003.Where_Stmt(reader)
@@ -59,8 +59,8 @@ def test_implicit_loop_constructor():
 
 @pytest.mark.usefixtures("f2003_create")
 def test_implied_do_no_match():
-    ''' R471 - implied-do-control must contain an "=" and 2 or three integer
-    expressions. '''
+    """R471 - implied-do-control must contain an "=" and 2 or three integer
+    expressions."""
     reader = FortranStringReader("j=1,2,1")
     assert Fortran2003.Ac_Implied_Do_Control(reader)
     # Missing '='

@@ -32,11 +32,11 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-'''Test Fortran 2008 rule R510
+"""Test Fortran 2008 rule R510
 
     deferred-coshape-spec is :
 
-'''
+"""
 
 import pytest
 from fparser.two.Fortran2008 import Deferred_Coshape_Spec
@@ -45,15 +45,15 @@ from fparser.two import Fortran2003
 
 @pytest.mark.usefixtures("f2008_create")
 def test_deferred_coshape_spec():
-    '''Test parsing of deferred_coshape_spec.'''
-    obj = Deferred_Coshape_Spec(':')
+    """Test parsing of deferred_coshape_spec."""
+    obj = Deferred_Coshape_Spec(":")
     assert isinstance(obj, Deferred_Coshape_Spec), repr(obj)
-    assert str(obj) == ':'
+    assert str(obj) == ":"
 
 
 @pytest.mark.usefixtures("f2008_create")
-@pytest.mark.parametrize('attr', ['', ' :', ': ', '  : ', '::', '5'])
+@pytest.mark.parametrize("attr", ["", " :", ": ", "  : ", "::", "5"])
 def test_invalid_deferred_coshape_spec(attr):
-    '''Test that invalid deferred_coshape_spec raise exception.'''
+    """Test that invalid deferred_coshape_spec raise exception."""
     with pytest.raises(Fortran2003.NoMatchError):
         _ = Deferred_Coshape_Spec(attr)

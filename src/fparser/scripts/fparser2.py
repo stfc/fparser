@@ -64,7 +64,7 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 # DAMAGE.
 
-''' Example script to parse a Fortran program using fparser '''
+""" Example script to parse a Fortran program using fparser """
 
 import logging
 import sys
@@ -79,25 +79,25 @@ except ImportError:
 
 
 def runner(_, options, args):
-    '''
+    """
     Function to read, parse and output Fortran source code.
 
     :param options: object constructed by OptionParser with cmd-line flags.
     :param args: list of Fortran files to parse.
     :type args: list of str
 
-    '''
+    """
     from fparser.two.parser import ParserFactory
     from fparser.two.Fortran2003 import FortranSyntaxError, InternalError
     from fparser.common.readfortran import FortranFileReader
+
     if not args:
         print("Error: No fortran files specified", file=sys.stderr)
         raise SystemExit(1)
     for filename in args:
         print("File: '{0}'".format(filename), file=sys.stderr)
         try:
-            reader = FortranFileReader(filename,
-                                       ignore_comments=False)
+            reader = FortranFileReader(filename, ignore_comments=False)
         except IOError as error:
             print(error, file=sys.stderr)
             continue
@@ -115,7 +115,7 @@ def runner(_, options, args):
 
 
 def main():
-    ''' Check arguments before parsing code '''
+    """Check arguments before parsing code"""
     parser = OptionParser()
     set_fparser_options(parser)
     options, args = parser.parse_args()

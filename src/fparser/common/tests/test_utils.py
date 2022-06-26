@@ -42,7 +42,7 @@ from fparser.common.utils import split_comma, ParseError
 
 
 def test_split_comma():
-    ''' Test the split_comma() function '''
+    """Test the split_comma() function"""
     items = split_comma("hello, goodbye")
     print(items)
     assert items[0] == "hello"
@@ -57,13 +57,13 @@ def test_split_comma():
 
 
 def test_split_comma_exceptions():
-    ''' Test that we raise the expected exceptions if we don't supply
-    the brackets in the right form '''
+    """Test that we raise the expected exceptions if we don't supply
+    the brackets in the right form"""
     with pytest.raises(ParseError) as excinfo:
         _ = split_comma("one, two", brackets="()")
     assert "brackets must be a tuple" in str(excinfo.value)
     with pytest.raises(ParseError) as excinfo:
-        _ = split_comma("one, two", brackets=("()", ))
+        _ = split_comma("one, two", brackets=("()",))
     assert "brackets tuple must contain just two items" in str(excinfo.value)
     with pytest.raises(ParseError) as excinfo:
         _ = split_comma("one, two", brackets=("(", "(", "("))
@@ -71,14 +71,13 @@ def test_split_comma_exceptions():
 
 
 def test_split_bracketed_list():
-    ''' Test the splitting of a list bracketed with parentheses '''
+    """Test the splitting of a list bracketed with parentheses"""
     items = split_comma("(well(1), this(is), it)", brackets=("(", ")"))
     print(items)
     assert items[0] == "well(1)"
     assert items[1] == "this(is)"
     # With superfluous white space
-    items = split_comma("  (  well(1), this(is), it  )  ",
-                        brackets=("(", ")"))
+    items = split_comma("  (  well(1), this(is), it  )  ", brackets=("(", ")"))
     print(items)
     assert items[0] == "well(1)"
     assert items[1] == "this(is)"
@@ -95,9 +94,10 @@ def test_split_bracketed_list():
 
 
 def test_extract_bracketed_list():
-    ''' Test the extraction and parsing of a list within parentheses within
-    a larger string '''
+    """Test the extraction and parsing of a list within parentheses within
+    a larger string"""
     from fparser.common.utils import extract_bracketed_list_items
+
     items = extract_bracketed_list_items("hello (this, is, a) test")
     assert items[0] == "this"
     assert items[1] == "is"
@@ -105,22 +105,19 @@ def test_extract_bracketed_list():
 
 
 def test_extract_bracketed_list_err():
-    ''' Test that we get the expected errors if the string passed into
-    extract_bracketed_list_items() does not have the correct format '''
+    """Test that we get the expected errors if the string passed into
+    extract_bracketed_list_items() does not have the correct format"""
     from fparser.common.utils import extract_bracketed_list_items
+
     with pytest.raises(ParseError) as excinfo:
         _ = extract_bracketed_list_items("hello (this, is, wrong(")
-    assert "more than one opening/closing parenthesis found" in \
-        str(excinfo.value)
+    assert "more than one opening/closing parenthesis found" in str(excinfo.value)
     with pytest.raises(ParseError) as excinfo:
         _ = extract_bracketed_list_items("hello )this, is, wrong)")
-    assert "more than one opening/closing parenthesis found" in \
-        str(excinfo.value)
+    assert "more than one opening/closing parenthesis found" in str(excinfo.value)
     with pytest.raises(ParseError) as excinfo:
         _ = extract_bracketed_list_items("hello (this, is, wrong) (too)")
-    assert "more than one opening/closing parenthesis found" in \
-        str(excinfo.value)
+    assert "more than one opening/closing parenthesis found" in str(excinfo.value)
     with pytest.raises(ParseError) as excinfo:
         _ = extract_bracketed_list_items("hello )this, is, wrong( too")
-    assert "failed to find expression within parentheses in" in \
-        str(excinfo.value)
+    assert "failed to find expression within parentheses in" in str(excinfo.value)

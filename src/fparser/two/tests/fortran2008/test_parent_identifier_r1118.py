@@ -32,7 +32,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-'''Test Fortran 2008 rule R1118 (C1113).
+"""Test Fortran 2008 rule R1118 (C1113).
 
    parent-identifier is ancestor-module-name [ : parent-submodule-name ]
 
@@ -43,72 +43,71 @@
    It is not possible to test C1113 with fparser as the names may be
    in different files.
 
-'''
+"""
 import pytest
 from fparser.two.utils import NoMatchError
 from fparser.two.Fortran2008 import Parent_Identifier
 
 
 def test_simple_1(f2008_create):
-    '''Test the parsing of a minimal parent-identifier statement.'''
+    """Test the parsing of a minimal parent-identifier statement."""
     result = Parent_Identifier("modulename")
     assert str(result) == "modulename"
 
 
 def test_simple_2(f2008_create):
-    '''Test the parsing of a minimal parent-identifier statement.'''
+    """Test the parsing of a minimal parent-identifier statement."""
     result = Parent_Identifier("modulename : submodulename")
     assert str(result) == "modulename:submodulename"
 
 
 def test_simple_error1(f2008_create):
-    '''Test a parent_identifier statement with a syntax error raises an
+    """Test a parent_identifier statement with a syntax error raises an
     exception.
 
-    '''
+    """
     with pytest.raises(NoMatchError) as excinfo:
         dummy_ = Parent_Identifier("modulename ; submodulename")
-    assert ("Parent_Identifier: 'modulename ; submodulename'"
-            in str(excinfo.value))
+    assert "Parent_Identifier: 'modulename ; submodulename'" in str(excinfo.value)
 
 
 def test_simple_error2(f2008_create):
-    '''Test a parent_identifier statement with a syntax error raises an
+    """Test a parent_identifier statement with a syntax error raises an
     exception.
 
-    '''
+    """
     with pytest.raises(NoMatchError) as excinfo:
         dummy_ = Parent_Identifier("modulename :")
     assert "Parent_Identifier: 'modulename :'" in str(excinfo.value)
 
 
 def test_simple_error3(f2008_create):
-    '''Test a parent_identifier statement with a syntax error raises an
+    """Test a parent_identifier statement with a syntax error raises an
     exception.
 
-    '''
+    """
     with pytest.raises(NoMatchError) as excinfo:
         dummy_ = Parent_Identifier(": submodulename")
     assert "Parent_Identifier: ': submodulename'" in str(excinfo.value)
 
 
 def test_simple_error4(f2008_create):
-    '''Test a parent_identifier statement with a syntax error raises an
+    """Test a parent_identifier statement with a syntax error raises an
     exception.
 
-    '''
+    """
     with pytest.raises(NoMatchError) as excinfo:
         dummy_ = Parent_Identifier("modulename : submodulename : anothername")
-    assert ("Parent_Identifier: 'modulename : submodulename : anothername'"
-            in str(excinfo.value))
+    assert "Parent_Identifier: 'modulename : submodulename : anothername'" in str(
+        excinfo.value
+    )
 
 
 def test_simple_error5(f2008_create):
-    '''Test a parent-identifier statement with additional content after
+    """Test a parent-identifier statement with additional content after
     the match raises an exception.
 
-    '''
+    """
     with pytest.raises(NoMatchError) as excinfo:
         dummy_ = Parent_Identifier("modulename : submodulename :")
-    assert ("Parent_Identifier: 'modulename : submodulename :'"
-            in str(excinfo.value))
+    assert "Parent_Identifier: 'modulename : submodulename :'" in str(excinfo.value)

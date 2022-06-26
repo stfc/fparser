@@ -960,6 +960,14 @@ Python versions and the coverage reports are uploaded automatically to CodeCov
 (https://codecov.io/gh/stfc/fparser). The configuration for this is in the
 `.github/workflows/unit-tests.yml` file.
 
+In addition, an Action is also used check that all of the code conforms
+to Black (https://black.readthedocs.io) formatting. It is up to the developer
+to ensure that this passes (e.g. by running `black` locally and committing
+the results). Note that it is technically possibly to have the Action
+actually make the changes and commit them but this was found to break
+the Github review process since the automated commit is not permitted to
+trigger further Actions and this then leaves GitHub thinking that the
+various checks have not run.
 
 Test Fixtures
 -------------

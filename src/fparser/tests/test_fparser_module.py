@@ -40,26 +40,27 @@ import os
 
 
 def test_fparser_logging_handler(tmpdir, caplog):
-    '''Test the custom error handler that is configured in the __init__.py
+    """Test the custom error handler that is configured in the __init__.py
     file.  Invalid characters in an input file are skipped and logging
     messages are created.
 
-    '''
+    """
     content = "HELLO"
-    invalid_content = u"\xca".join(content)
+    invalid_content = "\xca".join(content)
     filepath = os.path.join(str(tmpdir), "tmp_in.f90")
     # Create the input file
-    with open(filepath, "w", encoding='UTF-8') as tmp_file:
+    with open(filepath, "w", encoding="UTF-8") as tmp_file:
         tmp_file.write(invalid_content)
     # Specify encoding as 'ascii' to trigger errors for the non-ascii chars.
-    with open(filepath, "r", errors="fparser-logging",
-              encoding='ascii') as cfile:
+    with open(filepath, "r", errors="fparser-logging", encoding="ascii") as cfile:
         output = cfile.read()
     assert output == content
     for record in caplog.records:
-        assert record.levelname != 'CRITICAL'
-    assert ("Skipped bad character in input file. Error returned was 'ascii' "
-            "codec can't decode byte ") in caplog.text
+        assert record.levelname != "CRITICAL"
+    assert (
+        "Skipped bad character in input file. Error returned was 'ascii' "
+        "codec can't decode byte "
+    ) in caplog.text
     # Can't check the actual value as some versions of Python3 return
     # a different value to the one above.
     assert "in position 1: ordinal not in range(128)." in caplog.text

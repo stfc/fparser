@@ -29,16 +29,16 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-'''Tests for the fparser2_bench script.
+"""Tests for the fparser2_bench script.
 
-'''
+"""
 
 import pytest
 from fparser.scripts import fparser2_bench
 
 
 def test_gen_sub():
-    ''' Check the gen_sub() routine works as expected. '''
+    """Check the gen_sub() routine works as expected."""
     code = fparser2_bench.gen_sub(3)
     assert "subroutine g3(x)\n" in code
     assert "do i = 3, 12\n" in code
@@ -46,7 +46,7 @@ def test_gen_sub():
 
 
 def test_create_bench():
-    ''' Check the create_bench() routine works as expected. '''
+    """Check the create_bench() routine works as expected."""
     code = fparser2_bench.create_bench(3)
     assert "program bench3\n" in code
     assert code.count("end subroutine") == 3
@@ -56,16 +56,18 @@ def test_create_bench():
 
 
 def test_runner_invalid_num_routines():
-    ''' Test the checking on the value of the supplied num_routines
-    parameter. '''
+    """Test the checking on the value of the supplied num_routines
+    parameter."""
     with pytest.raises(ValueError) as err:
         fparser2_bench.runner(0)
-    assert ("Number of routines to create must be a positive, non-zero "
-            "integer but got: 0" in str(err.value))
+    assert (
+        "Number of routines to create must be a positive, non-zero "
+        "integer but got: 0" in str(err.value)
+    )
 
 
 def test_runner(capsys):
-    ''' Check that normal usage gives the expected benchmark output. '''
+    """Check that normal usage gives the expected benchmark output."""
     fparser2_bench.runner(3)
     stdout, stderr = capsys.readouterr()
     assert stderr == ""

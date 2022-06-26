@@ -1,4 +1,4 @@
-# Modified work Copyright (c) 2017 Science and Technology Facilities Council
+# Modified work Copyright (c) 2017-2022 Science and Technology Facilities Council.
 # Original work Copyright (c) 1999-2008 Pearu Peterson
 
 # All rights reserved.
@@ -64,8 +64,9 @@
 
 from fparser import api
 
+
 def test_reproduce_issue():
-    source_str = '''\
+    source_str = """\
 MODULE testa
 
 TYPE t
@@ -83,11 +84,10 @@ v  (2) % x = 42
 
 END SUBROUTINE f
 END MODULE testa
-'''
-    tree = api.parse(source_str, isfree=True, isstrict=False,
-                     ignore_comments=False)
-    r = str(tree).strip()
-    assert r.split('\n')[1:]=='''
+"""
+    tree = api.parse(source_str, isfree=True, isstrict=False, ignore_comments=False)
+    result = str(tree).strip()
+    expected = """
 !BEGINSOURCE <cStringIO.StringI object at 0x2a1ee70> mode=free
   MODULE testa
 
@@ -107,4 +107,5 @@ END MODULE testa
     END SUBROUTINE f
   END MODULE testa
 
-    '''.strip().split('\n')[1:],repr(r)
+    """
+    assert result.split("\n")[1:] == expected.strip().split("\n")[1:], repr(result)

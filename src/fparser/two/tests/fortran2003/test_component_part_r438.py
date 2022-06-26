@@ -32,11 +32,11 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-'''Test Fortran 2003 rule R438: this module contains pytest tests for the
+"""Test Fortran 2003 rule R438: this module contains pytest tests for the
    support for the components of a derived type. Note that only condition
    C449 is tested for here. The other conditions (C436-C452) are untested,
    this is the subject of #232.
-'''
+"""
 
 import pytest
 from fparser.api import get_reader
@@ -45,14 +45,12 @@ from fparser.two.utils import NoMatchError
 
 
 @pytest.mark.usefixtures("f2003_create")
-@pytest.mark.parametrize("var_type", ["integer",
-                                      "logical",
-                                      "character(len=1)",
-                                      "real*8",
-                                      "real(r_def)"])
+@pytest.mark.parametrize(
+    "var_type", ["integer", "logical", "character(len=1)", "real*8", "real(r_def)"]
+)
 def test_data_component_part(var_type):
-    ''' Test that various data component declarations are
-    recognised. R440. '''
+    """Test that various data component declarations are
+    recognised. R440."""
     code = var_type + " :: iflag"
     reader = get_reader(code, isfree=True, isstrict=True)
     obj = Component_Part(reader)
@@ -61,7 +59,7 @@ def test_data_component_part(var_type):
 
 @pytest.mark.usefixtures("f2003_create")
 def test_invalid_data_component_part():
-    ''' Check that we don't get a match for an invalid component decln. '''
+    """Check that we don't get a match for an invalid component decln."""
     code = "log :: iflag"
     reader = get_reader(code)
     with pytest.raises(NoMatchError):
@@ -69,13 +67,13 @@ def test_invalid_data_component_part():
 
 
 @pytest.mark.usefixtures("f2003_create")
-@pytest.mark.parametrize("interface, attributes",
-                         [("", "pointer, nopass"),
-                          ("real_func", "pointer"),
-                          ("real_func", "pointer, pass")])
+@pytest.mark.parametrize(
+    "interface, attributes",
+    [("", "pointer, nopass"), ("real_func", "pointer"), ("real_func", "pointer, pass")],
+)
 def test_proc_component_part(interface, attributes):
-    ''' Test that various procedure component declarations are
-    recognised. R445. '''
+    """Test that various procedure component declarations are
+    recognised. R445."""
     code = "procedure({0}), {1} :: my_proc".format(interface, attributes)
     reader = get_reader(code)
     obj = Component_Part(reader)
@@ -83,15 +81,20 @@ def test_proc_component_part(interface, attributes):
 
 
 @pytest.mark.usefixtures("f2003_create")
-@pytest.mark.parametrize("invalid_code", ["procure(), nopass :: my_proc",
-                                          "procedure, nopass :: my_proc",
-                                          "procedure), nopass :: my_proc",
-                                          "procedure(, nopass :: my_proc",
-                                          "procedure() nopass :: my_proc",
-                                          "procedure(), nopass my_proc"])
+@pytest.mark.parametrize(
+    "invalid_code",
+    [
+        "procure(), nopass :: my_proc",
+        "procedure, nopass :: my_proc",
+        "procedure), nopass :: my_proc",
+        "procedure(, nopass :: my_proc",
+        "procedure() nopass :: my_proc",
+        "procedure(), nopass my_proc",
+    ],
+)
 def test_invalid_proc_component(invalid_code):
-    ''' Check that we don't get a match for an invalid procedure
-    declaration. '''
+    """Check that we don't get a match for an invalid procedure
+    declaration."""
     reader = get_reader(invalid_code)
     with pytest.raises(NoMatchError):
         Component_Part(reader)
@@ -100,8 +103,8 @@ def test_invalid_proc_component(invalid_code):
 @pytest.mark.usefixtures("f2003_create")
 @pytest.mark.parametrize("attributes", ["nopass", "pass"])
 def test_proc_component_pointer(attributes):
-    ''' R445, C449: POINTER shall appear in each
-    proc-component-attr-spec-list. '''
+    """R445, C449: POINTER shall appear in each
+    proc-component-attr-spec-list."""
     code = "procedure(), {0} :: my_proc".format(attributes)
     reader = get_reader(code)
     with pytest.raises(NoMatchError):

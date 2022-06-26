@@ -32,26 +32,26 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-'''Module which provides pytest fixtures for use by files in this
+"""Module which provides pytest fixtures for use by files in this
 directory
 
-'''
+"""
 import pytest
 from fparser.two.parser import ParserFactory
 
 
 @pytest.fixture(autouse=True)
 def f2008_create():
-    '''Create a fortran 2008 parser class hierarchy'''
+    """Create a fortran 2008 parser class hierarchy"""
     _ = ParserFactory().create(std="f2008")
 
 
 @pytest.fixture
 def f2008_parser():
-    '''Create a Fortran 2008 parser class hierarchy and return the parser
+    """Create a Fortran 2008 parser class hierarchy and return the parser
     for usage in tests.
 
     :return: a Program class (not object) for use with the Fortran reader.
     :rtype: :py:class:`fparser.two.Fortran2003.Program`
-    '''
-    return ParserFactory().create(std='f2008')
+    """
+    return ParserFactory().create(std="f2008")

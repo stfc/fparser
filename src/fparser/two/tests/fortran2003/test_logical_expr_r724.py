@@ -32,20 +32,23 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-'''Test Fortran 2003 rule R724 : This file tests the support for a
+"""Test Fortran 2003 rule R724 : This file tests the support for a
 Fortran logical expression.
 
-'''
+"""
 
 import pytest
-from fparser.two.Fortran2003 import Logical_Expr, Logical_Literal_Constant, \
-    Equiv_Operand
+from fparser.two.Fortran2003 import (
+    Logical_Expr,
+    Logical_Literal_Constant,
+    Equiv_Operand,
+)
 from fparser.two.utils import NoMatchError
 
 
 @pytest.mark.usefixtures("f2003_create")
 def test_simple_case():
-    '''Test that a simple expression gives the expected result.'''
+    """Test that a simple expression gives the expected result."""
     result = Logical_Expr(".true.")
     assert isinstance(result, Logical_Literal_Constant)
     assert str(result) == ".TRUE."
@@ -54,30 +57,31 @@ def test_simple_case():
 
 @pytest.mark.usefixtures("f2003_create", "fake_symbol_table")
 def test_complicated_case():
-    '''Test that a more complicated expression gives the expected
+    """Test that a more complicated expression gives the expected
     result.
 
-    '''
-    result = Logical_Expr(
-        "(f0 .lt. f1) .and. abs(x1-x0) .gt. abs(x2) .or.  .not. root")
+    """
+    result = Logical_Expr("(f0 .lt. f1) .and. abs(x1-x0) .gt. abs(x2) .or.  .not. root")
     assert isinstance(result, Equiv_Operand)
-    assert str(result) == ("(f0 .LT. f1) .AND. ABS(x1 - x0) .GT. ABS(x2) "
-                           ".OR. .NOT. root")
+    assert str(result) == (
+        "(f0 .LT. f1) .AND. ABS(x1 - x0) .GT. ABS(x2) " ".OR. .NOT. root"
+    )
     assert repr(result).replace("u'", "'") == (
         "Equiv_Operand(Or_Operand(Parenthesis('(', Level_4_Expr(Name('f0'), "
         "'.LT.', Name('f1')), ')'), '.AND.', Level_4_Expr(Intrinsic_Function"
         "_Reference(Intrinsic_Name('ABS'), Actual_Arg_Spec_List(',', (Level_"
         "2_Expr(Name('x1'), '-', Name('x0')),))), '.GT.', Intrinsic_Function"
         "_Reference(Intrinsic_Name('ABS'), Actual_Arg_Spec_List(',', (Name('"
-        "x2'),))))), '.OR.', And_Operand('.NOT.', Name('root')))")
+        "x2'),))))), '.OR.', And_Operand('.NOT.', Name('root')))"
+    )
 
 
-@pytest.mark.parametrize("string",
-                         ["1", "b'1010'", "o'7070'", "h'f0f0'", "1.0",
-                          "(1.0,1.0)", "'hello'"])
+@pytest.mark.parametrize(
+    "string", ["1", "b'1010'", "o'7070'", "h'f0f0'", "1.0", "(1.0,1.0)", "'hello'"]
+)
 @pytest.mark.usefixtures("f2003_create")
 def test_c705(string):
-    '''Check that invalid literal constants do not match. Note, there are
+    """Check that invalid literal constants do not match. Note, there are
     many other cases that are not currently checked in fparser.
 
     In theory -1 should become a signed_int_literal_constant and then
@@ -85,6 +89,6 @@ def test_c705(string):
     Signed_Real_Literal_Constant and then fail to match. However the
     "-" is treated as a unary expression so this never happens.
 
-    '''
+    """
     with pytest.raises(NoMatchError):
         _ = Logical_Expr(string)

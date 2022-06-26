@@ -32,10 +32,10 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-'''Test Fortran 2003 rule R311 : This file tests the support for a
+"""Test Fortran 2003 rule R311 : This file tests the support for a
 defined operator.
 
-'''
+"""
 
 import pytest
 from fparser.two.Fortran2003 import Defined_Operator
@@ -43,11 +43,11 @@ from fparser.two.utils import NoMatchError
 
 
 def test_defined_operator(f2003_create):
-    '''Check that correct defined operator input is parsed correctly. No
+    """Check that correct defined operator input is parsed correctly. No
     need to test all options as they will be tested by the
     subclasses.
 
-    '''
+    """
     # defined unary or binary op
     myinput = ".inv."
     ast = Defined_Operator(myinput)
@@ -61,11 +61,11 @@ def test_defined_operator(f2003_create):
 
 
 def test_parse_errors(f2003_create):
-    '''The full set of errors will be checked by the subclass tests.  We
+    """The full set of errors will be checked by the subclass tests.  We
     just check a few here to make sure the correct NoMatchError
     exception is raised at this level.
 
-    '''
+    """
     for myinput in ["", "  ", ".inv", "inv.", ".false.", "***"]:
         with pytest.raises(NoMatchError) as excinfo:
             _ = Defined_Operator(myinput)

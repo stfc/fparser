@@ -63,20 +63,21 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 # DAMAGE.
 
-'''
+"""
 Provides functions to determine whether a piece of Fortran source is free or
 fixed format. It also tries to differentiate between strict and "pyf" although
 I'm not sure what that is.
 
-'''
+"""
 import os
 import re
 
 
 ##############################################################################
 
-class FortranFormat():
-    '''
+
+class FortranFormat:
+    """
     Describes the nature of a piece of Fortran source.
 
     Source can be fixed or free format. It can also be "strict" or
@@ -88,12 +89,13 @@ class FortranFormat():
     :param bool is_strict: some amount of strictness.
     :param bool enable_f2py: whether f2py directives are enabled or treated \
                              as comments (the default).
-    '''
+    """
+
     def __init__(self, is_free, is_strict, enable_f2py=False):
         if is_free is None:
-            raise Exception('FortranFormat does not accept a None is_free')
+            raise Exception("FortranFormat does not accept a None is_free")
         if is_strict is None:
-            raise Exception('FortranFormat does not accept a None is_strict')
+            raise Exception("FortranFormat does not accept a None is_strict")
 
         self._is_free = is_free
         self._is_strict = is_strict
@@ -101,19 +103,19 @@ class FortranFormat():
 
     @classmethod
     def from_mode(cls, mode):
-        '''
+        """
         Constructs a FortranFormat object from a mode string.
 
         Arguments:
             mode - (String) One of 'free', 'fix', 'f77' or 'pyf'
-        '''
-        if mode == 'free':
+        """
+        if mode == "free":
             is_free, is_strict = True, False
-        elif mode == 'fix':
+        elif mode == "fix":
             is_free, is_strict = False, False
-        elif mode == 'f77':
+        elif mode == "f77":
             is_free, is_strict = False, True
-        elif mode == 'pyf':
+        elif mode == "pyf":
             is_free, is_strict = True, True
         else:
             raise NotImplementedError(repr(mode))
@@ -121,87 +123,89 @@ class FortranFormat():
 
     def __eq__(self, other):
         if isinstance(other, FortranFormat):
-            return self.is_free == other.is_free \
-                   and self.is_strict == other.is_strict \
-                   and self.f2py_enabled == other.f2py_enabled
+            return (
+                self.is_free == other.is_free
+                and self.is_strict == other.is_strict
+                and self.f2py_enabled == other.f2py_enabled
+            )
         raise NotImplementedError
 
     def __str__(self):
         if self.is_strict:
-            string = 'Strict'
+            string = "Strict"
         else:
-            string = 'Non-strict'
+            string = "Non-strict"
 
         if self.is_free:
-            string += ' free'
+            string += " free"
         else:
-            string += ' fixed'
+            string += " fixed"
 
-        return string + ' format'
+        return string + " format"
 
     @property
     def is_free(self):
-        '''
+        """
         Returns true for free format.
-        '''
+        """
         return self._is_free
 
     @property
     def is_fixed(self):
-        '''
+        """
         Returns true for fixed format.
-        '''
+        """
         return not self._is_free
 
     @property
     def is_strict(self):
-        '''
+        """
         Returns true for strict format.
-        '''
+        """
         return self._is_strict
 
     @property
     def is_f77(self):
-        '''
+        """
         Returns true for strict fixed format.
-        '''
+        """
         return not self._is_free and self._is_strict
 
     @property
     def is_fix(self):
-        '''
+        """
         Returns true for slack fixed format.
-        '''
+        """
         return not self._is_free and not self._is_strict
 
     @property
     def is_pyf(self):
-        '''
+        """
         Returns true for strict free format.
-        '''
+        """
         return self._is_free and self._is_strict
 
     @property
     def f2py_enabled(self):
-        '''
+        """
         :returns: whether or not f2py directives are enabled.
         :rtype: bool
-        '''
+        """
         return self._f2py_enabled
 
     @property
     def mode(self):
-        '''
+        """
         Returns a string representing this format.
-        '''
+        """
         if self._is_free and self._is_strict:
-            mode = 'pyf'
+            mode = "pyf"
         elif self._is_free:
-            mode = 'free'
+            mode = "free"
         elif self.is_fix:
-            mode = 'fix'
+            mode = "fix"
         elif self.is_f77:
-            mode = 'f77'
+            mode = "f77"
         # While mode is determined by is_free and is_strict all permutations
         # are covered. There is no need for a final "else" clause as the
         # object cannot get wedged in an invalid mode.
@@ -210,26 +214,25 @@ class FortranFormat():
 
 ##############################################################################
 
-_HAS_F_EXTENSION = re.compile(r'.*[.](for|ftn|f77|f)\Z', re.I).match
+_HAS_F_EXTENSION = re.compile(r".*[.](for|ftn|f77|f)\Z", re.I).match
 
-_HAS_F_HEADER = re.compile(r'-[*]-\s*(fortran|f77)\s*-[*]-', re.I).search
-_HAS_F90_HEADER = re.compile(r'-[*]-\s*f90\s*-[*]-', re.I).search
-_HAS_F03_HEADER = re.compile(r'-[*]-\s*f03\s*-[*]-', re.I).search
-_HAS_F08_HEADER = re.compile(r'-[*]-\s*f08\s*-[*]-', re.I).search
-_HAS_FREE_HEADER = re.compile(r'-[*]-\s*(f90|f95|f03|f08)\s*-[*]-',
-                              re.I).search
-_HAS_FIX_HEADER = re.compile(r'-[*]-\s*fix\s*-[*]-', re.I).search
-_HAS_PYF_HEADER = re.compile(r'-[*]-\s*pyf\s*-[*]-', re.I).search
+_HAS_F_HEADER = re.compile(r"-[*]-\s*(fortran|f77)\s*-[*]-", re.I).search
+_HAS_F90_HEADER = re.compile(r"-[*]-\s*f90\s*-[*]-", re.I).search
+_HAS_F03_HEADER = re.compile(r"-[*]-\s*f03\s*-[*]-", re.I).search
+_HAS_F08_HEADER = re.compile(r"-[*]-\s*f08\s*-[*]-", re.I).search
+_HAS_FREE_HEADER = re.compile(r"-[*]-\s*(f90|f95|f03|f08)\s*-[*]-", re.I).search
+_HAS_FIX_HEADER = re.compile(r"-[*]-\s*fix\s*-[*]-", re.I).search
+_HAS_PYF_HEADER = re.compile(r"-[*]-\s*pyf\s*-[*]-", re.I).search
 
-_FREE_FORMAT_START = re.compile(r'[^c*!]\s*[^\s\d\t]', re.I).match
+_FREE_FORMAT_START = re.compile(r"[^c*!]\s*[^\s\d\t]", re.I).match
 
 
 def get_source_info_str(source):
-    '''
+    """
     Determines the format of Fortran source held in a string.
 
     Returns a FortranFormat object.
-    '''
+    """
     lines = source.splitlines()
     if not lines:
         return FortranFormat(False, False)
@@ -248,10 +251,9 @@ def get_source_info_str(source):
     is_free = False
     while line_tally > 0 and lines:
         line = lines.pop(0).rstrip()
-        if line and line[0] != '!':
+        if line and line[0] != "!":
             line_tally -= 1
-            if line[0] != '\t' and _FREE_FORMAT_START(line[:5]) \
-               or line[-1:] == '&':
+            if line[0] != "\t" and _FREE_FORMAT_START(line[:5]) or line[-1:] == "&":
                 is_free = True
                 break
 
@@ -260,8 +262,9 @@ def get_source_info_str(source):
 
 ##############################################################################
 
+
 def get_source_info(file_candidate):
-    '''
+    """
     Determines the format of Fortran source held in a file.
 
     :param file_candidate: a filename or a file object
@@ -270,8 +273,8 @@ def get_source_info(file_candidate):
     :returns: the Fortran format encoded as a string.
     :rtype: str
 
-    '''
-    if hasattr(file_candidate, 'name') and hasattr(file_candidate, 'read'):
+    """
+    if hasattr(file_candidate, "name") and hasattr(file_candidate, "read"):
         filename = file_candidate.name
 
         # Under Python 3 file.name holds an integer file handle when
@@ -282,15 +285,15 @@ def get_source_info(file_candidate):
     elif isinstance(file_candidate, str):
         filename = file_candidate
     else:
-        message = 'Argument must be a filename or file-like object.'
+        message = "Argument must be a filename or file-like object."
         raise ValueError(message)
 
     if filename:
         _, ext = os.path.splitext(filename)
-        if ext == '.pyf':
+        if ext == ".pyf":
             return FortranFormat(True, True)
 
-    if hasattr(file_candidate, 'read'):
+    if hasattr(file_candidate, "read"):
         # If the candidate object has a "read" method we assume it's a file
         # object.
         #
@@ -316,9 +319,11 @@ def get_source_info(file_candidate):
     # The 'fparser-logging' handler is setup in fparser/__init__.py and
     # ensures any occurrences of invalid characters are skipped and
     # logged.
-    with open(file_candidate, "r", encoding="utf-8",
-              errors='fparser-logging') as file_object:
+    with open(
+        file_candidate, "r", encoding="utf-8", errors="fparser-logging"
+    ) as file_object:
         string = get_source_info_str(file_object.read())
     return string
+
 
 ##############################################################################

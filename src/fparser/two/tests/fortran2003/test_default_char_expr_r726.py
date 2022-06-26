@@ -32,49 +32,53 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-'''Test Fortran 2003 rule R726 : This file tests the support for a
+"""Test Fortran 2003 rule R726 : This file tests the support for a
 Fortran character expression.
 
-'''
+"""
 
 import pytest
-from fparser.two.Fortran2003 import Default_Char_Expr, Char_Literal_Constant, \
-    Level_3_Expr
+from fparser.two.Fortran2003 import (
+    Default_Char_Expr,
+    Char_Literal_Constant,
+    Level_3_Expr,
+)
 from fparser.two.utils import NoMatchError
 
 
 @pytest.mark.usefixtures("f2003_create")
 def test_simple_case():
-    '''Test that a simple expression gives the expected result.'''
+    """Test that a simple expression gives the expected result."""
     result = Default_Char_Expr("'hello'")
     assert isinstance(result, Char_Literal_Constant)
     assert str(result) == "'hello'"
-    assert repr(result).replace("u\"", "\"") == (
-        "Char_Literal_Constant(\"'hello'\", None)")
+    assert repr(result).replace('u"', '"') == (
+        "Char_Literal_Constant(\"'hello'\", None)"
+    )
 
 
 @pytest.mark.usefixtures("f2003_create")
 def test_complicated_case():
-    '''Test that a more complicated expression gives the expected
+    """Test that a more complicated expression gives the expected
     result.
 
-    '''
-    result = Default_Char_Expr(
-        "'he'+'ll'//'o'")
+    """
+    result = Default_Char_Expr("'he'+'ll'//'o'")
     assert isinstance(result, Level_3_Expr)
     assert str(result) == "'he' + 'll' // 'o'"
-    assert repr(result).replace("u'", "'").replace("u\"", "\"") == (
+    assert repr(result).replace("u'", "'").replace('u"', '"') == (
         "Level_3_Expr(Level_2_Expr(Char_Literal_Constant(\"'he'\", None), "
         "'+', Char_Literal_Constant(\"'ll'\", None)), '//', "
-        "Char_Literal_Constant(\"'o'\", None))")
+        "Char_Literal_Constant(\"'o'\", None))"
+    )
 
 
-@pytest.mark.parametrize("string",
-                         ["1", "b'1010'", "o'7070'", "h'f0f0'", "1.0",
-                          "(1.0,1.0)", ".true."])
+@pytest.mark.parametrize(
+    "string", ["1", "b'1010'", "o'7070'", "h'f0f0'", "1.0", "(1.0,1.0)", ".true."]
+)
 @pytest.mark.usefixtures("f2003_create")
 def test_c707(string):
-    '''Check that invalid default literal constants do not match. Note,
+    """Check that invalid default literal constants do not match. Note,
     there are many other cases that are not currently checked in
     fparser.
 
@@ -83,6 +87,6 @@ def test_c707(string):
     Signed_Real_Literal_Constant and then fail to match. However the
     "-" is treated as a unary expression so this never happens.
 
-    '''
+    """
     with pytest.raises(NoMatchError):
         _ = Default_Char_Expr(string)

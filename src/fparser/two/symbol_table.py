@@ -32,27 +32,28 @@
 # POSSIBILITY OF SUCH DAMAGE.
 # -----------------------------------------------------------------------------
 
-'''
+"""
 The fparser2 symbol-table module. Defines various classes as well as
 the single, global SYMBOL_TABLES instance. The latter is a container
 for all of the top-level scoping units encountered during parsing.
 
-'''
+"""
 from collections import namedtuple
 
 
 class SymbolTableError(Exception):
-    ''' Base class exception for symbol-table related errors. '''
+    """Base class exception for symbol-table related errors."""
 
 
-class SymbolTables():
-    '''
+class SymbolTables:
+    """
     Class encapsulating functionality for the global symbol-tables object.
     This is a container for all symbol tables constructed while parsing
     code. All names are converted to lower case (since Fortran is not
     case sensitive).
 
-    '''
+    """
+
     def __init__(self):
         self._symbol_tables = {}
         # Those classes that correspond to a new scoping unit
@@ -64,32 +65,32 @@ class SymbolTables():
         self._enable_checks = False
 
     def __str__(self):
-        result = ("SymbolTables: {0} tables\n"
-                  "========================\n".format(
-                      len(self._symbol_tables)))
+        result = "SymbolTables: {0} tables\n" "========================\n".format(
+            len(self._symbol_tables)
+        )
         return result + "\n".join(sorted(self._symbol_tables.keys()))
 
     def enable_checks(self, value):
-        '''
+        """
         Sets whether or not to enable consistency checks in every symbol
         table that is created during a parse.
 
         :param bool value: whether or not checks are enabled.
 
-        '''
+        """
         self._enable_checks = value
 
     def clear(self):
-        '''
+        """
         Deletes any stored SymbolTables but retains the stored list of
         classes that define scoping units.
 
-        '''
+        """
         self._symbol_tables = {}
         self._current_scope = None
 
     def add(self, name):
-        '''
+        """
         Add a new symbol table with the supplied name. The name will be
         converted to lower case if necessary.
 
@@ -100,18 +101,19 @@ class SymbolTables():
 
         :raises SymbolTableError: if there is already an entry with the \
                                   supplied name.
-        '''
+        """
         lower_name = name.lower()
         if lower_name in self._symbol_tables:
             raise SymbolTableError(
                 "The table of top-level (un-nested) symbol tables already "
-                "contains an entry for '{0}'".format(lower_name))
+                "contains an entry for '{0}'".format(lower_name)
+            )
         table = SymbolTable(lower_name, checking_enabled=self._enable_checks)
         self._symbol_tables[lower_name] = table
         return table
 
     def lookup(self, name):
-        '''
+        """
         Find the named symbol table and return it.
 
         :param str name: the name of the required symbol table (not case \
@@ -120,22 +122,22 @@ class SymbolTables():
         :returns: the named symbol table.
         :rtype: :py:class:`fparser.two.symbol_table.SymbolTable`
 
-        '''
+        """
         return self._symbol_tables[name.lower()]
 
     @property
     def scoping_unit_classes(self):
-        '''
+        """
         :returns: the fparser2 classes that are taken to mark the start of \
                   a new scoping region.
         :rtype: list of types
 
-        '''
+        """
         return self._scoping_unit_classes
 
     @scoping_unit_classes.setter
     def scoping_unit_classes(self, value):
-        '''
+        """
         Set the list of fparser2 classes that are taken to mark the start of \
         a new scoping region.
 
@@ -144,25 +146,29 @@ class SymbolTables():
 
         :raises TypeError: if the supplied value is not a list of types.
 
-        '''
+        """
         if not isinstance(value, list):
-            raise TypeError("Supplied value must be a list but got '{0}'".
-                            format(type(value).__name__))
+            raise TypeError(
+                "Supplied value must be a list but got '{0}'".format(
+                    type(value).__name__
+                )
+            )
         if not all(isinstance(item, type) for item in value):
-            raise TypeError("Supplied list must contain only classes but "
-                            "got: {0}".format(value))
+            raise TypeError(
+                "Supplied list must contain only classes but " "got: {0}".format(value)
+            )
         self._scoping_unit_classes = value
 
     @property
     def current_scope(self):
-        '''
+        """
         :returns: the symbol table for the current scoping unit or None.
         :rtype: :py:class:`fparser.two.symbol_table.SymbolTable` or NoneType
-        '''
+        """
         return self._current_scope
 
     def enter_scope(self, name):
-        '''
+        """
         Called when the parser enters a new scoping region (i.e. when it
         encounters one of the classes listed in `_scoping_unit_classes`).
         Sets the 'current scope' to be the symbol table with the supplied name.
@@ -173,7 +179,7 @@ class SymbolTables():
 
         :param str name: name of the scoping region.
 
-        '''
+        """
         lname = name.lower()
 
         if not self._current_scope:
@@ -186,29 +192,31 @@ class SymbolTables():
         else:
             # We are already inside a scoping region so create a new table
             # and setup its parent/child connections.
-            table = SymbolTable(lname, parent=self._current_scope,
-                                checking_enabled=self._enable_checks)
+            table = SymbolTable(
+                lname, parent=self._current_scope, checking_enabled=self._enable_checks
+            )
             self._current_scope.add_child(table)
 
         # Finally, make this new table the current scope
         self._current_scope = table
 
     def exit_scope(self):
-        '''
+        """
         Marks the end of the processing of the current scoping unit. Since
         we are exiting the current scoping region, the new 'current scoping
         region' will be its parent.
 
         :raises SymbolTableError: if there is no current scope from which to \
                                   exit.
-        '''
+        """
         if not self._current_scope:
-            raise SymbolTableError("exit_scope() called but no current scope "
-                                   "exists.")
+            raise SymbolTableError(
+                "exit_scope() called but no current scope " "exists."
+            )
         self._current_scope = self._current_scope.parent
 
     def remove(self, name):
-        '''
+        """
         Removes the named symbol table and any descendants it may have.
         When searching for the named table, the current scope takes priority
         followed by the list of top-level symbol tables.
@@ -218,7 +226,7 @@ class SymbolTables():
         :raises SymbolTableError: if the named symbol table is not in the \
             current scope or in the list of top-level symbol tables.
 
-        '''
+        """
         lname = name.lower()
         if self._current_scope:
             try:
@@ -232,11 +240,12 @@ class SymbolTables():
         if lname not in self._symbol_tables:
             msg = "Failed to find a table named '{0}' in ".format(name)
             if self._current_scope:
-                msg += ("either the current scope (which contains {0}) or ".
-                        format([child.name for child in
-                                self._current_scope.children]))
+                msg += "either the current scope (which contains {0}) or ".format(
+                    [child.name for child in self._current_scope.children]
+                )
             msg += "the list of top-level symbol tables ({0}).".format(
-                list(self._symbol_tables.keys()))
+                list(self._symbol_tables.keys())
+            )
             raise SymbolTableError(msg)
 
         # Check that we're not currently somewhere inside the scope of the
@@ -247,13 +256,15 @@ class SymbolTables():
                 raise SymbolTableError(
                     "Cannot remove top-level symbol table '{0}' because the "
                     "current scope '{1}' has it as an ancestor.".format(
-                        name, self._current_scope.name))
+                        name, self._current_scope.name
+                    )
+                )
 
         del self._symbol_tables[lname]
 
 
-class SymbolTable():
-    '''
+class SymbolTable:
+    """
     Class implementing a single symbol table.
 
     Since this functionality is not yet fully mature, checks that new symbols
@@ -268,7 +279,8 @@ class SymbolTable():
     :param bool checking_enabled: whether or not validity checks are \
         performed for symbols added to the table.
 
-    '''
+    """
+
     # TODO #201 add support for other symbol properties (kind, shape
     # and visibility). We may need a distinct Symbol class so as to provide
     # type checking for the various properties.
@@ -297,11 +309,15 @@ class SymbolTable():
         uses = "Used modules:\n"
         if self._modules:
             uses += "\n".join(list(self._modules.keys())) + "\n"
-        return ("{0}Symbol Table '{1}'\n".format(header, self._name) +
-                symbols + uses + header)
+        return (
+            "{0}Symbol Table '{1}'\n".format(header, self._name)
+            + symbols
+            + uses
+            + header
+        )
 
     def add_data_symbol(self, name, primitive_type):
-        '''
+        """
         Creates a new Symbol with the specified properties and adds it to
         the symbol table. The supplied name is converted to lower case.
 
@@ -315,15 +331,18 @@ class SymbolTable():
                            wrong type.
         :raises SymbolTableError: if the symbol table already contains an
                                   entry with the supplied name.
-        '''
+        """
         if not isinstance(name, str):
-            raise TypeError("The name of the symbol must be a str but got "
-                            "'{0}'".format(type(name).__name__))
+            raise TypeError(
+                "The name of the symbol must be a str but got "
+                "'{0}'".format(type(name).__name__)
+            )
         # TODO #201 use an enumeration for the primitive type
         if not isinstance(primitive_type, str):
             raise TypeError(
                 "The primitive type of the symbol must be specified as a str "
-                "but got '{0}'".format(type(primitive_type).__name__))
+                "but got '{0}'".format(type(primitive_type).__name__)
+            )
 
         lname = name.lower()
 
@@ -331,22 +350,24 @@ class SymbolTable():
             if lname in self._data_symbols:
                 raise SymbolTableError(
                     f"Symbol table already contains a symbol for"
-                    f" a variable with name '{name}'")
+                    f" a variable with name '{name}'"
+                )
             if lname in self._modules:
                 raise SymbolTableError(
                     f"Symbol table already contains a use of a "
-                    f"module with name '{name}'")
+                    f"module with name '{name}'"
+                )
             for mod_name, var_list in self._modules.items():
                 if var_list and lname in var_list:
                     raise SymbolTableError(
                         f"Symbol table already contains a use of a symbol "
-                        f"named '{name}' from module '{mod_name}'")
+                        f"named '{name}' from module '{mod_name}'"
+                    )
 
-        self._data_symbols[lname] = SymbolTable.Symbol(lname,
-                                                       primitive_type.lower())
+        self._data_symbols[lname] = SymbolTable.Symbol(lname, primitive_type.lower())
 
     def add_use_symbols(self, name, only_list=None):
-        '''
+        """
         Creates an entry in the table for the USE of a module with the supplied
         name. If no `only_list` is supplied then this USE represents a wildcard
         import of all public symbols in the named module. If the USE statement
@@ -362,18 +383,22 @@ class SymbolTable():
 
         :raises TypeError: if either of the supplied parameters are of the \
                            wrong type.
-        '''
+        """
         if not isinstance(name, str):
-            raise TypeError("The name of the module must be a str but got "
-                            "'{0}'".format(type(name).__name__))
+            raise TypeError(
+                "The name of the module must be a str but got "
+                "'{0}'".format(type(name).__name__)
+            )
         if only_list and not isinstance(only_list, list):
-            raise TypeError("If present, the only_list must be a list but got "
-                            "'{0}'".format(type(only_list).__name__))
-        if only_list and not all(
-                isinstance(item, str) for item in only_list):
-            raise TypeError("If present, the only_list must be a list of str "
-                            "but got: {0}".format(
-                                [type(item).__name__ for item in only_list]))
+            raise TypeError(
+                "If present, the only_list must be a list but got "
+                "'{0}'".format(type(only_list).__name__)
+            )
+        if only_list and not all(isinstance(item, str) for item in only_list):
+            raise TypeError(
+                "If present, the only_list must be a list of str "
+                "but got: {0}".format([type(item).__name__ for item in only_list])
+            )
 
         # Convert the list of names to lower case
         if only_list is not None:
@@ -400,7 +425,7 @@ class SymbolTable():
             self._modules[lname] = lowered_list
 
     def lookup(self, name):
-        '''
+        """
         Lookup the symbol with the supplied name.
 
         :param str name: the name of the symbol to lookup (not case sensitive).
@@ -410,7 +435,7 @@ class SymbolTable():
 
         :raises KeyError: if the named symbol cannot be found in this or any \
                           parent scope.
-        '''
+        """
         # Fortran is not case sensitive so convert input to lowercase.
         lname = name.lower()
         if lname in self._data_symbols:
@@ -422,24 +447,24 @@ class SymbolTable():
 
     @property
     def name(self):
-        '''
+        """
         :returns: the name of this symbol table (scoping region).
         :rtype: str
-        '''
+        """
         return self._name
 
     @property
     def parent(self):
-        '''
+        """
         :returns: the parent symbol table (scoping region) that contains \
                   this one (if any).
         :rtype: :py:class:`fparser.two.symbol_table.SymbolTable` or NoneType
-        '''
+        """
         return self._parent
 
     @parent.setter
     def parent(self, value):
-        '''
+        """
         Set the parent scope for this symbol table.
 
         :param value: the parent symbol table.
@@ -447,15 +472,16 @@ class SymbolTable():
 
         :raises TypeError: if the supplied value is not None or a SymbolTable.
 
-        '''
+        """
         if value is not None and not isinstance(value, SymbolTable):
             raise TypeError(
                 "Unless it is None, the parent of a SymbolTable must also be "
-                "a SymbolTable but got '{0}'".format(type(value).__name__))
+                "a SymbolTable but got '{0}'".format(type(value).__name__)
+            )
         self._parent = value
 
     def add_child(self, child):
-        '''
+        """
         Adds a child symbol table (scoping region nested within this one).
 
         :param child: the nested symbol table.
@@ -463,14 +489,17 @@ class SymbolTable():
 
         :raises TypeError: if the supplied child is not a SymbolTable.
 
-        '''
+        """
         if not isinstance(child, SymbolTable):
-            raise TypeError("Expected a SymbolTable instance but got '{0}'".
-                            format(type(child).__name__))
+            raise TypeError(
+                "Expected a SymbolTable instance but got '{0}'".format(
+                    type(child).__name__
+                )
+            )
         self._children.append(child)
 
     def del_child(self, name):
-        '''
+        """
         Removes the named symbol table.
 
         :param str name: the name of the child symbol table to delete (not \
@@ -478,32 +507,34 @@ class SymbolTable():
 
         :raises KeyError: if the named table is not a child of this one.
 
-        '''
+        """
         lname = name.lower()
         for child in self._children:
             if child.name == lname:
                 self._children.remove(child)
                 break
         else:
-            raise KeyError("Symbol table '{0}' does not contain a table named "
-                           "'{1}'".format(self.name, name))
+            raise KeyError(
+                "Symbol table '{0}' does not contain a table named "
+                "'{1}'".format(self.name, name)
+            )
 
     @property
     def children(self):
-        '''
+        """
         :returns: the child (nested) symbol tables, if any.
         :rtype: list of :py:class:`fparser.two.symbol_table.SymbolTable`
-        '''
+        """
         return self._children
 
     @property
     def root(self):
-        '''
+        """
         :returns: the top-level symbol table that contains the current \
                   scoping region (symbol table).
         :rtype: :py:class:`fparser.two.symbol_table.SymbolTable`
 
-        '''
+        """
         current = self
         while current.parent:
             current = current.parent
