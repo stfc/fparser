@@ -1,4 +1,4 @@
-# Copyright (c) 2017-2020 Science and Technology Facilities Council
+# Copyright (c) 2017-2022 Science and Technology Facilities Council
 # All rights reserved.
 #
 # Modifications made as part of the fparser project are distributed
@@ -191,24 +191,21 @@ def test_prog_comments():
     #   |--> Comment
     #   |--> Main_Program
     #   .    |--> Program_Stmt
-    #   .    |--> Specification_Part
-    #   .    .    \--> Implicit_Part
-    #   .    .         \--> Comment
+    #   .    |--> Comment
     #        |--> Execution_Part
     #        |    |--> Write_Stmt
-    #        |    \--> Comment
+    #        |    |--> Comment
     #   .    .
     #   .
     #   |--> Comment
     from fparser.two.Fortran2003 import Main_Program, Write_Stmt, \
         End_Program_Stmt
-    walk(obj.children, Comment, debug=True)
     assert type(obj.content[0]) == Comment
     assert str(obj.content[0]) == "! A troublesome comment"
     assert type(obj.content[1]) == Main_Program
     main_prog = obj.content[1]
-    assert type(main_prog.content[1].content[0].content[0]) == Comment
-    assert (str(main_prog.content[1].content[0].content[0]) ==
+    assert type(main_prog.content[1]) == Comment
+    assert (str(main_prog.content[1]) ==
             "! A full comment line")
     exec_part = main_prog.content[2]
     assert type(exec_part.content[0]) == Write_Stmt
@@ -257,17 +254,15 @@ end function my_mod
     #    <class 'fparser.two.Fortran2003.Name'>
     #    <type 'NoneType'>
     #    <type 'NoneType'>
-    # <class 'fparser.two.Fortran2003.Specification_Part'>
-    #   <class 'fparser.two.Fortran2003.Implicit_Part'>
-    #     <class 'fparser.two.Fortran2003.Comment'>
+    #    <class 'fparser.two.Fortran2003.Comment'>
     #       <type 'str'>, "'! This is a function'"
-    comment = fn_unit.content[1].content[0].content[0]
+    comment = fn_unit.content[1]
     assert isinstance(comment, Comment)
     assert "! This is a function" in str(comment)
-    comment = fn_unit.content[1].content[2]
+    comment = fn_unit.content[2].content[2]
     assert isinstance(comment, Comment)
     assert "! Comment1" in str(comment)
-    exec_part = fn_unit.content[2]
+    exec_part = fn_unit.content[3]
     comment = exec_part.content[1]
     assert isinstance(comment, Comment)
     assert "! Comment2" in str(comment)
@@ -291,15 +286,15 @@ end subroutine my_mod
     reader = get_reader(source, isfree=True, ignore_comments=False)
     fn_unit = Subroutine_Subprogram(reader)
     assert isinstance(fn_unit, Subroutine_Subprogram)
-    spec_part = fn_unit.content[1]
-    comment = spec_part.content[0].content[0]
+    comment = fn_unit.content[1]
     assert isinstance(comment, Comment)
     assert "! First comment" in str(comment)
+    spec_part = fn_unit.children[2]
     comment = spec_part.content[2]
     assert isinstance(comment, Comment)
     assert comment.parent is spec_part
     assert "! Body comment" in str(comment)
-    exec_part = fn_unit.content[2]
+    exec_part = fn_unit.content[3]
     comment = exec_part.content[1]
     assert isinstance(comment, Comment)
     assert comment.parent is exec_part

@@ -76,19 +76,20 @@ def test_include(f2003_create):
         "include 'so should I'"), ignore_comments=False)
     result = BlockBase.match(startcls, subclasses, endcls, reader,
                              strict_order=True, once_only=True)
+    print(str(result))
     assert (
         "([Include_Stmt(Include_Filename('1')), Comment('! comment1'), "
-        "Program_Stmt('PROGRAM', Name('test')), Specification_Part("
-        "Implicit_Part(Include_Stmt(Include_Filename('2')), "
-        "Comment('! comment2')), Type_Declaration_Stmt(Intrinsic_Type_Spec"
-        "('INTEGER', None), None, Entity_Decl_List(',', (Entity_Decl(Name"
-        "('i'), None, None, None),))), Include_Stmt(Include_Filename('3'))), "
-        "Execution_Part(Comment('! comment3'), Assignment_Stmt(Name('i'), "
-        "'=', Int_Literal_Constant('1', None)), Include_Stmt("
+        "Program_Stmt('PROGRAM', Name('test')), Include_Stmt("
+        "Include_Filename('2')), Comment('! comment2'), Specification_Part"
+        "(Type_Declaration_Stmt(Intrinsic_Type_Spec('INTEGER', None), None, "
+        "Entity_Decl_List(',', (Entity_Decl(Name('i'), None, None, None),))), "
+        "Include_Stmt(Include_Filename('3')), Comment('! comment3')), "
+        "Execution_Part(Assignment_Stmt(Name('i'), '=', "
+        "Int_Literal_Constant('1', None)), Include_Stmt("
         "Include_Filename('4')), Comment('! comment4')), "
-        "Internal_Subprogram_Part(Contains_Stmt('CONTAINS'), "
-        "Include_Stmt(Include_Filename('5')), Comment('! comment5')), "
-        "End_Program_Stmt('PROGRAM', Name('test'))],)" in str(result))
+        "Internal_Subprogram_Part(Contains_Stmt('CONTAINS'), Include_Stmt("
+        "Include_Filename('5')), Comment('! comment5')), End_Program_Stmt("
+        "'PROGRAM', Name('test'))],)" in str(result))
     assert "should" not in str(result)
 
 

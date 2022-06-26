@@ -600,14 +600,18 @@ class BlockBase(Base):
                 start_name = obj.get_start_name()
 
         # Comments and Include statements are always valid sub-classes
-        classes = subclasses + [di.Comment, di.Include_Stmt]
+        # classes = subclasses + [di.Comment, di.Include_Stmt]
         # Preprocessor directives are always valid sub-classes
-        cpp_classes = [getattr(di.C99Preprocessor, cls_name)
-                       for cls_name in di.C99Preprocessor.CPP_CLASS_NAMES]
-        classes += cpp_classes
+        # cpp_classes = [getattr(di.C99Preprocessor, cls_name)
+        #                for cls_name in di.C99Preprocessor.CPP_CLASS_NAMES]
+        # classes += cpp_classes
+        classes = subclasses
         if endcls is not None:
             classes += [endcls]
             endcls_all = tuple([endcls]+endcls.subclasses[endcls.__name__])
+
+        # Deal with any preceding comments, includes, and/or directives
+        DynamicImport.add_comments_includes_directives(content, reader)
 
         try:
             # Start trying to match the various subclasses, starting from
@@ -677,6 +681,10 @@ class BlockBase(Base):
                     # We've found the enclosing end statement so break out
                     found_end = True
                     break
+
+                # Deal with any following comments, includes, and/or directives
+                DynamicImport.add_comments_includes_directives(content, reader)
+
                 if not strict_order:
                     # Return to start of classes list now that we've matched.
                     i = 0
