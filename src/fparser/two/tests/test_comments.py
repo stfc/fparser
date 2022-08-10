@@ -1,4 +1,4 @@
-# Copyright (c) 2017-2020 Science and Technology Facilities Council
+# Copyright (c) 2017-2022 Science and Technology Facilities Council
 # All rights reserved.
 #
 # Modifications made as part of the fparser project are distributed
@@ -34,7 +34,8 @@
 """ Module containing tests for aspects of fparser2 related to comments """
 
 import pytest
-from fparser.two.Fortran2003 import Program, Comment, Subroutine_Subprogram
+from fparser.two.Fortran2003 import (Program, Comment, Subroutine_Subprogram,
+                                     Execution_Part)
 from fparser.two.utils import walk
 from fparser.api import get_reader
 
@@ -409,3 +410,26 @@ end if
     assert "a big array" in str(ifstmt)
     cmt = get_child(ifstmt, Comment)
     assert cmt.parent is ifstmt
+
+
+def test_do_loop_coments():
+    """Check that comments around and within do loops appear in the expected
+    places in the tree."""
+    source = """\
+program test
+    integer :: arg1
+    integer :: iterator
+    !comment_out 1
+    arg1 = 10
+    !comment_out 2
+    do iterator = 0,arg1
+        !comment_in
+        print *, iterator
+    end do
+    !comment_out 3
+end program test"""
+    reader = get_reader(source, isfree=True, ignore_comments=False)
+    obj = Program(reader)
+    comments = walk(obj, Comment)
+    assert isinstance(comments[1].parent, Execution_Part)
+    assert isinstance(comments[2].parent, Execution_Part)
