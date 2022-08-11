@@ -34,8 +34,14 @@
 """ Module containing tests for aspects of fparser2 related to comments """
 
 import pytest
-from fparser.two.Fortran2003 import Program, Comment, Subroutine_Subprogram, \
-    Execution_Part, Specification_Part, Block_Nonlabel_Do_Construct
+from fparser.two.Fortran2003 import (
+    Program,
+    Comment,
+    Subroutine_Subprogram,
+    Execution_Part,
+    Specification_Part,
+    Block_Nonlabel_Do_Construct,
+)
 from fparser.two.utils import walk
 from fparser.api import get_reader
 
