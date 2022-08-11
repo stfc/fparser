@@ -11,11 +11,17 @@ parsed code to stdout.
 This program prints dependencies between Fortran source files to stdout,
 in a format suitable to be used in a Makefile. Usage:
 
-	$ $(PATH_TO_FPARSER)/example/create_dependencies.py *f90
-	configuration_mod.o: base_mesh_config_mod.o extrusion_uniform_config_mod.o \
-		finite_element_config_mod.o io_utility_mod.o partitioning_config_mod.o \
-		perturbation_bell_config_mod.o planet_config_mod.o timestepping_config_mod.o
-	write_diagnostics_mod.o: write_methods_mod.o
+	  $ $(PATH_TO_FPARSER)/example/create_dependencies.py *f90
+	  configuration_mod.o: base_mesh_config_mod.o extrusion_uniform_config_mod.o \
+		  finite_element_config_mod.o io_utility_mod.o partitioning_config_mod.o \
+		  perturbation_bell_config_mod.o planet_config_mod.o timestepping_config_mod.o
+	  write_diagnostics_mod.o: write_methods_mod.o
+
+It also supports files in subdirectories, e.g.:
+
+    fparser/example$ ./create_dependencies.py  test_files/*f90
+    test_files/b.o: test_files/a.o
+    test_files/c.o: test_files/a.o test_files/b.o
 
 ### Known issues:
 - If you do not have ``python`` in your path (e.g. you have only ``python3``
@@ -25,18 +31,18 @@ in a format suitable to be used in a Makefile. Usage:
   or modify the first line of the script to use ``python3`` instead of
   ``python``.
 - The script will only detect dependencies from the files specified on the
-  command line to files in the current directory. It assumes that the name in
-  the ``use`` statement is the same as the file name that stores the module.
+  command line to files provided on the command line. It assumes that the name
+  in the ``use`` statement is the same as the file name that stores the module.
   For example, if your code has:
 
   	  use mymodule
 
-  then it will look for any of the files ``mymodule.f90``, ``mymodule.F90``,
-  or ``mymodule.x90`` (the latter to support a coding style used in PSyclone).
-  If none of these files is found, no dependencies will be printed for this
-  case. You can modify the ``create_dependency.py`` script if you are using
-  a different naming style for your files (see lines 101 to 107 in the
-  script).
+  then the script will look for a file with the 'root' name ``mymodule``,
+  e.g. it would use ``mymodule.f90``, ``mymodule.F90``, or ``mymodule.x90``
+  in the list of files provided as argument. If no matching file is found, no
+  dependencies will be printed for this case, it will be silently ignored.
+  You can modify the ``create_dependency.py`` script if you are using a
+  different naming style for your files (see lines 120 to 123 in the script).
 
 ### Todo
 - Remove the need for a file naming convention by parsing all files, and then
@@ -45,3 +51,6 @@ in a format suitable to be used in a Makefile. Usage:
 
       $ ./create_dependencies.py -l NETCDF_LIB=/opt/mynetcdf-dir my_netcdf_source.f90
       my_netcdf_source.o: $(NETCDF_LIB)
+- Provide a list of modules to ignore, and abort the script if a reference
+  to a module is found that is unknown (i.e. neither provided in a file name
+  nor in the list of modules to ignore).

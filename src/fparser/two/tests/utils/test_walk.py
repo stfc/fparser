@@ -38,6 +38,9 @@ import pytest
 from fparser.api import get_reader
 from fparser.two.utils import walk
 from fparser.two import Fortran2003
+from fparser.common.readfortran import FortranStringReader
+from fparser.two.parser import ParserFactory
+from fparser.two.Fortran2003 import Name, Block_Nonlabel_Do_Construct
 
 
 @pytest.mark.usefixtures("f2003_create")
@@ -93,3 +96,31 @@ def test_walk_debug(capsys):
     stdout, _ = capsys.readouterr()
     assert stdout.startswith(8 * " " + "child type =")
     assert "Program" not in stdout
+
+
+def test_walk_tuples():
+    """Check that the walk utility properly visits tuples.
+    See related issue : https://github.com/stfc/fparser/issues/367
+    and pull request: https://github.com/stfc/fparser/pull/368
+    """
+    source_str = """\
+program test
+    integer :: iterator, size
+    integer, dimension(0:10) :: A, B, C
+    size = 10
+    do iterator = 0,size
+      A(iterator) = B(iterator) * C(iterator)
+    enddo
+end program test
+"""
+    expected = {"A", "B", "C", "iterator", "size"}
+    reader = FortranStringReader(source_str, ignore_comments=True)
+    f_parser = ParserFactory().create(std="f2008")
+    parse_tree = f_parser(reader)
+    doloops = walk(parse_tree, Block_Nonlabel_Do_Construct)
+    assert len(doloops) == 1
+    doloop = doloops[0]
+    allNames = walk(doloop, Name, 0)
+    assert len(allNames) == 8
+    identifierSet = set(map(lambda x: x.tostr(), allNames))
+    assert identifierSet == expected

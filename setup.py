@@ -71,42 +71,43 @@ from setuptools import setup, find_packages
 
 PACKAGES = find_packages(where="src")
 
-NAME = 'fparser'
-AUTHOR = 'Andrew Porter'
-AUTHOR_EMAIL = 'trackstand.andy@gmail.com'
-URL = 'https://github.com/stfc/fparser'
-DOWNLOAD_URL = 'https://github.com/stfc/fparser'
-DESCRIPTION = 'The fparser Project'
-LONG_DESCRIPTION = '''\
+NAME = "fparser"
+AUTHOR = "Andrew Porter"
+AUTHOR_EMAIL = "trackstand.andy@gmail.com"
+URL = "https://github.com/stfc/fparser"
+DOWNLOAD_URL = "https://github.com/stfc/fparser"
+DESCRIPTION = "The fparser Project"
+LONG_DESCRIPTION = """\
 The fparser project is created to develop a parser for
 Fortran 77..2008 code. It is based on the work of Pearu Peterson in
 the F2PY project (http://www.f2py.com).
 
 See https://github.com/stfc/fparser for more information.
-'''
-LICENSE = 'OSI Approved :: BSD 3-Clause License'
+"""
+LICENSE = "OSI Approved :: BSD 3-Clause License"
 
 CLASSIFIERS = [
-    'Development Status :: 3 - Alpha',
-    'Environment :: Console',
-    'Intended Audience :: Developers',
-    'Intended Audience :: Science/Research',
-    'Natural Language :: English',
-    'Programming Language :: Fortran',
-    'Programming Language :: Python',
-    'Topic :: Scientific/Engineering',
-    'Topic :: Software Development',
-    'Topic :: Utilities',
-    'Operating System :: POSIX',
-    'Operating System :: Unix',
-    'Operating System :: MacOS']
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Natural Language :: English",
+    "Programming Language :: Fortran",
+    "Programming Language :: Python",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Software Development",
+    "Topic :: Utilities",
+    "Operating System :: POSIX",
+    "Operating System :: Unix",
+    "Operating System :: MacOS",
+]
 
 MAJOR = 0
 MINOR = 0
 MICRO = 16
-VERSION = f'{MAJOR}.{MINOR}.{MICRO}'
+VERSION = f"{MAJOR}.{MINOR}.{MICRO}"
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     setup(
         name=NAME,
@@ -120,15 +121,13 @@ if __name__ == '__main__':
         classifiers=CLASSIFIERS,
         packages=PACKAGES,
         package_dir={"": "src"},
-        install_requires=['six'],
-        extras_require={
-            'doc': ["sphinx", "sphinx_rtd_theme"]
-        },
+        extras_require={"doc": ["sphinx", "sphinx_rtd_theme"]},
         entry_points={
-            'console_scripts': [
-                'fparser2=fparser.scripts.fparser2:main',
+            "console_scripts": [
+                "fparser2=fparser.scripts.fparser2:main",
             ],
         },
         # We need the following line to ensure we get the fparser/log.config
         # file installed.
-        include_package_data=True)
+        include_package_data=True,
+    )

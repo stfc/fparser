@@ -45,6 +45,7 @@ Fortran95. However, Fortran compilers still support it.
 import pytest
 from fparser.two.Fortran2003 import Format_Item_List
 from fparser.two.utils import NoMatchError
+from fparser.two import utils
 
 
 def test_non_hollerith(f2003_create):
@@ -132,6 +133,53 @@ def test_hollerith_only_spaces(f2003_create, monkeypatch):
     assert repr(ast) == (
         "Format_Item_List(',', (Hollerith_Item('abc'), " "Hollerith_Item('ab')))"
     )
+
+
+def test_hollerith_omitted_comma_before(f2003_create, monkeypatch):
+    """Check that a hollerith item is parsed correctly when preceeded by a
+    slash or colon without a separating comma.
+
+    """
+
+    monkeypatch.setattr(utils, "EXTENSIONS", ["hollerith"])
+    for item in ["/", ":"]:
+        myinput = f"{item}3Habc"
+        ast = Format_Item_List(myinput)
+        assert str(ast) == f"{item}, 3Habc"
+        assert repr(ast) == (
+            f"Format_Item_List(',', (Control_Edit_Desc(None, '{item}'), "
+            "Hollerith_Item('abc')))"
+        )
+
+
+def test_hollerith_omitted_comma_after(f2003_create, monkeypatch):
+    """Check that a hollerith item is parsed correctly when followed by a
+    slash or colon without a separating comma.
+
+    """
+
+    monkeypatch.setattr(utils, "EXTENSIONS", ["hollerith"])
+    for item in ["/", ":"]:
+        myinput = f"3Habc{item}"
+        ast = Format_Item_List(myinput)
+        assert str(ast) == f"3Habc, {item}"
+        assert repr(ast) == (
+            "Format_Item_List(',', (Hollerith_Item('abc'), "
+            f"Control_Edit_Desc(None, '{item}')))"
+        )
+
+
+def test_hollerith_trailing_space(f2003_create, monkeypatch):
+    """Check that a hollerith item is parsed correctly at the end of a list
+    when it contains a trailing space.
+
+    """
+
+    monkeypatch.setattr(utils, "EXTENSIONS", ["hollerith"])
+    myinput = "4Habc "
+    ast = Format_Item_List(myinput)
+    assert str(ast) == "4Habc "
+    assert repr(ast) == "Format_Item_List(',', (Hollerith_Item('abc '),))"
 
 
 def test_errors(f2003_create, monkeypatch):

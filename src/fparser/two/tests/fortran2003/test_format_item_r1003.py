@@ -116,9 +116,10 @@ def test_format_list_descriptor(f2003_create):
         ast = Format_Item(my_input)
         assert my_input.replace(" ", "") in str(ast)
         assert repr(ast) == (
-            "Format_Item(None, Format_Item(None, Data_Edit"
-            "_Desc_C1002('F', Digit_String('2', None), Int"
-            "_Literal_Constant('2', None), None)))"
+            "Format_Item(None, Format_Item_List(',', ("
+            "Format_Item(None, Data_Edit_Desc_C1002('F', "
+            "Digit_String('2', None), Int_Literal_Constant("
+            "'2', None), None)),)))"
         )
     # R
     for my_input in ["2(F2.2)", " 2 (F2.2) ", " 2 ( F2.2 ) "]:
@@ -126,9 +127,9 @@ def test_format_list_descriptor(f2003_create):
         assert my_input.replace(" ", "") in str(ast)
         assert repr(ast) == (
             "Format_Item(Digit_String('2', None), Format_"
-            "Item(None, Data_Edit_Desc_C1002('F', Digit_"
-            "String('2', None), Int_Literal_Constant('2'"
-            ", None), None)))"
+            "Item_List(',', (Format_Item(None, Data_Edit_"
+            "Desc_C1002('F', Digit_String('2', None), Int_"
+            "Literal_Constant('2', None), None)),)))"
         )
 
 

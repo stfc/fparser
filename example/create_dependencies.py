@@ -60,8 +60,23 @@ def usage():
     """This function prints the usage information and exits. It is called if
     incorrect input parameters are supplied.
     """
-    print("{0} file1 [file2...]".format(sys.argv[0]))
+    print(f"{sys.argv[0]} file1 [file2...]")
     sys.exit(-1)
+
+
+# -----------------------------------------------------------------------------
+def get_root(file_name):
+    """This function returns the 'root' of a file, which is the filename
+    without any path component and without an extension. E.g.:
+    `dir1/dir2/myfile.x90` would return `myfile`.
+
+    :param str file_name: the name of the file.
+
+    :returns: the root of the name of the file.
+    :rtype: str
+
+    """
+    return os.path.splitext(os.path.basename(file_name))[0]
 
 
 # -----------------------------------------------------------------------------
@@ -74,6 +89,19 @@ if __name__ == "__main__":
     # pylint: disable=invalid-name
     all_files = sys.argv[1:]
 
+    # Create a mapping of filenames without path and extensions to the
+    # full filename.
+    lookup_files = {}
+    for file in all_files:
+        root = get_root(file)
+        if root in lookup_files:
+            print(
+                f"The file '{file}' has the same root '{root}' as "
+                f"the file '{lookup_files[root]}'."
+            )
+            sys.exit(-1)
+        lookup_files[root] = file
+
     # Sort the input file names, so that they are output alphabetically
     all_files.sort()
     for filename in all_files:
@@ -82,7 +110,7 @@ if __name__ == "__main__":
         try:
             reader = FortranFileReader(filename)
         except IOError:
-            print("Could not open file '{0}'.".format(filename), file=sys.stderr)
+            print(f"Could not open file '{filename}'.", file=sys.stderr)
             sys.exit(-1)
 
         parser = ParserFactory().create(std="f2003")
@@ -91,21 +119,21 @@ if __name__ == "__main__":
         # Collect all used modules in a list
         all_use = []
         for node in walk(parse_tree, Use_Stmt):
-            use_name = str(node.items[2])
-            # Nothing else to do if the name is already in the list:
-            if use_name + ".o" in all_use:
-                continue
-
             # If you want to implement a specific naming convention,
             # you can modify the content of 'use_name' here. For example,
             # you could remove a '_mod' at the end if your file names do
             # not contains this.
-            if (
-                os.path.isfile(use_name + ".f90")
-                or os.path.isfile(use_name + ".x90")
-                or os.path.isfile(use_name + ".F90")
-            ):
-                all_use.append(use_name + ".o")
+            use_name = str(node.items[2])
+
+            if use_name not in lookup_files:
+                # Silently ignore modules we can't find, assuming
+                # that they are system dependencies (e.g. MPI.mod)
+                continue
+
+            obj_dependency = os.path.splitext(lookup_files[use_name])[0] + ".o"
+            # Only add dependencies that are not already in the list:
+            if obj_dependency not in all_use:
+                all_use.append(obj_dependency)
 
         # Now output all dependencies for this file (if any):
         if all_use:
