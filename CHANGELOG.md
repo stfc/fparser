@@ -10,7 +10,7 @@ Modifications by (in alphabetical order):
 * J. Henrichs, Australian Bureau of Meteorology
 * P. Hill, University of York, UK
 * I. Kavcic, UK Met Office
-* A. Morvan, France
+* A. Morvan, Bull S. A. S., France
 * A. R. Porter, Science & Technology Facilities Council, UK
 * B. Reuter, ECMWF, UK
 * S. Siso, Science & Technology Facilities Council, UK
