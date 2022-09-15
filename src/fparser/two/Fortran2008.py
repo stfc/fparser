@@ -90,6 +90,10 @@ from fparser.two.Fortran2003 import (
     SequenceBase,
     Base,
     Specification_Part,
+    Stat_Variable,
+    Errmsg_Variable,
+    Source_Expr,
+    KeywordValueBase,
     Module_Subprogram_Part,
     Implicit_Part,
     Implicit_Part_Stmt,
@@ -106,6 +110,8 @@ from fparser.two.Fortran2003 import (
 from fparser.two.Fortran2003 import (
     Program_Unit as Program_Unit_2003,
     Attr_Spec as Attr_Spec_2003,
+    Alloc_Opt as Alloc_Opt_2003,
+    Allocate_Stmt as Allocate_Stmt_2003,
     Type_Declaration_Stmt as Type_Declaration_Stmt_2003,
     Component_Attr_Spec as Component_Attr_Spec_2003,
     Data_Component_Def_Stmt as Data_Component_Def_Stmt_2003,
@@ -717,6 +723,42 @@ class Do_Term_Action_Stmt(Do_Term_Action_Stmt_2003):  # R826
     """
 
     subclass_names = ["Action_Stmt_C816"]
+
+
+class Alloc_Opt(Alloc_Opt_2003):
+    """
+    Fortran2008 rule R627
+    alloc-opt is ERRMSG = errmsg-variable
+              or MOLD = source-expr
+              or SOURCE = source-expr
+              or STAT = stat-variable
+
+    Extends the Fortran2003 version of this class by updating the keyword
+    pairs (used in match) with support for MOLD.
+
+    """
+
+    _keyword_pairs = [
+        ("STAT", Stat_Variable),
+        ("ERRMSG", Errmsg_Variable),
+        ("SOURCE", Source_Expr),
+        ("MOLD", Source_Expr),
+    ]
+
+
+class Allocate_Stmt(Allocate_Stmt_2003):  # R626
+    """
+    Fortran 2008 rule R626
+    allocate-stmt is ALLOCATE ( [ type-spec :: ] allocation-list
+                                [, alloc-opt-list ] )
+
+    The implementation of this rule simply ensures that the Fortran2008 version
+    of Alloc_Opt is used.
+
+    """
+
+    subclass_names = []
+    use_names = ["Type_Spec", "Allocation_List", "Alloc_Opt_List"]
 
 
 class If_Stmt(If_Stmt_2003):  # R837

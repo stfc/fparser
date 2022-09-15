@@ -1266,7 +1266,7 @@ class BracketBase(Base):
             return None
         # Check whether or not there's anything between the open
         # and close brackets
-        line = string_strip[bracket_len:-bracket_len].strip()
+        line = string_strip[bracket_len:-bracket_len].lstrip()
         if (not line and cls and require_cls) or (line and not cls):
             return None
         if not line and (not cls or not require_cls):

@@ -42,6 +42,7 @@ Fortran95. However, Fortran compilers still support it.
 import pytest
 from fparser.two.Fortran2003 import Format_Item
 from fparser.two.utils import NoMatchError, InternalError
+from fparser.two import utils
 
 
 def test_data_edit_descriptor(f2003_create):
@@ -131,6 +132,18 @@ def test_format_list_descriptor(f2003_create):
             "Desc_C1002('F', Digit_String('2', None), Int_"
             "Literal_Constant('2', None), None)),)))"
         )
+
+
+def test_format_list_descriptor_trailing_space(f2003_create, monkeypatch):
+    """Check that format item list descriptors preserve trailing space."""
+
+    monkeypatch.setattr(utils, "EXTENSIONS", ["hollerith"])
+    myinput = "(4Habc )"
+    ast = Format_Item(myinput)
+    assert str(ast) == myinput
+    assert repr(ast) == (
+        "Format_Item(None, Format_Item_List(',', (Hollerith_Item('abc '),)))"
+    )
 
 
 def test_hollerith_item(f2003_create, monkeypatch):

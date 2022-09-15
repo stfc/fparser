@@ -1,4 +1,4 @@
-# Copyright (c) 2018-2019 Science and Technology Facilities Council
+# Copyright (c) 2018-2022 Science and Technology Facilities Council
 
 # All rights reserved.
 
@@ -56,6 +56,17 @@ def test_empty_input(f2003_create):
         reader = get_reader(code)
         ast = Program(reader)
         assert str(ast) == ""
+
+
+def test_only_comments(f2003_create):
+    """Test that a file containing only comments can be parsed
+    successfully
+
+    """
+    code = "! comment1\n! comment2"
+    reader = get_reader(code, ignore_comments=False)
+    ast = Program(reader)
+    assert code in str(ast)
 
 
 # Test single program units

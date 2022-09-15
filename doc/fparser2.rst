@@ -1,4 +1,4 @@
-..  Copyright (c) 2017-2020 Science and Technology Facilities Council.
+..  Copyright (c) 2017-2022 Science and Technology Facilities Council.
 
     All rights reserved.
 
@@ -42,8 +42,8 @@ Fortran 2003. This is implemented in the Fortran2003.py `file`__ and
 contains an entirely separate parser to fparser1 that includes rules
 for Fortran 2003 syntax. Support for Fortran 2008 is being added in
 the Fortran2008.py `file`__ which extends the Fortran2003 rules
-appropriately. At this time fparser2 supports submodules, co-arrays
-and the continguous keyword in Fortran2008.
+appropriately. At this time fparser2 supports submodules, co-arrays,
+the 'mold' argument to allocate and the 'contiguous' keyword in Fortran2008.
 
 __ https://github.com/stfc/fparser/blob/master/src/fparser/two/Fortran2003.py
 __ https://github.com/stfc/fparser/blob/master/src/fparser/two/Fortran2008.py

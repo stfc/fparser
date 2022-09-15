@@ -18,6 +18,15 @@ Modifications by (in alphabetical order):
 * P. Vitt, University of Siegen, Germany
 * A. Voysey, UK Met Office
 
+15/09/2022 PR #378 for #375. Permit source files containing only comments
+           to be parsed.
+
+12/09/2022 PR #374 for #373. Removes @staticmethod decorator added to
+           Stmt_Function_Stmt.tostr() in error.
+
+05/09/2022 PR #372 fix for whitespace being lost when Format_Item_List is
+           contained within parentheses.
+
 11/08/2022 PR #368 for #367. Add support for visiting tuples in walk()
            utility.
 
@@ -34,6 +43,8 @@ Modifications by (in alphabetical order):
 22/06/2022 PR #357 - this project now uses the Black formatter in a GH Action.
 
 20/06/2022 PR #345 - add fparser2 performance benchmark in the scripts folder.
+
+02/09/2022 PR #356 - add support for the mold allocate parameter.
 
 ## Release 0.0.16 (16/06/2022) ##
 
