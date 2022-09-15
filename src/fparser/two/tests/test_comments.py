@@ -34,6 +34,8 @@
 """ Module containing tests for aspects of fparser2 related to comments """
 
 import pytest
+
+from fparser.api import get_reader
 from fparser.two.Fortran2003 import (
     Program,
     Comment,
@@ -41,11 +43,15 @@ from fparser.two.Fortran2003 import (
     Execution_Part,
     Specification_Part,
     Block_Nonlabel_Do_Construct,
-)
-from fparser.two.utils import walk
-from fparser.api import get_reader
-
+    Main_Program,
+    Write_Stmt,
+    End_Program_Stmt,
+    If_Construct,
+    Allocate_Stmt,
+    Derived_Type_Def,
+    Function_Subprogram)
 from fparser.two.parser import ParserFactory
+from fparser.two.utils import walk, get_child
 
 # this is required to setup the fortran2003 classes
 _ = ParserFactory().create(std="f2003")
@@ -256,7 +262,6 @@ def test_prog_comments():
     #   .    .
     #   .
     #   |--> Comment
-    from fparser.two.Fortran2003 import Main_Program, Write_Stmt, End_Program_Stmt
 
     assert type(obj.content[0]) == Comment
     assert str(obj.content[0]) == "! A troublesome comment"
@@ -303,7 +308,6 @@ function my_mod()
   ! That was a function
 end function my_mod
 """
-    from fparser.two.Fortran2003 import Function_Subprogram
 
     reader = get_reader(source, isfree=True, ignore_comments=False)
     fn_unit = Function_Subprogram(reader)
@@ -348,7 +352,7 @@ end subroutine my_mod
     assert isinstance(comment, Comment)
     assert "! First comment" in str(comment)
     spec_part = fn_unit.children[2]
-    comment = spec_part.content[2]
+    comment = spec_part.children[2]
     assert isinstance(comment, Comment)
     assert comment.parent is spec_part
     assert "! Body comment" in str(comment)
@@ -369,7 +373,6 @@ type my_type ! Inline comment1
   ! Ending comment
 end type my_type
 """
-    from fparser.two.Fortran2003 import Derived_Type_Def
 
     reader = get_reader(source, isfree=True, ignore_comments=False)
     dtype = Derived_Type_Def(reader)
@@ -400,8 +403,6 @@ allocate(my_array(size), &
          my_array2(size))
 end if
 """
-    from fparser.two.Fortran2003 import If_Construct, Allocate_Stmt
-    from fparser.two.utils import get_child
 
     reader = get_reader(source, isfree=True, ignore_comments=False)
     ifstmt = If_Construct(reader)

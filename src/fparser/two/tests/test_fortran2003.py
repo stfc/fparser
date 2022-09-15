@@ -103,7 +103,6 @@ def assert_raises(exc, fcls, string):
 # SECTION 2
 #
 
-
 def test_specification_part():
     """Tests for parsing specification-part (R204)."""
     reader = get_reader(
@@ -165,6 +164,24 @@ use d
     )
     assert expected in str(obj)
 
+    # Test a correct order of subclasses matches and then an incorrect
+    # order of subclasses fails to match (due to the strict_order flag
+    # being set). In this case Use_Stmt should precede
+    # Declaration_Construct
+    code = (
+        "USE my_mod\n"
+        "INTEGER :: a")
+    reader = get_reader(code)
+    tcls = Specification_Part
+    obj = tcls(reader)
+    assert str(obj) == code
+
+    reader = get_reader(
+        "integer :: a\n"
+        "use my_mod\n")
+    tcls = Specification_Part
+    obj = tcls(reader)
+    assert obj is None
 
 #
 # SECTION  3

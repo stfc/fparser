@@ -698,11 +698,11 @@ class BlockBase(Base):
                                 reader,
                                 f"Name '{end_name}' has no corresponding starting name",
                             )
-                        elif strict_match_names and start_name and not end_name:
+                        if strict_match_names and start_name and not end_name:
                             raise FortranSyntaxError(
                                 reader, f"Expecting name '{start_name}' but none given"
                             )
-                        elif (
+                        if (
                             start_name
                             and end_name
                             and (start_name.lower() != end_name.lower())
@@ -722,6 +722,9 @@ class BlockBase(Base):
                     # Return to start of classes list now that we've matched.
                     i = 0
                 elif once_only:
+                    # There was a match for this sub-class and
+                    # once_only is set so move on to the next
+                    # sub-class
                     i += 1
                 if enable_if_construct_hook:
                     if isinstance(obj, di.Else_If_Stmt):
