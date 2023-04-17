@@ -525,7 +525,7 @@ class Base(ComparableMixin):
         Store the supplied list of nodes in the `items` list of this node.
 
         :param items: the children of this node.
-        :type items: tuple of :py:class:`fparser.two.utils.Base`
+        :type items: Tuple[:py:class:`fparser.two.utils.Base`]
 
         """
         self.items = items
@@ -540,8 +540,11 @@ class Base(ComparableMixin):
         return self.torepr()
 
     def _cmpkey(self):
-        """Provides a key of objects to be used for comparing."""
-        return self.items
+        """
+        :returns: a tuple of objects to be used for comparing nodes.
+        :rtype: Tuple[:py:class:`fparser.two.utils.Base`]
+        """
+        return tuple(list(self.items).append(type(self)))
 
     def tofortran(self, tab="", isfix=None):
         """
