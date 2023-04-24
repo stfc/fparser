@@ -7951,12 +7951,14 @@ class Nonlabel_Do_Stmt(StmtBase, WORDClsBase):  # pylint: disable=invalid-name
 
 class Loop_Control(Base):  # pylint: disable=invalid-name
     """
-    R830::
+    R830:: (Fortran 2003)
+    R818:: (Fortran 2008)
 
         <loop-control> = [ , ] <do-variable> = scalar-int-expr,
                                                scalar-int-expr
                                                [ , <scalar-int-expr> ]
                          | [ , ] WHILE ( <scalar-logical-expr> )
+                         | [ , ] CONCURRENT <forall-header>
 
     """
 
@@ -7988,7 +7990,13 @@ class Loop_Control(Base):  # pylint: disable=invalid-name
             i = lbrak.find(")")
             if i != -1 and i == len(lbrak) - 1:
                 scalar_logical_expr = Scalar_Logical_Expr(repmap(lbrak[1:i].strip()))
-                return scalar_logical_expr, None, optional_delim
+                return scalar_logical_expr, None, None, optional_delim
+        # Match "CONCURRENT" ,loop control
+        if line[:10].upper() == "CONCURRENT":
+            print("warning: DO CONCURRENT not fully implemented")
+            forall_header = Forall_Header(repmap(line[10:].lstrip()))
+            print(f"--> {forall_header}")
+            return None, forall_header, None, optional_delim
         # Match counter expression
         # More than one '=' in counter expression
         if line.count("=") != 1:
@@ -8002,7 +8010,7 @@ class Loop_Control(Base):  # pylint: disable=invalid-name
             Variable(repmap(var.rstrip())),
             list(map(Scalar_Int_Expr, list(map(repmap, rhs)))),
         )
-        return None, counter_expr, optional_delim
+        return None, None, counter_expr, optional_delim
 
     def tostr(self):
         """
@@ -8010,11 +8018,14 @@ class Loop_Control(Base):  # pylint: disable=invalid-name
         :rtype: string
         """
         # pylint: disable=unbalanced-tuple-unpacking
-        scalar_logical_expr, counter_expr, optional_delim = self.items
+        scalar_logical_expr, forall_header, counter_expr, optional_delim = self.items
         # Return loop control construct containing "WHILE" condition and
         # its <scalar-logical-expr>
         if scalar_logical_expr is not None:
             loopctrl = "WHILE (%s)" % scalar_logical_expr
+        # Return a loop control construct for "CONCURRENT"'s forall-header
+        if forall_header is not None:
+            loopctrl = "CONCURRENT %s" % forall_header
         # Return loop control construct containing counter expression:
         # <do-variable> as LHS and <scalar-int-expr> list as RHS
         elif counter_expr[0] is not None and counter_expr[1] is not None:
