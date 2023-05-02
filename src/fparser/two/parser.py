@@ -150,7 +150,8 @@ class ParserFactory:
             # First find all Fortran2008 classes.
             from fparser.two import Fortran2008
 
-            f2008_cls_members = get_module_classes(Fortran2008)
+            # f2008_cls_members = get_module_classes(Fortran2008)
+            f2008_cls_members = inspect.getmembers(sys.modules[Fortran2008.__name__], inspect.isclass)
 
             # next add in Fortran2003 classes if they do not already
             # exist as a Fortran2008 class.

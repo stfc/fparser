@@ -179,6 +179,8 @@ end subroutine my_abort
 @pytest.mark.parametrize("string, cls", [("ERROR STOP", Error_Stop_Stmt)])
 def test_new_f2008_stmt(string, cls):
     """Test that newly added F2008 subclasses are matched correctly."""
+    from fparser.two.parser import ParserFactory
+    _ = ParserFactory().create(std="f2008")
     result = Action_Stmt(string)
     assert isinstance(result, cls)
 

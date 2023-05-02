@@ -127,7 +127,7 @@ def test_splitparen_error(monkeypatch):
     """
     # We must monkeypatch the splitparen function that has already been
     # imported into the F2008 module.
-    monkeypatch.setattr("fparser.two.Fortran2008.splitparen", lambda x: ["XXX", "", ""])
+    monkeypatch.setattr("fparser.two.Fortran2008_orig.splitparen", lambda x: ["XXX", "", ""])
     with pytest.raises(NoMatchError) as excinfo:
         dummy_ = Submodule_Stmt("submodule (id) name")
     assert "Submodule_Stmt: 'submodule (id) name'" in str(excinfo.value)
