@@ -86,10 +86,10 @@ def _get_version():
         return metadata.version(__name__)
     except PackageNotFoundError:
         # Package is not installed.
-        from setuptools_scm import get_version
+        #from setuptools_scm import get_version
 
-        return get_version(root="../..", relative_to=__file__)
-
+        #return get_version(root="../..", relative_to=__file__)
+        return "0.1.3-no_setuptools_scm"
 
 __version__ = _get_version()
 
