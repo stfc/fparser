@@ -1,7 +1,7 @@
 .. -*- rest -*-
 
 ..
-    Copyright (c) 2017-2018 Science and Technology Facilities Council.
+    Copyright (c) 2017-2023 Science and Technology Facilities Council.
 
     All rights reserved.
 
@@ -100,7 +100,7 @@ As indicated by the above output, the `fparser.api.parse()` function
 returns a `Statement` tree representation of the parsed source code.
 This `parse()` function is actually a convenience method that wraps
 the creation of a reader for Fortran source code (either
-FortranStringReader or FortranFileReader) followed by a call to use
+`FortranStringReader` or `FortranFileReader`) followed by a call to use
 that reader to create the tree, e.g.:
 
 ::
@@ -231,6 +231,14 @@ For example,
   Line('double precision dx(*),dy(*),da',(8, 8),'')
   >>> reader.next()
   Line('integer i,incx,incy,ix,iy,m,mp1,n',(9, 9),'')
+
+Owing to its origins in the f2py project, the reader contains functionality
+to identify the format of the provided source by examining Python-style
+encoding information (c.f. `PEP 263`). Since this is not a part of the Fortran
+standard, this functionality is disabled by default. It can be enabled by
+providing the argument `ignore_encoding=False` to the reader.
+
+.. _PEP 263: https://peps.python.org/pep-0263/
 
 Note that the `FortranReaderBase.next()` method may return `Line`,
 `SyntaxErrorLine`, `Comment`, `MultiLine`, or `SyntaxErrorMultiLine`

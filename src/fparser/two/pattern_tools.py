@@ -1,5 +1,5 @@
-# Modified work Copyright (c) 2017-2020 Science and Technology
-# Facilities Council
+# Modified work Copyright (c) 2017-2022 Science and Technology
+# Facilities Council.
 # Original work Copyright (c) 1999-2008 Pearu Peterson
 
 # All rights reserved.
@@ -66,14 +66,13 @@
 """
 Tools for constructing patterns.
 
------
 Permission to use, modify, and distribute this software is given under the
-terms of the NumPy License. See http://scipy.org.
+terms of the NumPy License. See http\://scipy.org.
 
 NO WARRANTY IS EXPRESSED OR IMPLIED.  USE AT YOUR OWN RISK.
 Author: Pearu Peterson <pearu@cens.ioc.ee>
 Created: Oct 2006
------
+
 """
 import re
 
@@ -82,19 +81,23 @@ dollar_ok = True
 
 class Pattern:
     """
-    p1 | p2    -> <p1> | <p2>
-    p1 + p2    -> <p1> <p2>
-    p1 & p2    -> <p1><p2>
-    ~p1        -> [ <p1> ]
-    ~~p1       -> [ <p1> ]...
-    ~~~p1      -> <p1> [ <p1> ]...
-    ~~~~p1     -> ~~~p1
-    abs(p1)    -> whole string match of <p1>
-    p1.named(name) -> match of <p1> has name
-    p1.match(string) -> return string match with <p1>
-    p1.flags(<re.I,..>)
-    p1.rsplit(..) -> split a string from the rightmost p1 occurrence
-    p1.lsplit(..) -> split a string from the leftmost p1 occurrence
+
+    ::
+
+        p1 | p2    -> <p1> | <p2>
+        p1 + p2    -> <p1> <p2>
+        p1 & p2    -> <p1><p2>
+        ~p1        -> [ <p1> ]
+        ~~p1       -> [ <p1> ]...
+        ~~~p1      -> <p1> [ <p1> ]...
+        ~~~~p1     -> ~~~p1
+        abs(p1)    -> whole string match of <p1>
+        p1.named(name) -> match of <p1> has name
+        p1.match(string) -> return string match with <p1>
+        p1.flags(<re.I,..>)
+        p1.rsplit(..) -> split a string from the rightmost p1 occurrence
+        p1.lsplit(..) -> split a string from the leftmost p1 occurrence
+
     """
 
     _special_symbol_map = {
@@ -146,8 +149,10 @@ class Pattern:
 
     def rsplit(self, string, is_add=False):
         """
-        Return (<lhs>, <pattern_match>, <rhs>) where
-          string = lhs + pattern_match + rhs
+        Return (<lhs>, <pattern_match>, <rhs>) where::
+
+            string = lhs + pattern_match + rhs
+
         and rhs does not contain pattern_match.
         If no pattern_match is found in string, return None.
         """
@@ -169,8 +174,10 @@ class Pattern:
 
     def lsplit(self, string):
         """
-        Return (<lhs>, <pattern_match>, <rhs>) where
-          string = lhs + pattern_match + rhs
+        Return (<lhs>, <pattern_match>, <rhs>) where::
+
+            string = lhs + pattern_match + rhs
+
         and rhs does not contain pattern_match.
         If no pattern_match is found in string, return None.
         """

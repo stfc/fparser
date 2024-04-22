@@ -1,4 +1,4 @@
-# Modified work Copyright (c) 2018-2022 Science and Technology
+# Modified work Copyright (c) 2018-2023 Science and Technology
 # Facilities Council.
 # Original work Copyright (c) 1999-2008 Pearu Peterson
 
@@ -65,30 +65,31 @@
 
 """This file provides utilities to create a Fortran parser suitable
 for a particular standard."""
-# pylint: disable=eval-used
 
 import inspect
+import logging
 import sys
 from fparser.two.symbol_table import SYMBOL_TABLES
 
 
 def get_module_classes(input_module):
-    """Return all classes local to a module.
+    """
+    Return all classes local to a module.
 
     :param module input_module: the module containing the classes.
-    :return: a `list` of tuples each containing a class name and a \
-    class.
+
+    :returns: list of class names and types.
+    :rtype: List[Tuple[str, type]]
 
     """
     module_cls_members = []
     module_name = input_module.__name__
-    # first find all classes in the module. This includes imported
-    # classes.
+    # First find all classes in the module. This includes imported classes.
     all_cls_members = inspect.getmembers(sys.modules[module_name], inspect.isclass)
     # next only keep classes that are specified in the module.
-    for cls_member in all_cls_members:
-        if cls_member[1].__module__ == module_name:
-            module_cls_members.append(cls_member)
+    for name, cls in all_cls_members:
+        if cls.__module__ == module_name:
+            module_cls_members.append((name, cls))
     return module_cls_members
 
 
@@ -137,16 +138,7 @@ class ParserFactory:
             # we already have our required list of classes so call _setup
             # to setup our class hierarchy.
             self._setup(f2003_cls_members)
-            # We can now specify which classes are taken as defining new
-            # scoping regions. Programs without the optional program-stmt
-            # are handled separately in the Fortran2003.Main_Program0 class.
-            SYMBOL_TABLES.scoping_unit_classes = [
-                Fortran2003.Module_Stmt,
-                Fortran2003.Subroutine_Stmt,
-                Fortran2003.Program_Stmt,
-                Fortran2003.Function_Stmt,
-            ]
-            # the class hierarchy has been set up so return the top
+            # The class hierarchy has been set up so return the top
             # level class that we start from when parsing Fortran code.
             return Fortran2003.Program
         if std == "f2008":
@@ -158,7 +150,10 @@ class ParserFactory:
             # First find all Fortran2008 classes.
             from fparser.two import Fortran2008
 
-            f2008_cls_members = get_module_classes(Fortran2008)
+            f2008_cls_members = inspect.getmembers(
+                sys.modules[Fortran2008.__name__], inspect.isclass
+            )
+
             # next add in Fortran2003 classes if they do not already
             # exist as a Fortran2008 class.
             f2008_class_names = [i[0] for i in f2008_cls_members]
@@ -168,17 +163,7 @@ class ParserFactory:
             # we now have our required list of classes so call _setup
             # to setup our class hierarchy.
             self._setup(f2008_cls_members)
-            # We can now specify which classes are taken as defining new
-            # scoping regions. Programs without the optional program-stmt
-            # are handled separately in the Fortran2003.Main_Program0 class.
-            SYMBOL_TABLES.scoping_unit_classes = [
-                Fortran2003.Module_Stmt,
-                Fortran2003.Subroutine_Stmt,
-                Fortran2003.Program_Stmt,
-                Fortran2003.Function_Stmt,
-                Fortran2008.Submodule_Stmt,
-            ]
-            # the class hierarchy has been set up so return the top
+            # The class hierarchy has been set up so return the top
             # level class that we start from when parsing Fortran
             # code. Fortran2008 does not extend the top level class so
             # we return the Fortran2003 one.
@@ -197,106 +182,102 @@ class ParserFactory:
         class name and a class.
 
         """
+        # pylint: disable=import-outside-toplevel
+        from fparser.two import Fortran2003
 
-        __autodoc__ = []
-        base_classes = {}
-
-        import logging
-        import fparser.two.Fortran2003
-
-        class_type = type(fparser.two.Fortran2003.Base)
+        class_type = type(Fortran2003.Base)
 
         # Reset subclasses dictionary in case this function has been
         # called before. If this is not done then multiple calls to
         # the ParserFactory create method may not work correctly.
-        fparser.two.Fortran2003.Base.subclasses = {}
+        Fortran2003.Base.subclasses = {}
+        base_classes = {}
 
-        for clsinfo in input_classes:
-            clsname = "{0}.{1}".format(clsinfo[1].__module__, clsinfo[0])
-            cls = eval(clsname)
+        for _, cls in input_classes:
             # ?? classtype is set to Base so why have issubclass?
             if (
                 isinstance(cls, class_type)
-                and issubclass(cls, fparser.two.Fortran2003.Base)
+                and issubclass(cls, Fortran2003.Base)
                 and not cls.__name__.endswith("Base")
             ):
                 base_classes[cls.__name__] = cls
-                if len(__autodoc__) < 10:
-                    __autodoc__.append(cls.__name__)
 
-        #
         # OPTIMIZE subclass_names tree.
         #
+        def _closest_descendants_with_match(clsname):
+            """
+            Starting at the named class, searches down the tree defined by the
+            classes named in the `subclass_names` list to find the closest that
+            have `match` methods. If the current class does not have a
+            `match` method then this method is called again for each of
+            the classes in its `subclass_names` list.
 
-        if 1:  # Optimize subclass tree:
+            :param str clsname: The name of the class from which to search.
 
-            def _rpl_list(clsname):
-                if clsname not in base_classes:
-                    error_string = "Not implemented: {0}".format(clsname)
-                    logging.getLogger(__name__).debug(error_string)
-                    return []
-                # remove this code when all classes are implemented.
-                cls = base_classes[clsname]
-                if hasattr(cls, "match"):
-                    return [clsname]
-                bits = []
-                for names in getattr(cls, "subclass_names", []):
-                    list1 = _rpl_list(names)
-                    for names1 in list1:
-                        if names1 not in bits:
-                            bits.append(names1)
-                return bits
+            :returns: names of 'nearest' subclasses with `match` methods.
+            :rtype: List[str | NoneType]
 
-            for cls in list(base_classes.values()):
-                if not hasattr(cls, "subclass_names"):
-                    continue
-                opt_subclass_names = []
-                for names in cls.subclass_names:
-                    for names1 in _rpl_list(names):
-                        if names1 not in opt_subclass_names:
-                            opt_subclass_names.append(names1)
-                if not opt_subclass_names == cls.subclass_names:
-                    cls.subclass_names[:] = opt_subclass_names
+            """
+            if clsname not in base_classes:
+                error_string = f"Not implemented: {clsname}"
+                logging.getLogger(__name__).debug(error_string)
+                return []
+            # remove this code when all classes are implemented.
+            cls = base_classes[clsname]
+            if hasattr(cls, "match"):
+                # This class has a `match` method so no need to search further
+                # down the tree.
+                return [clsname]
+            # clsname doesn't have a `match` method so we look at each of its
+            # subclasses and find the nearest class in each that does have a
+            # `match` method.
+            bits = []
+            for names in getattr(cls, "subclass_names", []):
+                list1 = _closest_descendants_with_match(names)
+                for names1 in list1:
+                    if names1 not in bits:
+                        bits.append(names1)
+            return bits
 
-        # Initialize Base.subclasses dictionary:
-        for clsname, cls in list(base_classes.items()):
-            subclass_names = getattr(cls, "subclass_names", None)
-            if subclass_names is None:
-                message = "%s class is missing subclass_names list" % (clsname)
+        # Dict in which to store optimised list of subclass names for each cls.
+        local_subclass_names = {}
+
+        for cls in base_classes.values():
+            if not hasattr(cls, "subclass_names"):
+                continue
+            # The optimised list of subclass names will only include subclasses
+            # that have `match` methods.
+            opt_subclass_names = []
+            for names in cls.subclass_names:
+                for names1 in _closest_descendants_with_match(names):
+                    if names1 not in opt_subclass_names:
+                        opt_subclass_names.append(names1)
+            local_subclass_names[cls] = opt_subclass_names[:]
+
+        # Now that we've optimised the list of subclass names for each class,
+        # use this information to initialise the Base.subclasses dictionary:
+        for clsname, cls in base_classes.items():
+            if not hasattr(cls, "subclass_names"):
+                message = f"{clsname} class is missing subclass_names list"
                 logging.getLogger(__name__).debug(message)
                 continue
+            subclass_names = local_subclass_names.get(cls, [])
             try:
-                bits = fparser.two.Fortran2003.Base.subclasses[clsname]
+                bits = Fortran2003.Base.subclasses[clsname]
             except KeyError:
-                fparser.two.Fortran2003.Base.subclasses[clsname] = bits = []
+                Fortran2003.Base.subclasses[clsname] = bits = []
             for name in subclass_names:
                 if name in base_classes:
                     bits.append(base_classes[name])
                 else:
-                    message = "{0} not implemented needed by {1}".format(name, clsname)
+                    message = f"{name} not implemented needed by {clsname}"
                     logging.getLogger(__name__).debug(message)
 
-        if 1:
-            for cls in list(base_classes.values()):
-                # subclasses = fparser.two.Fortran2003.Base.subclasses.get(
-                #     cls.__name__, [])
-                # subclasses_names = [c.__name__ for c in subclasses]
-                subclass_names = getattr(cls, "subclass_names", [])
-                use_names = getattr(cls, "use_names", [])
-                # for name in subclasses_names:
-                #     break
-                #     if name not in subclass_names:
-                #         message = ('%s needs to be added to %s '
-                #                    'subclasses_name list'
-                #                    % (name, cls.__name__))
-                #         logging.getLogger(__name__).debug(message)
-                # for name in subclass_names:
-                #     break
-                #     if name not in subclasses_names:
-                #         message = '%s needs to be added to %s '
-                #         'subclass_name list' % (name, cls.__name__)
-                #         logging.getLogger(__name__).debug(message)
-                for name in use_names + subclass_names:
-                    if name not in base_classes:
-                        message = "%s not defined used " "by %s" % (name, cls.__name__)
-                        logging.getLogger(__name__).debug(message)
+        # Double-check that all required classes have been constructed.
+        for cls in base_classes.values():
+            subclass_names = local_subclass_names.get(cls, [])
+            use_names = getattr(cls, "use_names", [])
+            for name in use_names + subclass_names:
+                if name not in base_classes:
+                    message = f"{name} not defined, used by {cls.__name__}"
+                    logging.getLogger(__name__).debug(message)

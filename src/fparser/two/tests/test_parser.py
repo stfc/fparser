@@ -54,14 +54,6 @@ def test_parserfactory_std():
     with pytest.raises(FortranSyntaxError) as excinfo:
         _ = parser(reader)
     assert "at line 1\n>>>submodule (x) y\n" in str(excinfo.value)
-    # Check that the list of classes used to define scoping regions is
-    # correctly set.
-    assert SYMBOL_TABLES.scoping_unit_classes == [
-        Fortran2003.Module_Stmt,
-        Fortran2003.Subroutine_Stmt,
-        Fortran2003.Program_Stmt,
-        Fortran2003.Function_Stmt,
-    ]
 
     parser = ParserFactory().create(std="f2003")
     reader = FortranStringReader(fstring)
@@ -76,7 +68,6 @@ def test_parserfactory_std():
     assert "SUBMODULE (x) y\nEND" in code
     # Submodule_Stmt should now be included in the list of classes that define
     # scoping regions.
-    assert Fortran2008.Submodule_Stmt in SYMBOL_TABLES.scoping_unit_classes
     assert "y" in SYMBOL_TABLES._symbol_tables
 
     # Repeat f2003 example to make sure that a previously valid (f2008)
@@ -86,7 +77,6 @@ def test_parserfactory_std():
     with pytest.raises(FortranSyntaxError) as excinfo:
         _ = parser(reader)
     assert "at line 1\n>>>submodule (x) y\n" in str(excinfo.value)
-    assert Fortran2008.Submodule_Stmt not in SYMBOL_TABLES.scoping_unit_classes
     # The previous symbol table entries should have been removed when
     # creating the new parser.
     assert "y" not in SYMBOL_TABLES._symbol_tables

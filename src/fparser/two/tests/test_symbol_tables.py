@@ -80,23 +80,6 @@ def test_construction_addition_removal():
     assert tables._symbol_tables == {}
 
 
-def test_scoping_unit_classes_setter():
-    """Check that the setter for the list of classes used to define scoping
-    regions works as expected."""
-    tables = SymbolTables()
-    assert tables.scoping_unit_classes == []
-    tables.scoping_unit_classes = [Fortran2003.Block_Data]
-    assert tables.scoping_unit_classes == [Fortran2003.Block_Data]
-    with pytest.raises(TypeError) as err:
-        tables.scoping_unit_classes = "hello"
-    assert "Supplied value must be a list but got 'str'" in str(err.value)
-    with pytest.raises(TypeError) as err:
-        tables.scoping_unit_classes = ["hello"]
-    assert "Supplied list must contain only classes but got: ['hello']" in str(
-        err.value
-    )
-
-
 def test_str_method():
     """Tests for the str() method."""
     tables = SymbolTables()

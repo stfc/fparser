@@ -1,7 +1,7 @@
 # -----------------------------------------------------------------------------
 # BSD 3-Clause License
 #
-# Copyright (c) 2021, Science and Technology Facilities Council.
+# Copyright (c) 2023, Science and Technology Facilities Council.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,24 @@
 # POSSIBILITY OF SUCH DAMAGE.
 # -----------------------------------------------------------------------------
 
-# pip requirements file specifying the packages required to build
-# the fparser documentation. Used by readthedocs.
-sphinx
-sphinxcontrib.bibtex
+"""
+    Module containing Fortran2008 Do_Term_Action_Stmt rule R826
+"""
+from fparser.two.Fortran2003 import Do_Term_Action_Stmt as Do_Term_Action_Stmt_2003
+
+
+class Do_Term_Action_Stmt(Do_Term_Action_Stmt_2003):  # R826
+    """
+    Fortran 2008 rule R826.
+
+    do-term-action-stmt is action-stmt
+
+    Associated constraints are:
+
+    "C816 (R826) A do-term-action-stmt shall not be an arithmetic-if-stmt,
+          continue-stmt, cycle-stmt, end-function-stmt, end-mp-subprogram-stmt,
+          end-program-stmt, end-subroutine-stmt, error-stop-stmt, exit-stmt,
+          goto-stmt, return-stmt, or stop-stmt."
+    """
+
+    subclass_names = ["Action_Stmt_C816"]

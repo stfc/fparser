@@ -1,4 +1,4 @@
-# Copyright (c) 2019 Science and Technology Facilities Council
+# Copyright (c) 2019-2024 Science and Technology Facilities Council
 
 # All rights reserved.
 
@@ -117,7 +117,7 @@ def test_internal_error2(f2003_create, monkeypatch):
         monkeypatch.setattr(ast, "items", [content])
         with pytest.raises(InternalError) as excinfo:
             str(ast)
-        assert ("entry 0 should be a valid Hollerith string but it is " "empty") in str(
+        assert ("entry 0 should be a valid Hollerith string but it is empty") in str(
             excinfo.value
         )
 
@@ -129,7 +129,7 @@ def test_invalid_hollerith(f2003_create, monkeypatch):
     """
     from fparser.two import utils
 
-    monkeypatch.setattr(utils, "EXTENSIONS", [])
+    monkeypatch.setattr(utils, "_EXTENSIONS", [])
     myinput = "2Hab"
     with pytest.raises(NoMatchError) as excinfo:
         _ = Hollerith_Item(myinput)

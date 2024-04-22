@@ -1,5 +1,5 @@
-# Modified work Copyright (c) 2017-2022 Science and Technology
-# Facilities Council
+# Modified work Copyright (c) 2017-2024 Science and Technology
+# Facilities Council.
 # Original work Copyright (c) 1999-2008 Pearu Peterson
 
 # All rights reserved.
@@ -84,7 +84,7 @@ from fparser.two.symbol_table import SYMBOL_TABLES
 # far forward from the current position. The 'x-format' extension
 # allows the X edit descriptor to be specified without a preceeding
 # integer.
-EXTENSIONS = ["x-format"]
+_EXTENSIONS = ["x-format"]
 
 # Cray pointers are a well known extension to the Fortran
 # standard. See http://pubs.cray.com/content/S-3901/8.6/
@@ -92,7 +92,7 @@ EXTENSIONS = ["x-format"]
 # https://gcc.gnu.org/onlinedocs/gfortran/Cray-pointers.html for
 # example. If 'cray-pointer' is specified in EXTENSIONS then this
 # extension is allowed in fparser.
-EXTENSIONS += ["cray-pointer"]
+_EXTENSIONS += ["cray-pointer"]
 
 # A Hollerith constant is a way of specifying a string as a sequence
 # of characters preceded by the string length and separated by an 'H'
@@ -101,13 +101,31 @@ EXTENSIONS += ["cray-pointer"]
 # for example for more details. fparser currently supports Hollerith
 # constants specified in format statements when 'hollerith' is specified
 # in the EXTENSIONS list.
-EXTENSIONS += ["hollerith"]
+_EXTENSIONS += ["hollerith"]
 
 # Many compilers support the use of '$' in a fortran write statement
 # to indicate that the carriage return should be suppressed. This is
 # an extension to the Fortran standard and is supported by fparser if
 # 'dollar-descriptor' is specified in the EXTENSIONS list.
-EXTENSIONS += ["dollar-descriptor"]
+_EXTENSIONS += ["dollar-descriptor"]
+
+# Many compilers support the optional 'CONVERT' argument to OPEN(). This is
+# used to indicate any endian-related conversion that must be performed
+# when reading/writing data using unformatted IO.
+_EXTENSIONS += ["open-convert"]
+
+
+def EXTENSIONS():
+    """
+    :returns: the list of extensions (to the Fortran standard) currently active.
+    :rtype: list[str]
+    """
+    return _EXTENSIONS
+
+
+# Set this to True to get verbose output (on stdout) detailing the matches made
+# while parsing.
+_SHOW_MATCH_RESULTS = False
 
 
 class FparserException(Exception):
@@ -177,15 +195,47 @@ class InternalSyntaxError(FparserException):
 
 
 def show_result(func):
-    return func
+    """
+    A decorator that enables the matching sequence to be debugged by outputting
+    the result (to stdout) whenever a new node in the parse tree is successfully
+    constructed.
 
-    def new_func(cls, string, **kws):
-        r = func(cls, string, **kws)
-        if r is not None and isinstance(r, StmtBase):
-            print("%s(%r) -> %r" % (cls.__name__, string, str(r)))
-        return r
+    :param function func: the functor that is being called.
 
-    return new_func
+    :returns: the supplied functor.
+    :rtype: function
+
+    """
+    if not _SHOW_MATCH_RESULTS:
+        # Just return the supplied functor unchanged.
+        return func
+
+    # It's not possible to monkeypatch decorators since the functions they are
+    # wrapping get modified at module-import time. Therefore, we can't get
+    # coverage of the rest of this routine.
+    def new_func(cls, string, **kws):  # pragma: no cover
+        """
+        New functor to replace the one supplied. Simply wraps the supplied
+        functor with some code that prints the match if it was successful.
+
+        :param type cls: the Class that is being matched.
+        :param str string: the string we are attempting to match.
+        :param *kws: additional keyword arguments.
+        :type *kws: Dict[str, Any]
+
+        :returns: new functor object.
+        :rtype: function
+
+        """
+        result = func(cls, string, **kws)
+        if isinstance(result, StmtBase):
+            if result:
+                print(f"{cls.__name__}({string}) -> {result}")
+            else:
+                print(f"{cls.__name__}({string}) did NOT match")
+        return result
+
+    return new_func  # pragma: no cover
 
 
 #
@@ -212,9 +262,11 @@ class ComparableMixin:
         :type other: object
         :param method: The method to call to compare self and other.
         :type method: LambdaType
+
         :return: NotImplemented, when the comparison for the given type
                  combination can't be performed.
-        :rtype: :py:type:`NotImplementedType`
+        :rtype: :py:class:`types.NotImplementedType`
+
         """
         try:
             # This routine's purpose is to access the protected method
@@ -325,25 +377,26 @@ def _set_parent(parent_node, items):
 
 
 class Base(ComparableMixin):
-    """ Base class for Fortran 2003 syntax rules.
+    """Base class for Fortran 2003 syntax rules.
 
-    All Base classes have the following attributes:
-      self.string - original argument to construct a class instance, its type \
-                    is either str or FortranReaderBase.
-      self.item   - Line instance (holds label) or None.
+    All Base classes have the following attributes::
+
+        self.string - original argument to construct a class instance, its
+                      type is either str or FortranReaderBase.
+        self.item   - Line instance (holds label) or None.
 
     :param type cls: the class of object to create.
     :param string: (source of) Fortran string to parse.
-    :type string: `str` or \
-                  :py:class:`fparser.common.readfortran.FortranReaderBase`
+    :type string: str | :py:class:`fparser.common.readfortran.FortranReaderBase`
     :param parent_cls: the parent class of this object.
     :type parent_cls: `type`
 
     """
 
     # This dict of subclasses is populated dynamically by code at the end
-    # of this module. That code uses the entries in the
+    # of the fparser.two.parser module. That code uses the entries in the
     # 'subclass_names' list belonging to each class defined in this module.
+    # See Issue #191 for a discussion of a way of getting rid of this state.
     subclasses = {}
 
     def __init__(self, string, parent_cls=None):
@@ -352,14 +405,13 @@ class Base(ComparableMixin):
 
     @show_result
     def __new__(cls, string, parent_cls=None):
-
         if parent_cls is None:
             parent_cls = [cls]
         elif cls not in parent_cls:
             parent_cls.append(cls)
 
         # Get the class' match method if it has one
-        match = getattr(cls, "match") if hasattr(cls, "match") else None
+        match = getattr(cls, "match", None)
 
         if (
             isinstance(string, FortranReaderBase)
@@ -410,7 +462,8 @@ class Base(ComparableMixin):
             return result
         if result is None:
             # Loop over the possible sub-classes of this class and
-            # check for matches
+            # check for matches. This uses the list of subclasses calculated
+            # at runtime in fparser.two.parser.
             for subcls in Base.subclasses.get(cls.__name__, []):
                 if subcls in parent_cls:  # avoid recursion 2.
                     continue
@@ -525,15 +578,30 @@ class Base(ComparableMixin):
         reader.put_item(self.item)
 
 
+class ScopingRegionMixin:
+    """
+    Mixin class for use in all classes that represent a scoping region and
+    thus have an associated symbol table.
+
+    """
+
+    def get_scope_name(self):
+        """
+        :returns: the name of this scoping region.
+        :rtype: str
+        """
+        return self.get_name().string
+
+
 class BlockBase(Base):
     """
-    Base class for matching all block constructs.
+    Base class for matching all block constructs::
 
-    <block-base> = [ <startcls> ]
-                     [ <subcls> ]...
-                     ...
-                     [ <subcls> ]...
-                     [ <endcls> ]
+        <block-base> = [ <startcls> ]
+                         [ <subcls> ]...
+                         ...
+                         [ <subcls> ]...
+                         [ <endcls> ]
 
     """
 
@@ -590,6 +658,9 @@ class BlockBase(Base):
         # top-level due to circular dependencies).
         assert isinstance(reader, FortranReaderBase), repr(reader)
         content = []
+        # This will store the name of the new SymbolTable if we match a
+        # scoping region.
+        table_name = None
 
         if startcls is not None:
             # Deal with any preceding comments, includes, and/or directives
@@ -606,13 +677,13 @@ class BlockBase(Base):
                 for obj in reversed(content):
                     obj.restore_reader(reader)
                 return
-            if startcls in SYMBOL_TABLES.scoping_unit_classes:
+            if isinstance(obj, ScopingRegionMixin):
                 # We are entering a new scoping unit so create a new
                 # symbol table.
                 # NOTE: if the match subsequently fails then we must
                 #       delete this symbol table.
-                table_name = str(obj.children[1])
-                SYMBOL_TABLES.enter_scope(table_name)
+                table_name = obj.get_scope_name()
+                SYMBOL_TABLES.enter_scope(table_name, obj)
             # Store the index of the start of this block proper (i.e.
             # excluding any comments)
             start_idx = len(content)
@@ -743,20 +814,20 @@ class BlockBase(Base):
 
         except FortranSyntaxError as err:
             # We hit trouble so clean up the symbol table
-            if startcls in SYMBOL_TABLES.scoping_unit_classes:
+            if table_name:
                 SYMBOL_TABLES.exit_scope()
                 # Remove any symbol table that we created
                 SYMBOL_TABLES.remove(table_name)
             raise err
 
-        if startcls in SYMBOL_TABLES.scoping_unit_classes:
+        if table_name:
             SYMBOL_TABLES.exit_scope()
 
         if not had_match or endcls and not found_end:
             # We did not get a match from any of the subclasses or
             # failed to find the endcls
             if endcls is not None:
-                if startcls in SYMBOL_TABLES.scoping_unit_classes:
+                if table_name:
                     # Remove any symbol table that we created
                     SYMBOL_TABLES.remove(table_name)
                 for obj in reversed(content):
@@ -846,9 +917,9 @@ class BlockBase(Base):
 
 class SequenceBase(Base):
     """
-    Match one or more fparser2 rules separated by a defined separator.
+    Match one or more fparser2 rules separated by a defined separator::
 
-    sequence-base is obj [sep obj ] ...
+        sequence-base is obj [sep obj ] ...
 
     """
 
@@ -858,19 +929,18 @@ class SequenceBase(Base):
         separated by 'separator'.
 
         :param str separator: the separator used to split the supplied \
-        string.
+                              string.
         :param subcls: an fparser2 object representing the rule that \
-        should be matched.
+                       should be matched.
         :type subcls: subclass of :py:class:`fparser.two.utils.Base`
         :param str string: the input string to match.
 
         :returns: a tuple containing 1) the separator and 2) the \
-        matched objects in a tuple, or None if there is no match.
-        :rtype: (str, (Subclass of \
-        :py:class:`fparser.two.utils.Base`)) or NoneType
+                  matched objects in a tuple, or None if there is no match.
+        :rtype: Optional[(Str, :py:class:`fparser.two.utils.Base`)]
 
-        :raises InternalError: if the separator or string arguments \
-        are not the expected type.
+        :raises InternalError: if the separator or string arguments  \
+                               are not the expected type.
         :raises InternalError: if the separator is white space.
 
         """
@@ -950,7 +1020,9 @@ class SequenceBase(Base):
 class UnaryOpBase(Base):
     """
     ::
-        <unary-op-base> = <unary-op> <rhs>
+
+        unary-op-base is unary-op rhs
+
     """
 
     def tostr(self):
@@ -972,7 +1044,10 @@ class UnaryOpBase(Base):
 
 
 class BinaryOpBase(Base):
-    """binary-op-base is lhs op rhs
+    """
+    ::
+
+        binary-op-base is lhs op rhs
 
     Splits the input text into text to the left of the matched
     operator and text to the right of the matched operator and tries
@@ -1090,7 +1165,9 @@ class BinaryOpBase(Base):
 class SeparatorBase(Base):
     """
     ::
-        <separator-base> = [ <lhs> ] : [ <rhs> ]
+
+        separator-base is [ lhs ] : [ rhs ]
+
     """
 
     @staticmethod
@@ -1129,12 +1206,13 @@ class SeparatorBase(Base):
 
 class KeywordValueBase(Base):
     """
+    ::
 
-    keyword-value-base is [ lhs = ] rhs
+        keyword-value-base is [ lhs = ] rhs
 
-    where:
+    where::
 
-    R215 keyword is name.
+        R215 keyword is name.
 
     """
 
@@ -1279,9 +1357,9 @@ class BracketBase(Base):
     def tostr(self):
         """
         :raises InternalError: if the internal items list variable is \
-        not the expected size.
+                               not the expected size.
         :raises InternalError: if the first element of the internal \
-        items list is None or is an empty string.
+                               items list is None or is an empty string.
         """
 
         if len(self.items) != 3:
@@ -1309,7 +1387,9 @@ class BracketBase(Base):
 class NumberBase(Base):
     """
     ::
-        <number-base> = <number> [ _ <kind-param> ]
+
+        number-base is number [ _ kind-param ]
+
     """
 
     @staticmethod
@@ -1333,42 +1413,59 @@ class NumberBase(Base):
 class CallBase(Base):
     """
     ::
-        <call-base> = <lhs> ( [ <rhs> ] )
+
+        call-base is lhs ( [ rhs ] )
+
     """
 
     @staticmethod
     def match(lhs_cls, rhs_cls, string, upper_lhs=False, require_rhs=False):
-        if not string.endswith(")"):
-            return
+        """
+        :param lhs_cls: the class to match with the lhs.
+        :type lhs_cls: str | class
+        :param rhs_cls: the class to match with the rhs.
+        :type rhs_cls: str | class
+        :param str string: the string to attempt to match.
+        :param bool upper_lhs: whether or not to convert the lhs to uppercase \
+                               before attempting the match.
+        :param bool require_rhs: whether the rhs (the part within parentheses) \
+                                 must be present.
+
+        :returns: a tuple containing the lhs and rhs matches or None if there is \
+                  no match.
+        :rtype: Optional[Tuple[:py:class:`fparser.two.utils.Base`, \
+                               Optional[:py:class:`fparser.two.utils.Base`]]]
+
+        """
+        if not string.rstrip().endswith(")"):
+            return None
         line, repmap = string_replace_map(string)
-        i = line.rfind("(")
-        if i == -1:
-            return
-        lhs = line[:i].rstrip()
+        open_idx = line.rfind("(")
+        if open_idx == -1:
+            return None
+        lhs = line[:open_idx].rstrip()
         if not lhs:
             return
-        j = line.rfind(")")
-        rhs = line[i + 1 : j].strip()
-        if line[j + 1 :].lstrip():
-            return
+        close_idx = line.rfind(")")
+        rhs = line[open_idx + 1 : close_idx].strip()
         lhs = repmap(lhs)
         if upper_lhs:
             lhs = lhs.upper()
         rhs = repmap(rhs)
         if isinstance(lhs_cls, str):
             if lhs_cls != lhs:
-                return
+                return None
         else:
             lhs = lhs_cls(lhs)
         if rhs:
             if isinstance(rhs_cls, str):
                 if rhs_cls != rhs:
-                    return
+                    return None
             else:
                 rhs = rhs_cls(rhs)
             return lhs, rhs
         if require_rhs:
-            return
+            return None
         return lhs, None
 
     def tostr(self):
@@ -1380,7 +1477,9 @@ class CallBase(Base):
 class CALLBase(CallBase):
     """
     ::
-        <CALL-base> = <LHS> ( [ <rhs> ] )
+
+        CALL-base is LHS ( [ rhs ] )
+
     """
 
     @staticmethod
@@ -1393,11 +1492,9 @@ class CALLBase(CallBase):
 class StringBase(Base):
     """
     ::
-        <string-base> = <xyz>
 
-    Attributes
-    ----------
-    string
+        string-base is xyz
+
     """
 
     @staticmethod
@@ -1499,11 +1596,13 @@ class STRINGBase(StringBase):
 class StmtBase(Base):
     """
     ::
-        [ [ <label> ] [ <construct-name> : ] ] <stmt>
 
-    Attributes
-    ----------
-    item : readfortran.Line
+        [ [ label ] [ construct-name : ] ] stmt
+
+    Attributes::
+
+        item : readfortran.Line
+
     """
 
     def tofortran(self, tab="", isfix=None):
@@ -1537,28 +1636,57 @@ class StmtBase(Base):
 class EndStmtBase(StmtBase):
     """
     ::
-        <end-stmt-base> = END [ <stmt> [ <stmt-name>] ]
+
+        end-stmt-base = END [ stmt [ stmt-name] ]
+
     """
 
     @staticmethod
     def match(stmt_type, stmt_name, string, require_stmt_type=False):
+        """
+        Attempts to match the supplied string as a form of 'END xxx' statement.
+
+        :param str stmt_type: the type of end statement (e.g. "do") that we \
+            attempt to match.
+        :param type stmt_name: a class which should be used to match against \
+            the name should this statement be named (e.g. end subroutine sub).
+        :param str string: the string to attempt to match.
+        :param bool require_stmt_type: whether or not the string must contain \
+            the type of the block that is ending.
+
+        :returns: 2-tuple containing the matched end-statement type (if any) \
+            and, optionally, an associated name or None if there is no match.
+        :rtype: Optional[
+                    Tuple[Optional[str],
+                          Optional[:py:class:`fparser.two.Fortran2003.Name`]]]
+
+        """
         start = string[:3].upper()
         if start != "END":
-            return
+            # string doesn't begin with 'END'
+            return None
         line = string[3:].lstrip()
         start = line[: len(stmt_type)].upper()
         if start:
             if start.replace(" ", "") != stmt_type.replace(" ", ""):
-                return
+                # Not the correct type of 'END ...' statement.
+                return None
             line = line[len(stmt_type) :].lstrip()
         else:
             if require_stmt_type:
-                return
+                # No type was found but one is required.
+                return None
+            # Got a bare "END" and that is a valid match.
             return None, None
         if line:
             if stmt_name is None:
-                return
+                # There is content after the 'end xxx' but this block isn't
+                # named so we fail to match.
+                return None
+            # Attempt to match the content after 'end xxx' with the supplied
+            # name class.
             return stmt_type, stmt_name(line)
+        # Successful match with an unnamed 'end xxx'.
         return stmt_type, None
 
     def init(self, stmt_type, stmt_name):
@@ -1605,11 +1733,11 @@ def isalnum(c):
 class WORDClsBase(Base):
     """Base class to support situations where there is a keyword which is
     optionally followed by further text, potentially separated by
-    '::'.
+    a double colon. For example::
 
-    For example 'program fred', or 'import :: a,b'
+        'program fred', or 'import :: a,b'
 
-    WORD-cls is WORD [ [ :: ] cls ]
+        WORD-cls is WORD [ [ :: ] cls ]
 
     """
 
@@ -1618,14 +1746,14 @@ class WORDClsBase(Base):
         """Checks whether the content in string matches the expected
         WORDClsBase format with 'keyword' providing the keyword, 'cls'
         providing the following text, 'colons' specifying whether an
-        optional '::' is allowed as a separator between the keyword
+        optional double colon is allowed as a separator between the keyword
         and cls and 'require_cls' specifying whether cls must have
         content or not.
 
-        Note, if the optional '::' is allowed and exists in the string
+        Note, if the optional double colon is allowed and exists in the string
         then 1) cls must also have content i.e. it implies
         `require_cls=True` and 2) white space is not required between
-        the keyword and the '::' and the '::' and cls.
+        the keyword and the double colon and the double colon and cls.
 
         The simplest form of keyword pattern is a string. However this
         method can also match more complex patterns as specified by
@@ -1643,7 +1771,7 @@ class WORDClsBase(Base):
         :param cls: the class to match.
         :type cls: a subclass of :py:class:`fparser.two.utils.Base`
         :param str string: Text that we are trying to match.
-        :param bool colons: whether '::' is allowed as an optional \
+        :param bool colons: whether a double colon is allowed as an optional \
             separator between between WORD and cls.
         :param bool require_cls: whether content for cls is required \
             or not.
@@ -1652,7 +1780,7 @@ class WORDClsBase(Base):
             2-tuple containing a string matching the 'WORD' and an \
             instance of 'cls' (or None if an instance of cls is not \
             required and not provided).
-        :rtype: (str, cls or NoneType) or NoneType
+        :rtype: Optional[Tupe[Str, Optional[Cls]]]
 
         """
         if isinstance(keyword, (tuple, list)):
@@ -1705,7 +1833,7 @@ class WORDClsBase(Base):
         """Convert the class into Fortran.
 
         :return: String representation of this class without any \
-                 optional '::'.
+                 optional double colon.
         :rtype: str
 
         """
@@ -1717,10 +1845,10 @@ class WORDClsBase(Base):
         return "%s %s" % (self.items[0], s)
 
     def tostr_a(self):
-        """Convert the class into Fortran, adding in "::".
+        """Convert the class into Fortran, adding in the double colon.
 
         :return: String representation of this class including an \
-                 optional '::'.
+                 optional double colon.
         :rtype: str
 
         """
@@ -1730,8 +1858,11 @@ class WORDClsBase(Base):
 
 
 class Type_Declaration_StmtBase(StmtBase):
-    """<type-declaration-stmt> = <declaration-type-spec> [ [ ,
-    <attr-spec> ]... :: ] <entity-decl-list>
+    """
+    ::
+
+        type-declaration-stmt is declaration-type-spec [ [ ,
+            attr-spec ]... :: ] entity-decl-list
 
     """
 

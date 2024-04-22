@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Modified work Copyright (c) 2017-2019 Science and Technology
+# Modified work Copyright (c) 2017-2022 Science and Technology
 # Facilities Council.
 # Original work Copyright (c) 1999-2008 Pearu Peterson
 
@@ -169,13 +169,15 @@ def get_base_classes(cls):
 
 class Variable(metaclass=classes):
     """
-    Variable instance has attributes:
-      name
-      typedecl
-      dimension
-      attributes
-      intent
-      parent - Statement instances defining the variable
+    Variable instance has attributes::
+
+        name
+        typedecl
+        dimension
+        attributes
+        intent
+        parent - Statement instances defining the variable
+
     """
 
     def __init__(self, parent, name):
@@ -587,10 +589,12 @@ class ProgramBlock(metaclass=classes):
 
 class Statement(metaclass=classes):
     """
-    Statement instance has attributes:
-      parent  - Parent BeginStatement or FortranParser instance
-      item    - Line instance containing the statement line
-      isvalid - boolean, when False, the Statement instance will be ignored
+    Statement instance has attributes::
+
+        parent  - Parent BeginStatement or FortranParser instance
+        item    - Line instance containing the statement line
+        isvalid - boolean, when False, the Statement instance will be ignored
+
     """
 
     modes = ["free", "fix", "f77", "pyf"]
@@ -758,24 +762,29 @@ class Statement(metaclass=classes):
 
 
 class BeginStatement(Statement):
-    """[ construct_name : ] <blocktype> [ <name> ]
+    """
+    ::
 
-    BeginStatement instances have additional attributes:
-      name
-      blocktype
+        [ construct_name : ] <blocktype> [ <name> ]
 
-    Block instance has attributes:
-      content - list of Line or Statement instances
-      name    - name of the block, unnamed blocks are named
-                with the line label
-      construct_name - name of a construct
-      parent  - Block or FortranParser instance
-      item    - Line instance containing the block start statement
-      get_item, put_item - methods to retrive/submit Line instances
-                from/to Fortran reader.
-      isvalid - boolean, when False, the Block instance will be ignored.
+    BeginStatement instances have additional attributes::
 
-      stmt_cls, end_stmt_cls
+        name
+        blocktype
+
+    Block instance has attributes::
+
+        content - list of Line or Statement instances
+        name    - name of the block, unnamed blocks are named
+                  with the line label
+        construct_name - name of a construct
+        parent  - Block or FortranParser instance
+        item    - Line instance containing the block start statement
+        get_item, put_item - methods to retrive/submit Line instances
+                  from/to Fortran reader.
+        isvalid - boolean, when False, the Block instance will be ignored.
+
+        stmt_cls, end_stmt_cls
 
     """
 
@@ -786,7 +795,6 @@ class BeginStatement(Statement):
     ] + Statement._repr_attr_names
 
     def __init__(self, parent, item=None):
-
         self.content = []
         self.get_item = parent.get_item  # get line function
         self.put_item = parent.put_item  # put line function
@@ -978,9 +986,11 @@ class EndStatement(Statement):
     """
     END [<blocktype> [<name>]]
 
-    EndStatement instances have additional attributes:
-      name
-      blocktype
+    EndStatement instances have additional attributes::
+
+        name
+        blocktype
+
     """
 
     _repr_attr_names = ["blocktype", "name"] + Statement._repr_attr_names

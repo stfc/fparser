@@ -35,10 +35,15 @@
 
 .PHONY: test create_dependency fparser2_f2008
 
-test:  create_dependency fparser2_f2008
+test:  create_dependencies split_file fparser2_f2008
 
-create_dependency:
-	(cd test_files; ../create_dependencies.py *.f90)
+create_dependencies:
+	(cd test_files/create_dependencies; ../../create_dependencies.py *.f90)
+
+split_file:
+	(cd test_files/split_file; \
+		rm -f Makefile func.f90 mod1.f90 sub.f90 test_prog.f90; \
+		../../split_file.py test.f90)
 
 fparser2_f2008:
 	python ./fparser2_f2008.py

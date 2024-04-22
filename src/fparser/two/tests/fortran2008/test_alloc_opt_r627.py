@@ -45,7 +45,7 @@ test for.
 """
 
 import pytest
-from fparser.two.Fortran2008 import Allocate_Stmt, Alloc_Opt
+from fparser.two.Fortran2008 import Allocate_Stmt, Alloc_Opt, Alloc_Opt_List
 
 
 @pytest.mark.usefixtures("f2008_create")
@@ -61,5 +61,9 @@ def test_allocate_stmt():
     """Check that the Fortran2008 version of allocate has picked up the
     version of Alloc_Opt that supports MOLD."""
     obj = Allocate_Stmt("allocate(b, mold=c)")
+    assert obj.alloc_opt_list() == Alloc_Opt_List
     assert isinstance(obj, Allocate_Stmt), repr(obj)
     assert str(obj) == "ALLOCATE(b, MOLD = c)"
+    obj = Allocate_Stmt("allocate(b, mold=c, stat=ierr)")
+    assert isinstance(obj, Allocate_Stmt), repr(obj)
+    assert str(obj) == "ALLOCATE(b, MOLD = c, STAT = ierr)"

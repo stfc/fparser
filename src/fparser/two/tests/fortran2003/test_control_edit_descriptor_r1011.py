@@ -1,4 +1,4 @@
-# Copyright (c) 2019 Science and Technology Facilities Council
+# Copyright (c) 2019-2024 Science and Technology Facilities Council.
 
 # All rights reserved.
 
@@ -35,6 +35,7 @@
 """Tests for a Fortran 2003 R1011 control edit descriptor."""
 
 import pytest
+from fparser.two import utils
 from fparser.two.Fortran2003 import Control_Edit_Desc
 from fparser.two.utils import NoMatchError, InternalError
 
@@ -80,8 +81,6 @@ def test_dollar_valid(f2003_create, monkeypatch):
     example with spaces.
 
     """
-    from fparser.two import utils
-
     monkeypatch.setattr(utils, "EXTENSIONS", ["dollar-descriptor"])
     for my_input in ["$", " $ "]:
         ast = Control_Edit_Desc(my_input)
@@ -93,9 +92,7 @@ def test_dollar_invalid(f2003_create, monkeypatch):
     the 'dollar-format' extension is not in the EXTENSIONS list.
 
     """
-    from fparser.two import utils
-
-    monkeypatch.setattr(utils, "EXTENSIONS", [])
+    monkeypatch.setattr(utils, "_EXTENSIONS", [])
     for my_input in ["$", " $ "]:
         with pytest.raises(NoMatchError):
             _ = Control_Edit_Desc(my_input)

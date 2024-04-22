@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 ##############################################################################
-# Copyright (c) 2017-2022 Science and Technology Facilities Council.
+# Copyright (c) 2017-2023 Science and Technology Facilities Council.
 #
 # All rights reserved.
 #
@@ -206,8 +206,9 @@ def test_format_from_mode_bad():
         ("! -*- fix -*-", FortranFormat(False, False)),
         ("! -*- pyf -*-", FortranFormat(True, True)),
     ],
+    name="header",
 )
-def header(request):
+def header_fixture(request):
     """
     Returns parameters for header tests.
     """
@@ -283,7 +284,7 @@ def test_get_source_info_str(header, content):
     if content[0] is not None:
         full_source += content[0]
 
-    source_info = get_source_info_str(full_source)
+    source_info = get_source_info_str(full_source, ignore_encoding=False)
     if header[0]:
         assert source_info == header[1]
     else:  # No header
@@ -291,6 +292,7 @@ def test_get_source_info_str(header, content):
 
 
 ##############################################################################
+
 
 # Another parameterised test fixture. See "header" above.
 #
@@ -331,7 +333,7 @@ def test_get_source_info_filename(extension, header, content):
         print(full_source, file=source_file)
 
     try:
-        source_info = get_source_info(filename)
+        source_info = get_source_info(filename, ignore_encoding=False)
         if extension[1] is not None:
             assert source_info == extension[1]
         elif header[0] is not None:
@@ -361,7 +363,7 @@ def test_get_source_info_file(extension, header, content):
         print(full_source, file=source_file)
         source_file.seek(0)
 
-        source_info = get_source_info(source_file)
+        source_info = get_source_info(source_file, ignore_encoding=False)
         if header[0] is not None:
             assert source_info == header[1]
         else:  # No header

@@ -1,0 +1,46 @@
+[build-system]
+requires = [
+    "setuptools >= 61",
+    "setuptools_scm[toml] >= 6.2",
+    "setuptools_scm_git_archive",
+    "wheel >= 0.29.0",
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fparser"
+authors = [{name = "Pearu Peterson"},
+	   {name = "Rupert Ford"},
+	   {name = "Andrew Porter", email = "andrew.porter@stfc.ac.uk"}]
+license = {text = "BSD-3-Clause"}
+description = "Python implementation of a Fortran parser"
+readme = "README.md"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Natural Language :: English",
+    "Programming Language :: Fortran",
+    "Programming Language :: Python",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Software Development",
+    "Topic :: Utilities",
+    "Operating System :: POSIX",
+    "Operating System :: Unix",
+    "Operating System :: MacOS",
+]
+keywords = ["fortran", "parser"]
+dynamic = ["version"]
+requires-python = ">=3.6"
+dependencies = ["setuptools_scm"]
+
+[project.optional-dependencies]
+doc = ["sphinx", "sphinxcontrib.bibtex", "autoapi", "sphinx-autoapi", "sphinx_rtd_theme"]
+tests = ["pytest >= 3.3.0"]
+
+[project.scripts]
+fparser2 = "fparser.scripts.fparser2:main"
+
+[tool.setuptools_scm]
+write_to = "src/fparser/_version.py"

@@ -1,4 +1,4 @@
-# Copyright (c) 2017-2022 Science and Technology Facilities Council.
+# Copyright (c) 2017-2023 Science and Technology Facilities Council.
 # Original work Copyright (c) 1999-2008 Pearu Peterson
 
 # All rights reserved.
@@ -65,8 +65,33 @@
 # First version by: Pearu Peterson <pearu@cens.ioc.ee>
 # First created: Oct 2006
 
+try:
+    from importlib.metadata import PackageNotFoundError
+    from importlib import metadata
+except ImportError:
+    # Use backport package for python <3.8
+    from importlib_metadata import PackageNotFoundError
+    import importlib_metadata as metadata
+
 import logging
 import codecs
+
+
+def _get_version():
+    """
+    :returns: the version of this package.
+    :rtype: str
+    """
+    try:
+        return metadata.version(__name__)
+    except PackageNotFoundError:
+        # Package is not installed.
+        from setuptools_scm import get_version
+
+        return get_version(root="../..", relative_to=__file__)
+
+
+__version__ = _get_version()
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 

@@ -3,7 +3,8 @@
     You can adapt this file completely to your liking, but it should at least
     contain the root `toctree` directive.
 
-    Modified work Copyright (c) 2017 Science and Technology Facilities Council
+    Modified work Copyright (c) 2017-2022 Science and Technology Facilities
+    Council.
     Original work Copyright (c) 1999-2008 Pearu Peterson
 
     All rights reserved.
@@ -72,9 +73,11 @@ Welcome to fparser's documentation!
 
 .. toctree::
    :maxdepth: 3
+   :caption: Contents:
 
    license
    introduction
    fparser
    fparser2
    developers_guide
+   reference_guide

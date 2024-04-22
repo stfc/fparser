@@ -1,4 +1,5 @@
-# Modified work Copyright (c) 2017 Science and Technology Facilities Council
+# Modified work Copyright (c) 2017-2022 Science and Technology
+# Facilities Council.
 # Original work Copyright (c) 1999-2008 Pearu Peterson
 
 # All rights reserved.
@@ -106,61 +107,71 @@ from fparser.common.utils import (
 
 class TypeDeclarationStatement(Statement):
     """
-    <declaration-type-spec> [ [, <attr-spec>] :: ] <entity-decl-list>
-    <declaration-type-spec> = <intrinsic-type-spec>
-                              | TYPE ( <derived-type-spec> )
-                              | CLASS ( <derived-type-spec> )
-                              | CLASS ( * )
+    Class capturing various sorts of type declaration.
 
-    <derived-type-spec> = <type-name> [ ( <type-param-spec-list> ) ]
-    <type-param-spec> = [ <keyword> = ] <type-param-value>
-    <type-param-value> = <scalar-int-expr> | * | :
+    ::
 
-    <intrinsic-type-spec> = INTEGER [<kind-selector>]
-                            | REAL [<kind-selector>]
-                            | DOUBLE PRECISION
-                            | COMPLEX [<kind-selector>]
-                            | CHARACTER [<char-selector>]
-                            | LOGICAL [<kind-selector>]
+        <declaration-type-spec> [ [, <attr-spec>] :: ] <entity-decl-list>
+        <declaration-type-spec> = <intrinsic-type-spec>
+                                  | TYPE ( <derived-type-spec> )
+                                  | CLASS ( <derived-type-spec> )
+                                  | CLASS ( * )
 
-    <kind-selector> = ( [ KIND = ] <scalar-int-initialization-expr> )
-    EXTENSION:
-      <kind-selector> = ( [ KIND = ] <scalar-int-initialization-expr> )
-                        | * <length>
+        <derived-type-spec> = <type-name> [ ( <type-param-spec-list> ) ]
+        <type-param-spec> = [ <keyword> = ] <type-param-value>
+        <type-param-value> = <scalar-int-expr> | * | :
 
-    <char-selector> = <length-selector>
-                      | ( LEN = <type-param-value>, KIND = <scalar-int-initialization-expr> )
-                      | ( <type-param-value>, [ KIND = ] <scalar-int-initialization-expr> )
-                      | ( KIND = <scalar-int-initialization-expr> [, LEN = <type-param-value>] )
-    <length-selector> = ( [ LEN = ] <type-param-value> )
-                        | * <char-length> [ , ]
-    <char-length> = ( <type-param-value> ) | <scalar-int-literal-constant>
+        <intrinsic-type-spec> = INTEGER [<kind-selector>]
+                                | REAL [<kind-selector>]
+                                | DOUBLE PRECISION
+                                | COMPLEX [<kind-selector>]
+                                | CHARACTER [<char-selector>]
+                                | LOGICAL [<kind-selector>]
 
-    <attr-spec> = <access-spec> | ALLOCATABLE | ASYNCHRONOUS
-                  | DIMENSION ( <array-spec> ) | EXTERNAL
-                  | INTENT ( <intent-spec> ) | INTRINSIC
-                  | <language-binding-spec> | OPTIONAL
-                  | PARAMETER | POINTER | PROTECTED | SAVE
-                  | TARGET | VALUE | VOLATILE
-    <entity-decl> = <object-name> [ ( <array-spec> ) ] [ * <char-length> ] [ <initialization> ]
-                  | <function-name> [ * <char-length> ]
-    <initialization> =  = <initialization-expr>
-                        | => NULL
-    <access-spec> = PUBLIC | PRIVATE
-    <language-binding-spec> = BIND ( C [ , NAME = <scalar-char-initialization-expr>] )
-    <array-spec> =   <explicit-shape-spec-list>
-                   | <assumed-shape-spec-list>
-                   | <deferred-shape-spec-list>
-                   | <assumed-size-spec>
-    <explicit-shape-spec> = [ <lower-bound> : ] <upper-bound>
-    <assumed-shape-spec> = [ <lower-bound> ] :
-    <deferred-shape-spec> = :
-    <assumed-size-spec> = [ <explicit-shape-spec-list> , ] [ <lower-bound> : ] *
-    <bound> = <specification-expr>
+        <kind-selector> = ( [ KIND = ] <scalar-int-initialization-expr> )
+        EXTENSION:
+          <kind-selector> = ( [ KIND = ] <scalar-int-initialization-expr> )
+                            | * <length>
 
-    <int-literal-constant> = <digit-string> [ _ <kind-param> ]
-    <digit-string> = <digit> [ <digit> ]..
-    <kind-param> = <digit-string> | <scalar-int-constant-name>
+        <char-selector> = <length-selector>
+                          | ( LEN = <type-param-value>,
+                              KIND = <scalar-int-initialization-expr> )
+                          | ( <type-param-value>, [ KIND = ]
+                              <scalar-int-initialization-expr> )
+                          | ( KIND = <scalar-int-initialization-expr> [,
+                              LEN = <type-param-value>] )
+        <length-selector> = ( [ LEN = ] <type-param-value> )
+                            | * <char-length> [ , ]
+        <char-length> = ( <type-param-value> ) | <scalar-int-literal-constant>
+
+        <attr-spec> = <access-spec> | ALLOCATABLE | ASYNCHRONOUS
+                      | DIMENSION ( <array-spec> ) | EXTERNAL
+                      | INTENT ( <intent-spec> ) | INTRINSIC
+                      | <language-binding-spec> | OPTIONAL
+                      | PARAMETER | POINTER | PROTECTED | SAVE
+                      | TARGET | VALUE | VOLATILE
+        <entity-decl> = <object-name> [ ( <array-spec> ) ] [ * <char-length> ]
+                        [ <initialization> ]
+                      | <function-name> [ * <char-length> ]
+        <initialization> =  = <initialization-expr>
+                            | => NULL
+        <access-spec> = PUBLIC | PRIVATE
+        <language-binding-spec> = BIND ( C [ , NAME =
+                                         <scalar-char-initialization-expr>] )
+        <array-spec> =   <explicit-shape-spec-list>
+                       | <assumed-shape-spec-list>
+                       | <deferred-shape-spec-list>
+                       | <assumed-size-spec>
+        <explicit-shape-spec> = [ <lower-bound> : ] <upper-bound>
+        <assumed-shape-spec> = [ <lower-bound> ] :
+        <deferred-shape-spec> = :
+        <assumed-size-spec> = [ <explicit-shape-spec-list> , ] [ <lower-bound> : ] *
+        <bound> = <specification-expr>
+
+        <int-literal-constant> = <digit-string> [ _ <kind-param> ]
+        <digit-string> = <digit> [ <digit> ]..
+        <kind-param> = <digit-string> | <scalar-int-constant-name>
+
     """
 
     _repr_attr_names = [
@@ -599,10 +610,15 @@ class Class(TypeDeclarationStatement):
 
 class Implicit(Statement):
     """
-    IMPLICIT <implicit-spec-list>
-    IMPLICIT NONE
-    <implicit-spec> = <declaration-type-spec> ( <letter-spec-list> )
-    <letter-spec> = <letter> [ - <letter> ]
+    Class capturing various forms of IMPLICIT statement.
+
+    ::
+
+        IMPLICIT <implicit-spec-list>
+        IMPLICIT NONE
+        <implicit-spec> = <declaration-type-spec> ( <letter-spec-list> )
+        <letter-spec> = <letter> [ - <letter> ]
+
     """
 
     match = re.compile(r"implicit\b", re.I).match

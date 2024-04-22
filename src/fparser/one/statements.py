@@ -1,4 +1,4 @@
-# Modified work Copyright (c) 2017-2018 Science and Technology
+# Modified work Copyright (c) 2017-2022 Science and Technology
 # Facilities Council
 # Original work Copyright (c) 1999-2008 Pearu Peterson
 
@@ -298,28 +298,27 @@ class Assign(Statement):
 
 
 class Call(Statement):
-    """Call statement class
-    CALL <procedure-designator> [ ( [ <actual-arg-spec-list> ] ) ]
+    """
+    Call statement class::
 
-    <procedure-designator> = <procedure-name>
-                           | <proc-component-ref>
-                           | <data-ref> % <binding-name>
+        CALL <procedure-designator> [ ( [ <actual-arg-spec-list> ] ) ]
 
-    <actual-arg-spec> = [ <keyword> = ] <actual-arg>
-    <actual-arg> = <expr>
-                 | <variable>
-                 | <procedure-name>
-                 | <proc-component-ref>
-                 | <alt-return-spec>
-    <alt-return-spec> = * <label>
+        <procedure-designator> = <procedure-name>
+                               | <proc-component-ref>
+                               | <data-ref> % <binding-name>
 
-    <proc-component-ref> = <variable> % <procedure-component-name>
+        <actual-arg-spec> = [ <keyword> = ] <actual-arg>
+        <actual-arg> = <expr>
+                     | <variable>
+                     | <procedure-name>
+                     | <proc-component-ref>
+                     | <alt-return-spec>
+        <alt-return-spec> = * <label>
 
-    <variable> = <designator>
+        <proc-component-ref> = <variable> % <procedure-component-name>
 
-    Call instance has attributes:
-      designator
-      arg_list
+        <variable> = <designator>
+
     """
 
     # As indicated in the specification above, a call to a subroutine
@@ -528,16 +527,19 @@ class Stop(Statement):
 
 class Print(Statement):
     """
-    PRINT <format> [, <output-item-list>]
-    <format> = <default-char-expr> | <label> | *
+    ::
 
-    <output-item> = <expr> | <io-implied-do>
-    <io-implied-do> = ( <io-implied-do-object-list> , <implied-do-control> )
-    <io-implied-do-object> = <input-item> | <output-item>
-    <implied-do-control> = <do-variable>
-                         = <scalar-int-expr> ,
-                           <scalar-int-expr> [ , <scalar-int-expr> ]
-    <input-item> = <variable> | <io-implied-do>
+        PRINT <format> [, <output-item-list>]
+        <format> = <default-char-expr> | <label> | *
+
+        <output-item> = <expr> | <io-implied-do>
+        <io-implied-do> = ( <io-implied-do-object-list> , <implied-do-control> )
+        <io-implied-do-object> = <input-item> | <output-item>
+        <implied-do-control> = <do-variable>
+                             = <scalar-int-expr> ,
+                               <scalar-int-expr> [ , <scalar-int-expr> ]
+        <input-item> = <variable> | <io-implied-do>
+
     """
 
     match = re.compile(r"print\s*(\'\w*\'|\"\w*\"|\d+|[*]|\b\w)", re.I).match
@@ -651,12 +653,14 @@ class Write(Statement):
 
 class Flush(Statement):
     """
-    FLUSH <file-unit-number>
-    FLUSH ( <flush-spec-list> )
-    <flush-spec> = [ UNIT = ] <file-unit-number>
-                 | IOSTAT = <scalar-int-variable>
-                 | IOMSG = <iomsg-variable>
-                 | ERR = <label>
+    ::
+
+        FLUSH <file-unit-number>
+        FLUSH ( <flush-spec-list> )
+        <flush-spec> = [ UNIT = ] <file-unit-number>
+                     | IOSTAT = <scalar-int-variable>
+                     | IOMSG = <iomsg-variable>
+                     | ERR = <label>
     """
 
     match = re.compile(r"flush\b", re.I).match
@@ -683,14 +687,16 @@ class Flush(Statement):
 
 class Wait(Statement):
     """
-    WAIT ( <wait-spec-list> )
-    <wait-spec> = [ UNIT = ] <file-unit-number>
-                | END = <label>
-                | EOR = <label>
-                | ERR = <label>
-                | ID = <scalar-int-expr>
-                | IOMSG = <iomsg-variable>
-                | IOSTAT = <scalar-int-variable>
+    ::
+
+        WAIT ( <wait-spec-list> )
+        <wait-spec> = [ UNIT = ] <file-unit-number>
+                    | END = <label>
+                    | EOR = <label>
+                    | ERR = <label>
+                    | ID = <scalar-int-expr>
+                    | IOMSG = <iomsg-variable>
+                    | IOSTAT = <scalar-int-variable>
 
     """
 
@@ -726,11 +732,13 @@ class Contains(Statement):
 
 class Allocate(Statement):
     """
-    ALLOCATE ( [ <type-spec> :: ] <allocation-list> [ , <alloc-opt-list> ] )
-    <alloc-opt> = STAT = <stat-variable>
-                | ERRMSG = <errmsg-variable>
-                | SOURCE = <source-expr>
-    <allocation> = <allocate-object> [ ( <allocate-shape-spec-list> ) ]
+    ::
+
+        ALLOCATE ( [ <type-spec> :: ] <allocation-list> [ , <alloc-opt-list> ] )
+        <alloc-opt> = STAT = <stat-variable>
+                    | ERRMSG = <errmsg-variable>
+                    | SOURCE = <source-expr>
+        <allocation> = <allocate-object> [ ( <allocate-shape-spec-list> ) ]
     """
 
     match = re.compile(r"allocate\s*\(.*\)\Z", re.I).match
@@ -800,12 +808,14 @@ class Allocate(Statement):
 
 class Deallocate(Statement):
     """
-    DEALLOCATE ( <allocate-object-list> [ , <dealloc-opt-list> ] )
-    <allocate-object> = <variable-name>
-                      | <structure-component>
-    <structure-component> = <data-ref>
-    <dealloc-opt> = STAT = <stat-variable>
-                    | ERRMSG = <errmsg-variable>
+    ::
+
+        DEALLOCATE ( <allocate-object-list> [ , <dealloc-opt-list> ] )
+        <allocate-object> = <variable-name>
+                          | <structure-component>
+        <structure-component> = <data-ref>
+        <dealloc-opt> = STAT = <stat-variable>
+                        | ERRMSG = <errmsg-variable>
     """
 
     match = re.compile(r"deallocate\s*\(.*\)\Z", re.I).match
@@ -924,12 +934,14 @@ class Private(Access):
 
 class Close(Statement):
     """
-    CLOSE ( <close-spec-list> )
-    <close-spec> = [ UNIT = ] <file-unit-number>
-                   | IOSTAT = <scalar-int-variable>
-                   | IOMSG = <iomsg-variable>
-                   | ERR = <label>
-                   | STATUS = <scalar-default-char-expr>
+    ::
+
+        CLOSE ( <close-spec-list> )
+        <close-spec> = [ UNIT = ] <file-unit-number>
+                       | IOSTAT = <scalar-int-variable>
+                       | IOMSG = <iomsg-variable>
+                       | ERR = <label>
+                       | STATUS = <scalar-default-char-expr>
     """
 
     match = re.compile(r"close\s*\(.*\)\Z", re.I).match
@@ -1021,10 +1033,12 @@ class Rewind(FilePositioningStatement):
 
 class Open(Statement):
     """
-    OPEN ( <connect-spec-list> )
-    <connect-spec> = [ UNIT = ] <file-unit-number>
-                     | ACCESS = <scalar-default-char-expr>
-                     | ..
+    ::
+
+        OPEN ( <connect-spec-list> )
+        <connect-spec> = [ UNIT = ] <file-unit-number>
+                         | ACCESS = <scalar-default-char-expr>
+                         | ..
     """
 
     match = re.compile(r"open\s*\(.*\)\Z", re.I).match
@@ -1043,26 +1057,29 @@ class Open(Statement):
 
 class Format(Statement):
     """
-    FORMAT <format-specification>
-    <format-specification> = ( [ <format-item-list> ] )
-    <format-item> = [ <r> ] <data-edit-descr>
-                    | <control-edit-descr>
-                    | <char-string-edit-descr>
-                    | [ <r> ] ( <format-item-list> )
-    <data-edit-descr> = I <w> [ . <m> ]
-                        | B <w> [ . <m> ]
-                        ...
-    <r|w|m|d|e> = <int-literal-constant>
-    <v> = <signed-int-literal-constant>
-    <control-edit-descr> = <position-edit-descr>
-                         | [ <r> ] /
-                         | :
-                         ...
-    <position-edit-descr> = T <n>
-                            | TL <n>
+    ::
+
+        FORMAT format-specification
+
+        format-specification is ( [ format-item-list ] )
+        format-item is [ r ] data-edit-descr
+                    or control-edit-descr
+                    or char-string-edit-descr
+                    or [ r ] ( format-item-list )
+        data-edit-descr is I w [ . m ]
+                        or B w [ . m ]
                             ...
-    <sign-edit-descr> = SS | SP | S
-    ...
+        r|w|m|d|e is int-literal-constant
+        v is signed-int-literal-constant
+        control-edit-descr is position-edit-descr
+                           or [ r ] /
+                           or :
+                           ...
+        position-edit-descr is T n
+                            or TL n
+                            ...
+        sign-edit-descr is SS | SP | S
+        ...
 
     """
 
@@ -1091,12 +1108,15 @@ class Format(Statement):
 
 class Save(Statement):
     """
-    SAVE [ [ :: ] <saved-entity-list> ]
-    <saved-entity> = <object-name>
-                     | <proc-pointer-name>
-                     | / <common-block-name> /
-    <proc-pointer-name> = <name>
-    <object-name> = <name>
+    ::
+
+        SAVE [ [ :: ] saved-entity-list ]
+
+        saved-entity is object-name
+                     or proc-pointer-name
+                     or / common-block-name /
+        proc-pointer-name is name
+        object-name is name
     """
 
     match = re.compile(r"save\b", re.I).match
@@ -1136,24 +1156,27 @@ class Save(Statement):
 
 class Data(Statement):
     """
-    DATA <data-stmt-set> [ [ , ] <data-stmt-set> ]...
-    <data-stmt-set> = <data-stmt-object-list> / <data-stmt-value-list> /
-    <data-stmt-object> = <variable> | <data-implied-do>
-    <data-implied-do> = ( <data-i-do-object-list> ,
-                          <data-i-do-variable> = <scalar-int-expr> ,
-                          <scalar-int-expr> [ , <scalar-int-expr> ] )
-    <data-i-do-object> = <array-element>
-                         | <scalar-structure-component>
-                         | <data-implied-do>
-    <data-i-do-variable> = <scalar-int-variable>
-    <variable> = <designator>
-    <designator> = <object-name>
-                   | <array-element>
-                   | <array-section>
-                   | <structure-component>
-                   | <substring>
-    <array-element> = <data-ref>
-    <array-section> = <data-ref> [ ( <substring-range> ) ]
+    ::
+
+        DATA data-stmt-set [ [ , ] data-stmt-set ]...
+
+        data-stmt-set is data-stmt-object-list / data-stmt-value-list /
+        data-stmt-object is variable or data-implied-do
+        data-implied-do is ( data-i-do-object-list ,
+                              data-i-do-variable = scalar-int-expr ,
+                              scalar-int-expr [ , scalar-int-expr ] )
+        data-i-do-object is array-element
+                         or scalar-structure-component
+                         or data-implied-do
+        data-i-do-variable is scalar-int-variable
+        variable is designator
+        designator is object-name
+                   or array-element
+                   or array-section
+                   or structure-component
+                   or substring
+        array-element is data-ref
+        array-section is data-ref [ ( substring-range ) ]
 
     """
 
@@ -1220,16 +1243,17 @@ class Use(Statement):
     :param class Statement: Base fparser class.
     :raises AnalyzeError: If entity name is not in module.
 
-    Fortran syntax construct:
+    Fortran syntax construct::
 
-    USE [ [ , <module-nature> ] :: ] <module-name> [ , <rename-list> ]
-    USE [ [ , <module-nature> ] :: ] <module-name> , ONLY : [ <only-list> ]
-    <module-nature> = INTRINSIC | NON_INTRINSIC
-    <rename> = <local-name> => <use-name>
-               | OPERATOR ( <local-defined-operator> ) =>
-                            OPERATOR ( <use-defined-operator> )
-    <only> = <generic-spec> | <only-use-name> | <rename>
-    <only-use-name> = <use-name>
+        USE [ [ , module-nature ] :: ] module-name [ , rename-list ]
+        USE [ [ , module-nature ] :: ] module-name , ONLY : [ only-list ]
+
+        module-nature is INTRINSIC or NON_INTRINSIC
+        rename is local-name => use-name
+                   or OPERATOR ( local-defined-operator ) =>
+                                OPERATOR ( use-defined-operator )
+        only is generic-spec or only-use-name or rename
+        only-use-name is use-name
     """
 
     match = re.compile(r"use\b", re.I).match
@@ -1509,9 +1533,12 @@ class Target(Statement):
 
 class Pointer(Statement):
     """
-    POINTER [ :: ] <pointer-decl-list>
-    <pointer-decl> = <object-name> [ ( <deferred-shape-spec-list> ) ]
-                   | <proc-entity-name>
+    ::
+
+        POINTER [ :: ] pointer-decl-list
+
+        pointer-decl is object-name [ ( deferred-shape-spec-list ) ]
+                     or proc-entity-name
 
     """
 
@@ -1733,10 +1760,13 @@ class Namelist(Statement):
 
 class Common(Statement):
     """
-    COMMON [ / [ <common-block-name> ] / ]  <common-block-object-list> \
-      [ [ , ] / [ <common-block-name> ] /  <common-block-object-list> ]...
-    <common-block-object> = <variable-name> [ ( <explicit-shape-spec-list> ) ]
-                          | <proc-pointer-name>
+    ::
+
+        COMMON [ / [ common-block-name ] / ] common-block-object-list \
+          [ [ , ] / [ common-block-name ] / common-block-object-list ]...
+
+        common-block-object is variable-name [ ( explicit-shape-spec-list ) ]
+                            or proc-pointer-name
     """
 
     match = re.compile(r"common\b", re.I).match
@@ -1852,13 +1882,17 @@ class Intent(Statement):
 
 class Entry(Statement):
     """
-    ENTRY <entry-name> [ ( [ <dummy-arg-list> ] ) [ <suffix> ] ]
-    <suffix> = <proc-language-binding-spec> [ RESULT ( <result-name> ) ]
-             | RESULT ( <result-name> ) [ <proc-language-binding-spec> ]
-    <proc-language-binding-spec> = <language-binding-spec>
-    <language-binding-spec> =
-                      BIND ( C [ , NAME = <scalar-char-initialization-expr> ] )
-    <dummy-arg> = <dummy-arg-name> | *
+    ::
+
+        ENTRY entry-name [ ( [ dummy-arg-list ] ) [ suffix ] ]
+
+        suffix is proc-language-binding-spec [ RESULT ( result-name ) ]
+                 | RESULT ( result-name ) [ proc-language-binding-spec ]
+        proc-language-binding-spec is language-binding-spec
+        language-binding-spec is
+                      BIND ( C [ , NAME = scalar-char-initialization-expr ] )
+        dummy-arg is dummy-arg-name | *
+
     """
 
     match = re.compile(r"entry\s+[a-zA-Z]", re.I).match
@@ -1987,6 +2021,7 @@ class SpecificBinding(Statement):
                    | DEFERRED
                    | <access-spec>
     <access-spec> = PUBLIC | PRIVATE
+
     """
 
     match = re.compile(r"procedure\b", re.I).match
@@ -2044,6 +2079,7 @@ class SpecificBinding(Statement):
 class GenericBinding(Statement):
     """
     GENERIC [ , <access-spec> ] :: <generic-spec> => <binding-name-list>
+
     """
 
     match = re.compile(r"generic\b.*::.*=\>.*\Z", re.I).match
@@ -2072,6 +2108,7 @@ class GenericBinding(Statement):
 class FinalBinding(StatementWithNamelist):
     """
     FINAL [ :: ] <final-subroutine-name-list>
+
     """
 
     stmtname = "final"
@@ -2084,6 +2121,7 @@ class Allocatable(Statement):
                                      [ , <object-name>
                                          [ ( <deferred-shape-spec-list> ) ]
                                      ]...
+
     """
 
     match = re.compile(r"allocatable\b", re.I).match
@@ -2131,10 +2169,13 @@ class Asynchronous(StatementWithNamelist):
 
 class Bind(Statement):
     """
-    <language-binding-spec> [ :: ] <bind-entity-list>
-    <language-binding-spec> =
-                      BIND ( C [ , NAME = <scalar-char-initialization-expr> ] )
-    <bind-entity> = <entity-name> | / <common-block-name> /
+    ::
+
+        language-binding-spec [ :: ] bind-entity-list
+        language-binding-spec is
+                      BIND ( C [ , NAME = scalar-char-initialization-expr ] )
+        bind-entity is entity-name> | / common-block-name /
+
     """
 
     match = re.compile(r"bind\s*\(.*\)", re.I).match
@@ -2232,13 +2273,16 @@ class ElseIf(Statement):
 
 class Case(Statement):
     """
-    CASE <case-selector> [ <case-construct-name> ]
-    <case-selector> = ( <case-value-range-list> ) | DEFAULT
-    <case-value-range> = <case-value>
-                         | <case-value> :
-                         | : <case-value>
-                         | <case-value> : <case-value>
-    <case-value> = <scalar-(int|char|logical)-initialization-expr>
+    Captures a Case statement::
+
+        CASE case-selector [ case-construct-name ]
+        case-selector is ( case-value-range-list ) | DEFAULT
+        case-value-range is case-value
+                         or case-value :
+                         or : case-value
+                         or case-value : case-value
+        case-value is scalar-(int|char|logical)-initialization-expr
+
     """
 
     match = re.compile(r"case\b\s*(\(.*\)|DEFAULT)\s*\w*\Z", re.I).match
@@ -2641,11 +2685,12 @@ class Comment(Statement):
     """
 
     Attributes
-    ----------
+
     content : str
       Content of the comment.
     is_blank : bool
       When True then Comment represents blank line.
+
     """
 
     match = lambda s: True

@@ -73,3 +73,6 @@ used in the PSyclone (https://github.com/stfc/PSyclone) and Habakkuk
 (https://github.com/arporter/habakkuk) tools. If you make use of
 fparser and want your project added to this list, please let the
 developers know.
+
+For a full list of the contributors please see the `CHANGELOG.md`
+file in the root directory.

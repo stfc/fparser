@@ -1,25 +1,25 @@
-# Copyright (c) 2018 Science and Technology Facilities Council
-
+# Copyright (c) 2018-2022 Science and Technology Facilities Council.
+#
 # All rights reserved.
-
+#
 # Modifications made as part of the fparser project are distributed
 # under the following license:
-
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are
 # met:
-
+#
 # 1. Redistributions of source code must retain the above copyright
 # notice, this list of conditions and the following disclaimer.
-
+#
 # 2. Redistributions in binary form must reproduce the above copyright
 # notice, this list of conditions and the following disclaimer in the
 # documentation and/or other materials provided with the distribution.
-
+#
 # 3. Neither the name of the copyright holder nor the names of its
 # contributors may be used to endorse or promote products derived from
 # this software without specific prior written permission.
-
+#
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 # "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 # LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -38,83 +38,76 @@
 
 """
 import pytest
+from fparser.common import splitline
 from fparser.two.utils import NoMatchError
 from fparser.two.Fortran2008 import Submodule_Stmt
 
 
-def test_simple(f2008_create):
+def test_simple():
     """Test the parsing of a submodule statement"""
     result = Submodule_Stmt("submodule (id) name")
     assert str(result) == "SUBMODULE (id) name"
 
 
-def test_simple_error1(f2008_create):
+def test_simple_error1():
     """Test the parsing of a submodule statement"""
     with pytest.raises(NoMatchError) as excinfo:
         dummy_ = Submodule_Stmt("submod (id) name")
     assert "Submodule_Stmt: 'submod (id) name" in str(excinfo.value)
 
 
-def test_simple_error2(f2008_create):
+def test_simple_error2():
     """Test the parsing of a submodule statement"""
     with pytest.raises(NoMatchError) as excinfo:
         dummy_ = Submodule_Stmt("submodule name")
     assert "Submodule_Stmt: 'submodule name'" in str(excinfo.value)
 
 
-def test_simple_error3(f2008_create):
+def test_simple_error3():
     """Test the parsing of a submodule statement"""
     with pytest.raises(NoMatchError) as excinfo:
         dummy_ = Submodule_Stmt("submodule () name")
     assert "Submodule_Stmt: 'submodule () name'" in str(excinfo.value)
 
 
-def test_simple_error4(f2008_create):
+def test_simple_error4():
     """Test the parsing of a submodule statement"""
     with pytest.raises(NoMatchError) as excinfo:
         dummy_ = Submodule_Stmt("submodule (id)")
     assert "Submodule_Stmt: 'submodule (id)'" in str(excinfo.value)
 
 
-def test_simple_error5(f2008_create):
+def test_simple_error5():
     """Test the parsing of a submodule statement"""
     with pytest.raises(NoMatchError) as excinfo:
         dummy_ = Submodule_Stmt("submodule name (id)")
     assert "Submodule_Stmt: 'submodule name (id)'" in str(excinfo.value)
 
 
-def test_simple_error6(f2008_create):
+def test_simple_error6():
     """Test the parsing of a submodule statement"""
     with pytest.raises(NoMatchError) as excinfo:
         dummy_ = Submodule_Stmt("submodule (id) (name)")
     assert "Submodule_Stmt: 'submodule (id) (name)'" in str(excinfo.value)
 
 
-def test_simple_error7(f2008_create, monkeypatch):
+def test_simple_error7(monkeypatch):
     """Test the parsing of a submodule statement when there is a single
-    right hand bracket. The error generated here is unreachable if
-    splitparen works correctly so we need to monkeypatch.
+    right hand bracket.
 
     """
-
-    monkeypatch.setattr(
-        "fparser.common.splitline.splitparen", lambda x: ["", "id)", "name"]
-    )
+    monkeypatch.setattr(splitline, "splitparen", lambda x: ["", "id)", "name"])
     with pytest.raises(NoMatchError) as excinfo:
         dummy_ = Submodule_Stmt("submodule id) name")
     assert "Submodule_Stmt: 'submodule id) name'" in str(excinfo.value)
 
 
-def test_simple_error8(f2008_create, monkeypatch):
+def test_simple_error8(monkeypatch):
     """Test the parsing of a submodule statement when there is a single
-    left hand bracket. The error generated here is unreachable if
-    splitparen works correctly so we need to monkeypatch.
+    left hand bracket.
 
     """
-
-    monkeypatch.setattr(
-        "fparser.common.splitline.splitparen", lambda x: ["", "(id", "name"]
-    )
+    monkeypatch.setattr(splitline, "splitparen", lambda x: ["", "(id", "name"])
     with pytest.raises(NoMatchError) as excinfo:
         dummy_ = Submodule_Stmt("submodule (id name")
     assert "Submodule_Stmt: 'submodule (id name'" in str(excinfo.value)
@@ -122,19 +115,16 @@ def test_simple_error8(f2008_create, monkeypatch):
 
 def test_splitparen_error(monkeypatch):
     """Test that if the first argument of the splitparen is not empty then
-    an error is returned.
+    an error is returned. Monkeypatch to force this error.
 
     """
-
-    monkeypatch.setattr(
-        "fparser.common.splitline.splitparen", lambda x: ["XXX", "", ""]
-    )
+    monkeypatch.setattr(splitline, "splitparen", lambda x: ["XXX", "", ""])
     with pytest.raises(NoMatchError) as excinfo:
         dummy_ = Submodule_Stmt("submodule (id) name")
     assert "Submodule_Stmt: 'submodule (id) name'" in str(excinfo.value)
 
 
-def test_simple_error9(f2008_create):
+def test_simple_error9():
     """Test the parsing of a submodule statement"""
     with pytest.raises(NoMatchError) as excinfo:
         dummy_ = Submodule_Stmt("submodule (id) name :")

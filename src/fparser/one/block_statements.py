@@ -211,7 +211,6 @@ class HasImplicitStmt:
 
 
 class HasUseStmt:
-
     a = AttributeHolder(use={}, use_provides={})
 
     def get_entity(self, name):
@@ -227,7 +226,6 @@ class HasUseStmt:
 
 
 class AccessSpecs:
-
     a = AttributeHolder(private_id_list=[], public_id_list=[])
 
     def topyf(self, tab="  "):
@@ -250,7 +248,6 @@ class AccessSpecs:
 
 
 class HasVariables:
-
     a = AttributeHolder(
         variables={}, variable_names=[]  # defines the order of declarations
     )
@@ -275,7 +272,6 @@ class HasVariables:
 
 
 class HasTypeDecls:
-
     a = AttributeHolder(type_decls={})
 
     def topyf(self, tab=""):
@@ -293,7 +289,6 @@ class HasTypeDecls:
 
 
 class HasAttributes:
-
     known_attributes = []
     a = AttributeHolder(attributes=[])
 
@@ -323,7 +318,6 @@ class HasAttributes:
 
 
 class HasModuleProcedures:
-
     a = AttributeHolder(module_procedures=[])
 
 
@@ -920,12 +914,14 @@ class EndFunction(EndStatement):
 
 class Function(SubProgramStatement):
     """
-    [<prefix>] FUNCTION <name> ( [<dummy-arg-list>] ) [<suffix>]
-    <prefix> = <prefix-spec> [<prefix-spec>]...
-    <prefix-spec> = <declaration-type-spec>
-                  | RECURSIVE | PURE | ELEMENTAL
-    <suffix> = <proc-language-binding-spec> [RESULT ( <result-name> )]
-             | RESULT ( <result-name> ) [<proc-language-binding-spec>]
+    ::
+
+        [<prefix>] FUNCTION <name> ( [<dummy-arg-list>] ) [<suffix>]
+        <prefix> = <prefix-spec> [<prefix-spec>]...
+        <prefix-spec> = <declaration-type-spec>
+                      | RECURSIVE | PURE | ELEMENTAL
+        <suffix> = <proc-language-binding-spec> [RESULT ( <result-name> )]
+                 | RESULT ( <result-name> ) [<proc-language-binding-spec>]
     """
 
     end_stmt_cls = EndFunction
@@ -1093,7 +1089,7 @@ class Where(BeginStatement):
     name = ""
 
     def tostr(self):
-        return "WHERE ( %s )" % (self.expr)
+        return f"WHERE ( {self.item.apply_map(self.expr)} )"
 
     def process_item(self):
         self.expr = self.item.get_line()[5:].lstrip()[1:-1].strip()

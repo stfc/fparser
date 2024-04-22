@@ -1,4 +1,4 @@
-# Copyright (c) 2019 Science and Technology Facilities Council
+# Copyright (c) 2019-2022 Science and Technology Facilities Council
 
 # All rights reserved.
 
@@ -115,7 +115,7 @@ def test_internal_error2(f2003_create, monkeypatch):
         monkeypatch.setattr(ast, "items", (change, "mypointee"))
         with pytest.raises(InternalError) as excinfo:
             str(ast)
-        assert ("'Items' entry 0 should be a pointer name but it is " "empty") in str(
+        assert ("'Items' entry 0 should be a pointer name but it is empty") in str(
             excinfo.value
         )
 

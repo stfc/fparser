@@ -1,4 +1,4 @@
-..  Copyright (c) 2017-2022 Science and Technology Facilities Council.
+..  Copyright (c) 2017-2023 Science and Technology Facilities Council.
 
     All rights reserved.
 
@@ -170,9 +170,11 @@ returned. An example of a simple choice rule is `R202`. See the
 :ref:`program-unit-class` section for a description of its
 implementation.
 
-.. note::
-
-   A `use_names` description, explanation and example needs to be added.
+The `use_names` list should contain any classes that are referenced by the
+implementation of the current class. These lists of names are aggregated
+(along with `subclass_names`) and used to ensure that all necessary `Scalar_`,
+`_List` and `_Name` classes are generated (in code at the end of the
+`Fortran2003` and `Fortran2008` modules - see :ref:`class-generation`).
 
 When the rule is not a simple choice the developer needs to supply a
 static `match` method. An example of this is rule `R201`. See the
@@ -246,6 +248,7 @@ corresponding dictionary entries are instances of the `SymbolTable`
 class:
 
 .. autoclass:: fparser.two.symbol_table.SymbolTable
+   :members:
 
 The entries in these tables are instances of the named tuple,
 `SymbolTable.Symbol` which currently has the properties:
@@ -258,6 +261,16 @@ properties (e.g. kind, shape, visibility) will be added and strings
 replaced with enumerations where it makes sense. Similarly, support
 will be added for other types of symbols (e.g. those representing
 program/subroutine names or reserved Fortran keywords).
+
+Symbols available in the scoping region of a module may be made
+available in another scoping region through one or more `USE` statements.
+In a `SymbolTable` such uses are captured as instances of `ModuleUse`:
+
+.. autoclass:: fparser.two.symbol_table.ModuleUse
+
+These instances are created by calling:
+
+.. automethod:: fparser.two.symbol_table.SymbolTable.add_use_symbols
 
 Fortran has support for nested scopes - e.g. variables declared within
 a module are in scope within any routines defined within that
@@ -284,10 +297,13 @@ there is no name associated with such a program, the corresponding
 symbol table is given the name "fparser2:main_program", chosen so as
 to prevent any clashes with other Fortran names.
 
-Those classes taken to define scoping regions are stored as
-a list within the `SymbolTables` instance. This list is populated
-after the class hierarchy has been constructed for the parser (since
-this depends on which Fortran standard has been chosen).
+Those classes which define scoping regions must subclass the
+`ScopingRegionMixin` class:
+
+.. autoclass:: fparser.two.utils.ScopingRegionMixin
+
+
+.. _class-generation:
 
 Class Generation
 ++++++++++++++++
@@ -969,6 +985,15 @@ the Github review process since the automated commit is not permitted to
 trigger further Actions and this then leaves GitHub thinking that the
 various checks have not run.
 
+Automatic Packaging
+-------------------
+
+A GitHub Action (https://github.com/pypa/gh-action-pypi-publish)
+is also used to automate the process of uploading a new
+release of fparser to the Python Package Index (pypi). This action is
+configured in the `.github/workflows/python_publish.yml` file and is
+triggered by the creation of a new release on GitHub.
+
 Test Fixtures
 -------------
 
@@ -996,7 +1021,7 @@ Performance Benchmark
 
 The fparser scripts folder contains a benchmarking script to assess the
 performance of the parser by generating a synthetic Fortran file with
-multiple subroutine and the associated subroutine calls. It can be executed
+multiple subroutines and the associated subroutine calls. It can be executed
 with the following command::
 
     ./src/fparser/scripts/fparser2_bench.py

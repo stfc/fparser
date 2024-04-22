@@ -1,4 +1,4 @@
-# Copyright (c) 2018-2019 Science and Technology Facilities Council
+# Copyright (c) 2018-2024 Science and Technology Facilities Council
 
 # All rights reserved.
 
@@ -38,6 +38,8 @@ Position_Edit_Desc class.
 """
 
 import pytest
+
+import fparser.two.utils as utils
 from fparser.two.utils import NoMatchError, InternalError
 from fparser.two.Fortran2003 import Position_Edit_Desc
 
@@ -91,10 +93,7 @@ def test_invalid_x_descriptor1(f2003_create, monkeypatch):
     is not named as a valid extension.
 
     """
-
-    import fparser.two.utils as utils
-
-    monkeypatch.setattr(utils, "EXTENSIONS", [])
+    monkeypatch.setattr(utils, "_EXTENSIONS", [])
     for descriptor in ["X", "  X  ", "x"]:
         with pytest.raises(NoMatchError) as excinfo:
             _ = Position_Edit_Desc(descriptor)
@@ -106,9 +105,6 @@ def test_valid_x_descriptor2(f2003_create, monkeypatch):
     output if it is named as a valid extension.
 
     """
-
-    import fparser.two.utils as utils
-
     monkeypatch.setattr(utils, "EXTENSIONS", ["x-format"])
     for descriptor in ["X", "  X  ", "x"]:
         result = Position_Edit_Desc(descriptor)
@@ -137,5 +133,5 @@ def test_tostr_invalid_2(f2003_create, monkeypatch):
     with pytest.raises(InternalError) as excinfo:
         _ = str(obj)
     assert (
-        "items[1] in Class Position_Edit_Desc method tostr() is " "empty or None"
+        "items[1] in Class Position_Edit_Desc method tostr() is empty or None"
     ) in str(excinfo.value)

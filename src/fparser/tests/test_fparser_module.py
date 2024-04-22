@@ -37,6 +37,33 @@ Test the setup performed for the fparser module.
 
 """
 import os
+import fparser
+
+
+def test_fparser_get_version(monkeypatch):
+    """Test the _get_version() utility routine. It doesn't make sense to
+    actually check precisely which version it reports - just that it returns a
+    suitable string."""
+    ver1 = fparser._get_version()
+    assert isinstance(ver1, str)
+    assert "." in ver1
+
+    def _broken_version(_name):
+        """Broken routine with which to patch the `version` method."""
+        raise fparser.PackageNotFoundError()
+
+    try:
+        from importlib import metadata
+
+        monkeypatch.setattr(metadata, "version", _broken_version)
+    except ImportError:
+        # Use backport package for python <3.8
+        import importlib_metadata
+
+        monkeypatch.setattr(importlib_metadata, "version", _broken_version)
+    ver2 = fparser._get_version()
+    assert isinstance(ver2, str)
+    assert "." in ver2
 
 
 def test_fparser_logging_handler(tmpdir, caplog):

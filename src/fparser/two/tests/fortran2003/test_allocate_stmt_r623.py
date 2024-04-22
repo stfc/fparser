@@ -37,13 +37,15 @@
 
 import pytest
 from fparser.two.utils import NoMatchError
-from fparser.two.Fortran2003 import Allocate_Stmt, Alloc_Opt
+from fparser.two.Fortran2003 import Allocate_Stmt, Alloc_Opt, Alloc_Opt_List
 
 
 @pytest.mark.usefixtures("f2003_create")
 def test_allocate_stmt():
     """Tests for the allocate statement: R623."""
     tcls = Allocate_Stmt
+    assert tcls.alloc_opt_list() == Alloc_Opt_List
+
     obj = tcls("allocate(a,b)")
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == "ALLOCATE(a, b)"
@@ -53,6 +55,31 @@ def test_allocate_stmt():
 
     obj = tcls("allocate(real(kind=8)::a, stat=b, source=c//d)")
     assert str(obj) == "ALLOCATE(REAL(KIND = 8)::a, STAT = b, SOURCE = c // d)"
+
+
+@pytest.mark.usefixtures("f2003_create")
+def test_allocate_no_match():
+    """Tests that the expected NoMatchError is raised if there are problems."""
+    tcls = Allocate_Stmt
+    # Missing parenthesis.
+    with pytest.raises(NoMatchError) as err:
+        tcls("allocate(var(3)")
+    assert "allocate(var(3)" in str(err.value)
+    with pytest.raises(NoMatchError) as err:
+        tcls("allocate var(3))")
+    assert "allocate var(3))" in str(err.value)
+    # Misspelt key word.
+    with pytest.raises(NoMatchError) as err:
+        tcls("allocte(var(3))")
+    assert "allocte(var(3))" in str(err.value)
+    # No arguments.
+    with pytest.raises(NoMatchError) as err:
+        tcls("allocate()")
+    assert "allocate()" in str(err.value)
+    # Missing positional argument.
+    with pytest.raises(NoMatchError) as err:
+        tcls("allocate(stat=ierr)")
+    assert "allocate(stat=ierr)" in str(err.value)
 
 
 @pytest.mark.usefixtures("f2003_create")

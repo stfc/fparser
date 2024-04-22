@@ -3,7 +3,7 @@
 # -----------------------------------------------------------------------------
 # BSD 3-Clause License
 #
-# Copyright (c) 2020, Science and Technology Facilities Council.
+# Copyright (c) 2020-2024, Science and Technology Facilities Council.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -104,8 +104,8 @@ if __name__ == "__main__":
 
     # Sort the input file names, so that they are output alphabetically
     all_files.sort()
+    parser = ParserFactory().create(std="f2008")
     for filename in all_files:
-
         # Parse the current source file:
         try:
             reader = FortranFileReader(filename)
@@ -113,7 +113,6 @@ if __name__ == "__main__":
             print(f"Could not open file '{filename}'.", file=sys.stderr)
             sys.exit(-1)
 
-        parser = ParserFactory().create(std="f2003")
         parse_tree = parser(reader)
 
         # Collect all used modules in a list
@@ -137,7 +136,6 @@ if __name__ == "__main__":
 
         # Now output all dependencies for this file (if any):
         if all_use:
-
             # Sort all module names on which this file depends,
             # so they are listed alphabetically
             all_use.sort()

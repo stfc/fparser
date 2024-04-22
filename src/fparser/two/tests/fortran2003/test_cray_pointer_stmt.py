@@ -1,4 +1,4 @@
-# Copyright (c) 2019 Science and Technology Facilities Council
+# Copyright (c) 2019-2024 Science and Technology Facilities Council.
 
 # All rights reserved.
 
@@ -39,6 +39,7 @@ Cray-pointer statement.
 
 import pytest
 from fparser.api import get_reader
+from fparser.two import utils
 from fparser.two.Fortran2003 import Cray_Pointer_Stmt
 from fparser.two.utils import NoMatchError
 
@@ -105,13 +106,11 @@ def test_invalid_cray_pointer(f2003_create, monkeypatch):
     exception if it is not named as a valid extension.
 
     """
-    from fparser.two import utils
-
-    monkeypatch.setattr(utils, "EXTENSIONS", [])
+    monkeypatch.setattr(utils, "_EXTENSIONS", [])
     myinput = "pointer (mypointer, mypointee)"
     with pytest.raises(NoMatchError) as excinfo:
         _ = Cray_Pointer_Stmt(myinput)
-        assert "Cray_Pointer_Stmt: '{0}'".format(myinput) in str(excinfo.value)
+    assert "Cray_Pointer_Stmt: '{0}'".format(myinput) in str(excinfo.value)
 
 
 def test_valid_cray_pointer(f2003_create, monkeypatch):
@@ -119,9 +118,7 @@ def test_valid_cray_pointer(f2003_create, monkeypatch):
     expected output if it is named as a valid extension.
 
     """
-    from fparser.two import utils
-
-    monkeypatch.setattr(utils, "EXTENSIONS", ["cray-pointer"])
+    monkeypatch.setattr(utils, "_EXTENSIONS", ["cray-pointer"])
     myinput = "pointer(mypointer, mypointee)"
     result = Cray_Pointer_Stmt(myinput)
     assert str(result).lower() == myinput

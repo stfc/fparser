@@ -241,72 +241,100 @@ def string_replace_map(line, lower=False):
 
 def splitquote(line, stopchar=None, lower=False, quotechars="\"'"):
     """
-    Fast LineSplitter
+    Splits the supplied line of text into parts consisting of regions that
+    are not contained within quotes and those that are.
+
+    Allows for the processing of a line that follows on from a previous one
+    where a quoted string was begun but not closed by supporting the
+    current closing quotation character to be specified.
+
+    :param str line: the line to split.
+    :param Optional[str] stopchar: the quote character that will terminate an \
+                                   existing quoted string or None otherwise.
+    :param bool lower: whether or not to convert the split parts of the line \
+                       to lowercase.
+    :param str quotechars: the characters that are considered to delimit \
+                           quoted strings.
+
+    :returns: tuple containing a list of the parts of the line split into \
+              those parts that are not quoted strings and those parts that are \
+              as well as the quote character corresponding with any quoted \
+              string that has not been closed before the end of the line.
+    :rtype: Tuple[List[str], str]
+
     """
+    # Will hold the various parts that `line` is split into.
     items = []
-    i = 0
+    # The current position in the line being processed.
+    ipos = 0
     while 1:
+        # Move on to the next character in the line.
         try:
-            char = line[i]
-            i += 1
+            char = line[ipos]
+            ipos += 1
         except IndexError:
             break
-        l = []
-        l_append = l.append
+        part = []
         nofslashes = 0
         if stopchar is None:
             # search for string start
             while 1:
                 if char in quotechars and not nofslashes % 2:
+                    # Found an un-escaped quote character.
                     stopchar = char
-                    i -= 1
+                    ipos -= 1
+                    # This marks the end of the current part.
                     break
                 if char == "\\":
                     nofslashes += 1
                 else:
                     nofslashes = 0
-                l_append(char)
+                part.append(char)
                 try:
-                    char = line[i]
-                    i += 1
+                    char = line[ipos]
+                    ipos += 1
                 except IndexError:
                     break
-            if not l:
-                continue
-            item = "".join(l)
-            if lower:
-                item = item.lower()
-            items.append(item)
+            if part:
+                # Found a part. Add it to the list of items.
+                item = "".join(part)
+                if lower:
+                    item = item.lower()
+                items.append(item)
+            # Move on to the next character in the line.
             continue
         if char == stopchar:
             # string starts with quotechar
-            l_append(char)
+            part.append(char)
             try:
-                char = line[i]
-                i += 1
+                char = line[ipos]
+                ipos += 1
             except IndexError:
-                if l:
-                    item = String("".join(l))
+                # Have reached the end of the line after encountering an
+                # opening quote character.
+                if part:
+                    item = String("".join(part))
                     items.append(item)
                 break
         # else continued string
         while 1:
             if char == stopchar and not nofslashes % 2:
-                l_append(char)
+                # We've found the closing quote character.
+                part.append(char)
                 stopchar = None
                 break
             if char == "\\":
                 nofslashes += 1
             else:
                 nofslashes = 0
-            l_append(char)
+            part.append(char)
             try:
-                char = line[i]
-                i += 1
+                char = line[ipos]
+                ipos += 1
             except IndexError:
                 break
-        if l:
-            item = String("".join(l))
+        if part:
+            item = String("".join(part))
             items.append(item)
     return items, stopchar
 

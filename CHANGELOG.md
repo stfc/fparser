@@ -18,6 +18,66 @@ Modifications by (in alphabetical order):
 * P. Vitt, University of Siegen, Germany
 * A. Voysey, UK Met Office
 
+09/04/2024 PR #442 for #440. Adds a new 'split file' example that splits a single source
+           file into separate units and creates a Makefile for them.
+
+29/01/2024 PR #435 for #426. Add support for the CONVERT extension of the open()
+           intrinsic.
+
+25/01/2024 PR #418 for #313. Allow intrinsic shadowing and improve fparser symbol table.
+
+11/01/2024 PR #439 for #432. Fix RTD build and clean up setuptools config.
+
+03/10/2023 PR #431 for #430. Fixes bug in WHERE handling in fparser1.
+
+14/09/2023 PR #425 for #411. Splits the monolithic Fortran2008.py file
+           into separate classes.
+
+12/09/2023 PR #423 for #403. Adds full support for DO CONCURRENT in F2008
+           (fixes bugs in previous implementation).
+
+12/06/2023 PR #417 towards #411. Moves Fortran2008.py into a 'Fortran2008'
+           directory and moves the associated class generation into an '__init__.py'
+           in that directory.
+
+16/05/2023 PR #414 for #412. Bug fix for disappearing line when parsing
+           include files.
+
+15/05/2023 PR #415 for #165. Bug fix for code aborting when trying to match
+           'NAMELIST' in certain contexts.
+
+15/05/2023 PR #408 for #403. Add support for the F2008 DO CONCURRENT.
+
+26/04/2023 PR #406 for #405. Add support for F2008 optional "::" in PROCEDURE
+           statement.
+
+03/04/2023 PR #392 for #326. Add support for F2008 block and critical constructs.
+
+30/03/2023 PR #396 for #395. Fix trailing whitespace bug in CallBase.
+
+13/03/2023 PR #391 for #324. Add GH workfow to automate a pypi upload during
+           GH releases.
+
+01/02/2023 PR #389 for #388. Black 23.1 formatting changes.
+
+01/02/2023 PR #377 for #342. Add an AutoAPI and Doxygen sections in the
+           documentation.
+
+01/02/2023 PR #387 for #386. Support extension to permit in-line '!' 
+           comments in fixed-format Fortran.
+
+30/11/2022 PR #382 for #264. Ignore quotation marks in in-line comments.
+
+18/10/2022 PR #380 towards #379. Improve support for operators and symbol
+           renaming in the use construct.
+
+18/10/2022 PR #369 for #332. Add support for F2008 open intrinsic arguments.
+
+13/10/2022 PR #381 for #298. Fix F2008 allocate statement with arguments.
+
+20/09/2022 PR #376 for #349. Add support for use association to the
+           symbol table.
+
 15/09/2022 PR #378 for #375. Permit source files containing only comments
            to be parsed.
 
@@ -26,6 +86,8 @@ Modifications by (in alphabetical order):
 
 05/09/2022 PR #372 fix for whitespace being lost when Format_Item_List is
            contained within parentheses.
+
+02/09/2022 PR #356 - add support for the mold allocate parameter.
 
 11/08/2022 PR #368 for #367. Add support for visiting tuples in walk()
            utility.
@@ -43,8 +105,6 @@ Modifications by (in alphabetical order):
 22/06/2022 PR #357 - this project now uses the Black formatter in a GH Action.
 
 20/06/2022 PR #345 - add fparser2 performance benchmark in the scripts folder.
-
-02/09/2022 PR #356 - add support for the mold allocate parameter.
 
 ## Release 0.0.16 (16/06/2022) ##
 
