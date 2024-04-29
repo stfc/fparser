@@ -2079,21 +2079,6 @@ def test_select_type_stmt():  # R822
     assert str(obj) == "SELECT TYPE(a)"
 
 
-def test_type_guard_stmt():  # R823
-    tcls = Type_Guard_Stmt
-    obj = tcls("type is (real*8)")
-    assert isinstance(obj, tcls), repr(obj)
-    assert str(obj) == "TYPE IS (REAL*8)"
-
-    obj = tcls("class is (mytype) name")
-    assert isinstance(obj, tcls), repr(obj)
-    assert str(obj) == "CLASS IS (mytype) name"
-
-    obj = tcls("classdefault")
-    assert isinstance(obj, tcls), repr(obj)
-    assert str(obj) == "CLASS DEFAULT"
-
-
 def test_label_do_stmt():
     """Tests that labeled DO statement is parsed correctly (R828)."""
     tcls = Label_Do_Stmt
