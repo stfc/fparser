@@ -460,6 +460,7 @@ class Specification_Part(BlockBase):  # R204
             [Use_Stmt, Import_Stmt, Implicit_Part, Declaration_Construct],
             None,
             reader,
+            strict_order=True,
         )
 
 
@@ -10931,6 +10932,7 @@ class Main_Program(BlockBase):  # R1101 [C1101, C1102, C1103]
             reader,
             match_names=True,
             strict_order=True,
+            once_only=True,
         )
 
 
@@ -11089,6 +11091,7 @@ class Module(BlockBase):  # R1104
             [Specification_Part, Module_Subprogram_Part],
             End_Module_Stmt,
             reader,
+            once_only=True,
         )
 
 
@@ -12596,6 +12599,7 @@ class Function_Subprogram(BlockBase):  # R1223
             [Specification_Part, Execution_Part, Internal_Subprogram_Part],
             End_Function_Stmt,
             reader,
+            once_only=True,
         )
 
 
@@ -12883,6 +12887,7 @@ class Subroutine_Subprogram(BlockBase):  # R1231
             [Specification_Part, Execution_Part, Internal_Subprogram_Part],
             End_Subroutine_Stmt,
             reader,
+            once_only=True,
         )
 
 
