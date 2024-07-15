@@ -5628,8 +5628,10 @@ class Primary(Base):  # R701
         "Constant",
         "Designator",
         "Array_Constructor",
-        "Structure_Constructor",
+        # Function_Reference is purposely above Structure_Constructure so if they
+        # can not be disambiguated, they will be matched as Function_Reference
         "Function_Reference",
+        "Structure_Constructor",
         "Type_Param_Inquiry",
         "Type_Param_Name",
         "Parenthesis",
