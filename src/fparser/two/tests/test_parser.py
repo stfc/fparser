@@ -84,3 +84,50 @@ def test_parserfactory_std():
     with pytest.raises(ValueError) as excinfo:
         parser = ParserFactory().create(std="invalid")
         assert "is an invalid standard" in str(excinfo.value)
+
+
+
+
+def test_deepcopy():
+    """
+    Test that we can deepcopy a parsed fparser tree.
+    """
+
+    f90_source = """
+program main
+
+  implicit none
+
+end
+"""
+    parser = ParserFactory().create(std="f2008")
+    reader = FortranStringReader(f90_source)
+    ast = parser(reader)
+
+    print("<>"*80)
+    print(ast)
+
+    import copy
+    _ = copy.deepcopy(ast)
+
+
+def test_pickle():
+    """
+    Test that we can pickle and unpickle a parsed fparser tree.
+    """
+
+    f90_source = """
+program main
+
+  implicit none
+
+end
+"""
+
+    parser = ParserFactory().create(std="f2008")
+    reader = FortranStringReader(f90_source)
+    ast = parser(reader)
+
+    import pickle
+    s = pickle.dumps(ast)
+    _ = pickle.loads(s)

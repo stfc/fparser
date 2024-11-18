@@ -419,7 +419,7 @@ class Base(ComparableMixin):
         match = getattr(cls, "match", None)
 
         if _deepcopy:
-            # If this is deep copied (and string is None), simply call
+            # If this is part of a deep-copy operation (and string is None), simply call
             # the super method without string
             return super().__new__(cls)
 
@@ -511,6 +511,15 @@ class Base(ComparableMixin):
         raise NoMatchError(errmsg)
 
     def __getnewargs__(self):
+        """Method to dictate the values passed to the __new__() method upon
+        unpickling. The method must return a pair (args, kwargs) where
+        args is a tuple of positional arguments and kwargs a dictionary
+        of named arguments for constructing the object. Those will be
+        passed to the __new__() method upon unpickling.
+
+        :return: set of arguments for __new__
+        :rtype: set
+        """
         return (self.string, None, True)
 
     def get_root(self):

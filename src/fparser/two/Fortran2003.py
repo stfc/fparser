@@ -259,6 +259,9 @@ class Program(BlockBase):  # R201
         :param type cls: the class of object to create
         :param string: (source of) Fortran string to parse
         :type string: :py:class:`FortranReaderBase`
+        :param _deepcopy: Flag to signal whether this class is
+            created by a deep copy
+        :type _deepcopy: bool
         :raises FortranSyntaxError: if the code is not valid Fortran
 
         """
@@ -278,7 +281,15 @@ class Program(BlockBase):  # R201
             raise FortranSyntaxError(string, excinfo)
 
     def __getnewargs__(self):
-        # For deep copy
+        """Method to dictate the values passed to the __new__() method upon
+        unpickling. The method must return a pair (args, kwargs) where
+        args is a tuple of positional arguments and kwargs a dictionary
+        of named arguments for constructing the object. Those will be
+        passed to the __new__() method upon unpickling.
+
+        :return: set of arguments for __new__
+        :rtype: set
+        """
         return (self.string, True)
 
     @staticmethod
