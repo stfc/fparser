@@ -380,15 +380,3 @@ class classes(type, metaclass=meta_classes):
         cls = type.__new__(metacls, name, bases, dict)
         _classes_cache[name] = cls
         return cls
-
-    def __getnewargs__(self):
-        """Method to dictate the values passed to the __new__() method upon
-        unpickling. The method must return a pair (args, kwargs) where
-        args is a tuple of positional arguments and kwargs a dictionary
-        of named arguments for constructing the object. Those will be
-        passed to the __new__() method upon unpickling.
-
-        :return: set of arguments for __new__
-        :rtype: set
-        """
-        return (self.name, self.bases, self.dict)

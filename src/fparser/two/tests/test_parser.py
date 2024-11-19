@@ -102,9 +102,6 @@ end
     reader = FortranStringReader(f90_source)
     ast = parser(reader)
 
-    print("<>" * 80)
-    print(ast)
-
     import copy
 
     _ = copy.deepcopy(ast)
