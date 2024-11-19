@@ -86,8 +86,6 @@ def test_parserfactory_std():
         assert "is an invalid standard" in str(excinfo.value)
 
 
-
-
 def test_deepcopy():
     """
     Test that we can deepcopy a parsed fparser tree.
@@ -104,10 +102,11 @@ end
     reader = FortranStringReader(f90_source)
     ast = parser(reader)
 
-    print("<>"*80)
+    print("<>" * 80)
     print(ast)
 
     import copy
+
     _ = copy.deepcopy(ast)
 
 
@@ -129,5 +128,6 @@ end
     ast = parser(reader)
 
     import pickle
+
     s = pickle.dumps(ast)
     _ = pickle.loads(s)
