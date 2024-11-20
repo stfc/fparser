@@ -110,9 +110,7 @@ def _cmp_tree_types_rec(
         # Therefore, we only check that their string is matching
         assert node1 == node2, "String values should be the same"
         if node1 not in ["NONE", "PROGRAM"]:
-            assert (
-                node1 is not node2
-            ), "Nodes should refer to different objects"
+            assert node1 is not node2, "Nodes should refer to different objects"
         return
 
     if node1 is None:
