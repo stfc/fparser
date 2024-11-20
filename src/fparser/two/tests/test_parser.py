@@ -86,6 +86,47 @@ def test_parserfactory_std():
         assert "is an invalid standard" in str(excinfo.value)
 
 
+def _cmp_tree_types_rec(
+    node1: Fortran2003.Program, node2: Fortran2003.Program, depth: int = 0
+):
+    """Helper function to recursively check for deepcopied programs
+
+    :param node1: First AST tree to check
+    :type node1: Fortran2003.Program
+    :param node2: Second AST tree to check
+    :type node2: Fortran2003.Program
+    :param depth: Depth useful later on for debugging reasons,
+        defaults to 0
+    :type depth: int, optional
+    """
+    # Make sure that both trees are the same
+    assert type(node1) is type(
+        node2
+    ), f"Nodes have different types: '{type(node1)}' and '{type(node2)}"
+
+    if type(node1) is str:
+        # Strings could refer to the same object, e.g., the string
+        # of the implicit statement "NONE".
+        # Therefore, we only check that their string is matching
+        assert node1 == node2, "String values should be the same"
+        if node1 not in ["NONE", "PROGRAM"]:
+            assert (
+                node1 is not node2
+            ), "Nodes should refer to different objects"
+        return
+
+    if node1 is None:
+        # Just return for None objects
+        return
+
+    # Make sure that we're working on a copy rather than the same object
+    assert node1 is not node2, "Nodes refer to the same object"
+
+    # Continue recursive traversal of ast
+    for child1, child2 in zip(node1.children, node2.children):
+        _cmp_tree_types_rec(child1, child2, depth + 1)
+
+
 def test_deepcopy():
     """
     Test that we can deepcopy a parsed fparser tree.
@@ -104,7 +145,9 @@ end
 
     import copy
 
-    _ = copy.deepcopy(ast)
+    new_ast = copy.deepcopy(ast)
+
+    _cmp_tree_types_rec(new_ast, ast)
 
 
 def test_pickle():
@@ -127,4 +170,6 @@ end
     import pickle
 
     s = pickle.dumps(ast)
-    _ = pickle.loads(s)
+    new_ast = pickle.loads(s)
+
+    _cmp_tree_types_rec(new_ast, ast)

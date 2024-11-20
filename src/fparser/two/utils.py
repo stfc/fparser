@@ -518,7 +518,7 @@ class Base(ComparableMixin):
         passed to the __new__() method upon unpickling.
 
         :return: set of arguments for __new__
-        :rtype: set
+        :rtype: tuple[str, NoneType, bool]
         """
         return (self.string, None, True)
 

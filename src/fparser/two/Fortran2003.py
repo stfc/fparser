@@ -262,6 +262,7 @@ class Program(BlockBase):  # R201
         :param _deepcopy: Flag to signal whether this class is
             created by a deep copy
         :type _deepcopy: bool
+
         :raises FortranSyntaxError: if the code is not valid Fortran
 
         """
@@ -288,7 +289,7 @@ class Program(BlockBase):  # R201
         passed to the __new__() method upon unpickling.
 
         :return: set of arguments for __new__
-        :rtype: set
+        :rtype: tuple[str, bool]
         """
         return (self.string, True)
 
