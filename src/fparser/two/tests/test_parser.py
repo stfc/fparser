@@ -36,7 +36,7 @@
 import pytest
 from fparser.two.parser import ParserFactory
 from fparser.common.readfortran import FortranStringReader
-from fparser.two.utils import FortranSyntaxError
+from fparser.two.utils import FortranSyntaxError, StmtBase
 from fparser.two.symbol_table import SYMBOL_TABLES
 from fparser.two import Fortran2003, Fortran2008
 
@@ -99,46 +99,75 @@ def _cmp_tree_types_rec(
         defaults to 0
     :type depth: int, optional
     """
+
     # Make sure that both trees are the same
     assert type(node1) is type(
         node2
     ), f"Nodes have different types: '{type(node1)}' and '{type(node2)}"
 
-    if type(node1) is str:
-        # Strings could refer to the same object, e.g., the string
-        # of the implicit statement "NONE".
-        # Therefore, we only check that their string is matching
-        assert node1 == node2, "String values should be the same"
-        if node1 not in ["NONE", "PROGRAM"]:
-            assert node1 is not node2, "Nodes should refer to different objects"
-        return
-
     if node1 is None:
         # Just return for None objects
         return
 
-    # Make sure that we're working on a copy rather than the same object
-    assert node1 is not node2, "Nodes refer to the same object"
+    if type(node1) is str:
+        # WARNING: Different string objects with the same can have the same id.
+        # Therefore, we can't compare with 'is' or with 'id(.) == id(.)'.
+        # We can just compare the both strings have the same content.
+        # See https://stackoverflow.com/questions/20753364/why-does-creating-multiple-objects-without-naming-them-result-in-them-having-the
+        assert node1 == node2
+        return
+
+    else:
+        # Make sure that we're working on a copy rather than the same object
+        assert node1 is not node2, "Nodes refer to the same object"
 
     # Continue recursive traversal of ast
     for child1, child2 in zip(node1.children, node2.children):
         _cmp_tree_types_rec(child1, child2, depth + 1)
 
 
+_f90_source_test = """
+module andy
+implicit none
+
+   real :: apple = 1.0
+   real, parameter :: pi = 3.14
+
+contains
+   subroutine sergi()
+      print *, "Pi = ", pi
+      print *,  "apple = ", apple
+   end subroutine
+
+end module andy
+
+
+program awesome
+    use andy
+    implicit none
+
+   real :: x
+   integer :: i
+
+   x = 2.2
+   i = 7
+
+   call sergi()
+
+   print *, "apple pie: ", apple, pi
+   print *, "i: ", i
+
+end program awesome
+
+"""
+
 def test_deepcopy():
     """
     Test that we can deepcopy a parsed fparser tree.
     """
 
-    f90_source = """
-program main
-
-  implicit none
-
-end
-"""
     parser = ParserFactory().create(std="f2008")
-    reader = FortranStringReader(f90_source)
+    reader = FortranStringReader(_f90_source_test)
     ast = parser(reader)
 
     import copy
@@ -153,16 +182,8 @@ def test_pickle():
     Test that we can pickle and unpickle a parsed fparser tree.
     """
 
-    f90_source = """
-program main
-
-  implicit none
-
-end
-"""
-
     parser = ParserFactory().create(std="f2008")
-    reader = FortranStringReader(f90_source)
+    reader = FortranStringReader(_f90_source_test)
     ast = parser(reader)
 
     import pickle
