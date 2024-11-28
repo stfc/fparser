@@ -19,6 +19,11 @@ Modifications by (in alphabetical order):
 * P. Vitt, University of Siegen, Germany
 * A. Voysey, UK Met Office
 
+28/11/2024 PR #455 for #454. Fixes a few tests to use the tmpdir fixture
+           rather than writing directly to /tmp.
+
+## Release 0.2.0 (26/11/2024) ##
+
 25/11/2024 PR #453 extension of base node types to allow the parse tree to be
            deepcopied and pickled.
 

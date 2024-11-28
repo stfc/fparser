@@ -44,7 +44,6 @@ Test battery associated with fparser.common.readfortran package.
 
 import io
 import os.path
-import tempfile
 import pytest
 
 from fparser.common.readfortran import (
@@ -787,12 +786,11 @@ FULL_FREE_EXPECTED = [
 ##############################################################################
 
 
-def test_filename_reader():
+def test_filename_reader(tmpdir):
     """
     Tests that a Fortran source file can be read given its filename.
     """
-    handle, filename = tempfile.mkstemp(suffix=".f90", text=True)
-    os.close(handle)
+    filename = f"{tmpdir}/out.f90"
     try:
         with io.open(filename, mode="w", encoding="UTF-8") as source_file:
             source_file.write(FULL_FREE_SOURCE)
@@ -811,12 +809,11 @@ def test_filename_reader():
 ##############################################################################
 
 
-def test_file_reader():
+def test_file_reader(tmpdir):
     """
     Tests that a Fortran source file can be read given a file object of it.
     """
-    handle, filename = tempfile.mkstemp(suffix=".f90", text=True)
-    os.close(handle)
+    filename = f"{tmpdir}/out.f90"
     try:
         with io.open(filename, mode="w", encoding="UTF-8") as source_file:
             source_file.write(FULL_FREE_SOURCE)
@@ -833,12 +830,11 @@ def test_file_reader():
         raise
 
 
-def test_none_in_fifo(log):
+def test_none_in_fifo(tmpdir, log):
     """Check that a None entry in the reader FIFO buffer is handled
     correctly."""
     log.reset()
-    handle, filename = tempfile.mkstemp(suffix=".f90", text=True)
-    os.close(handle)
+    filename = f"{tmpdir}/out.f90"
 
     with io.open(filename, mode="w", encoding="UTF-8") as source_file:
         source_file.write(FULL_FREE_SOURCE)
@@ -913,7 +909,7 @@ def test_reader_ignore_encoding(reader_cls, tmp_path):
     assert reader2.format == FortranFormat(False, True)
 
 
-def test_inherited_f77():
+def test_inherited_f77(tmpdir):
     """
     A grab bag of functional tests inherited from readfortran.py.
     """
@@ -948,8 +944,8 @@ a    'g
         assert str(item) == stack.pop(0)
 
     # Reading from file
-    handle, filename = tempfile.mkstemp(suffix=".f", text=True)
-    os.close(handle)
+    filename = f"{tmpdir}/out.f"
+
     with open(filename, "w") as fortran_file:
         print(string_f77, file=fortran_file)
 
