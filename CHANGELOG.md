@@ -14,9 +14,24 @@ Modifications by (in alphabetical order):
 * A. R. Porter, Science & Technology Facilities Council, UK
 * B. Reuter, ECMWF, UK
 * S. Siso, Science & Technology Facilities Council, UK
+* M. Schreiber, Universite Grenoble Alpes, France
 * J. Tiira, University of Helsinki, Finland
 * P. Vitt, University of Siegen, Germany
 * A. Voysey, UK Met Office
+
+28/11/2024 PR #455 for #454. Fixes a few tests to use the tmpdir fixture
+           rather than writing directly to /tmp.
+
+## Release 0.2.0 (26/11/2024) ##
+
+25/11/2024 PR #453 extension of base node types to allow the parse tree to be
+           deepcopied and pickled.
+
+14/10/2024 PR #451 for #320. Adds an extension to Fortran2003 to support non-standard STOP
+           expressions and adds support for them in 2008.
+
+11/10/2024 PR #450 for #448. Adds an example script for removing all protected/private
+           attributes from a parse tree.
 
 15/07/2024 PR #438 for #437. Fix type guard statement bug. 
 

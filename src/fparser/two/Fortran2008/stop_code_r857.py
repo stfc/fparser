@@ -1,7 +1,7 @@
 # -----------------------------------------------------------------------------
 # BSD 3-Clause License
 #
-# Copyright (c) 2020, Science and Technology Facilities Council.
+# Copyright (c) 2024, Science and Technology Facilities Council.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -30,28 +30,21 @@
 # LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-# ------------------------------------------------------------------------------
-# Author: J. Henrichs, Bureau of Meteorology
+# -----------------------------------------------------------------------------
 
-# A simple Makefile driver to test the various examples.
+"""
+    Module containing Fortran2008 Error_Stop_Stmt rule R857
+"""
+from fparser.two.utils import Base
 
 
-.PHONY: test create_dependency fparser2_f2008 make_public split_file
+class Stop_Code(Base):  # R857
+    """
+    Fortran2008 rule R867. Changes the allowed stop code type.
 
-test:  create_dependencies fparser2_f2008 make_public split_file
+    stop-code is scalar-default-char-constant-expr
+                 or scalar-int-constant-expr
+    """
 
-create_dependencies:
-	(cd test_files/create_dependencies; \
-	 ../../create_dependencies.py *.f90 | diff correct_dependencies -)
-
-fparser2_f2008:
-	python ./fparser2_f2008.py
-
-make_public:
-	./make_public.py test_files/make_public.f90 | diff test_files/make_public_correct.f90 -
-
-split_file:
-	(cd test_files/split_file; \
-		rm -f Makefile func.f90 mod1.f90 sub.f90 test_prog.f90; \
-		../../split_file.py test.f90; \
-		cat mod1.f90 sub.f90 func.f90 test_prog.f90 | diff -B test.f90 -)
+    subclass_names = ["Scalar_Default_Char_Expr", "Scalar_Int_Expr"]
+    use_names = ["Stop_Code"]

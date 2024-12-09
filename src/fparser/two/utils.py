@@ -114,6 +114,11 @@ _EXTENSIONS += ["dollar-descriptor"]
 # when reading/writing data using unformatted IO.
 _EXTENSIONS += ["open-convert"]
 
+# While non-standard, many compilers support negative numbers, and string
+# operations in stop statements, e.g. `stop -1` or `stop str1//str2`.
+# With this extension, these statements will be allowed.
+_EXTENSIONS += ["extended-stop-args"]
+
 
 def EXTENSIONS():
     """
@@ -404,7 +409,7 @@ class Base(ComparableMixin):
         self.parent = None
 
     @show_result
-    def __new__(cls, string, parent_cls=None):
+    def __new__(cls, string, parent_cls=None, _deepcopy=False):
         if parent_cls is None:
             parent_cls = [cls]
         elif cls not in parent_cls:
@@ -412,6 +417,11 @@ class Base(ComparableMixin):
 
         # Get the class' match method if it has one
         match = getattr(cls, "match", None)
+
+        if _deepcopy:
+            # If this is part of a deep-copy operation (and string is None), simply call
+            # the super method without string
+            return super().__new__(cls)
 
         if (
             isinstance(string, FortranReaderBase)
@@ -499,6 +509,18 @@ class Base(ComparableMixin):
         else:
             errmsg = f"{cls.__name__}: '{string}'"
         raise NoMatchError(errmsg)
+
+    def __getnewargs__(self):
+        """Method to dictate the values passed to the __new__() method upon
+        unpickling. The method must return a pair (args, kwargs) where
+        args is a tuple of positional arguments and kwargs a dictionary
+        of named arguments for constructing the object. Those will be
+        passed to the __new__() method upon unpickling.
+
+        :return: set of arguments for __new__
+        :rtype: tuple[str, NoneType, bool]
+        """
+        return (self.string, None, True)
 
     def get_root(self):
         """

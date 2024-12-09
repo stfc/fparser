@@ -84,6 +84,9 @@ jobs:
         # fparser should work even under limited terminal conditions so set
         # LC_ALL (this is only relevant for versions before Python 3.7).
         LC_ALL=POSIX pytest --cov=fparser --cov-report=xml src/fparser
+    - name: Test examples
+      run: |
+        make -C example test
     - name: Upload coverage to Codecov with GitHub Action
       uses: codecov/codecov-action@v4
       env:

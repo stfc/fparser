@@ -1,22 +1,21 @@
-module mod1
-  integer :: a
-contains
-  subroutine p(args)
-    implicit none
-    real :: args
-        
-  end subroutine p
-end module mod1
+MODULE mod1
+  INTEGER :: a
+  CONTAINS
+  SUBROUTINE p(args)
+    IMPLICIT NONE
+    REAL :: args
 
-subroutine sub()
-end subroutine sub
+  END SUBROUTINE p
+END MODULE mod1
 
-real function func(args)
-  use mod1
-  func = 1    
-end function func
+SUBROUTINE sub
+END SUBROUTINE sub
 
-program test_prog
-  use mod1
-end program test_prog
+REAL FUNCTION func(args)
+  USE mod1
+  func = 1
+END FUNCTION func
 
+PROGRAM test_prog
+  USE mod1
+END PROGRAM test_prog

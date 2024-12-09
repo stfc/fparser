@@ -79,5 +79,6 @@ Welcome to fparser's documentation!
    introduction
    fparser
    fparser2
+   examples
    developers_guide
    reference_guide

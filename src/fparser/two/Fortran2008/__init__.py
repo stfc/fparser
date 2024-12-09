@@ -1,7 +1,7 @@
 # -----------------------------------------------------------------------------
 # BSD 3-Clause License
 #
-# Copyright (c) 2023, Science and Technology Facilities Council.
+# Copyright (c) 2023-2024, Science and Technology Facilities Council.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -66,6 +66,7 @@ from fparser.two.Fortran2008.allocate_stmt_r626 import Allocate_Stmt
 from fparser.two.Fortran2008.loop_control_r818 import Loop_Control
 from fparser.two.Fortran2008.if_stmt_r837 import If_Stmt
 from fparser.two.Fortran2008.error_stop_stmt_r856 import Error_Stop_Stmt
+from fparser.two.Fortran2008.stop_code_r857 import Stop_Code
 from fparser.two.Fortran2008.specification_part_c1112 import Specification_Part_C1112
 from fparser.two.Fortran2008.implicit_part_c1112 import Implicit_Part_C1112
 from fparser.two.Fortran2008.implicit_part_stmt_c1112 import Implicit_Part_Stmt_C1112

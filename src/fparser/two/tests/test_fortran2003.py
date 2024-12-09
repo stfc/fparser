@@ -1,4 +1,4 @@
-# Modified work Copyright (c) 2017-2023 Science and Technology
+# Modified work Copyright (c) 2017-2024 Science and Technology
 # Facilities Council.
 # Original work Copyright (c) 1999-2008 Pearu Peterson
 #
@@ -68,10 +68,12 @@ Module containing py.test tests for Fortran 2003 language constructs
 """
 
 import pytest
+
 from fparser.two.Fortran2003 import *
 from fparser.two import Fortran2003
 from fparser.two.symbol_table import SYMBOL_TABLES
 from fparser.two.utils import NoMatchError
+from fparser.two import utils
 from fparser.api import get_reader
 
 
@@ -2096,7 +2098,17 @@ def test_continue_stmt():  # R848
     assert repr(obj) == "Continue_Stmt('CONTINUE')"
 
 
-def test_stop_stmt():  # R849
+@pytest.mark.parametrize("standard_only", [True, False])
+def test_stop_stmt_standard_2003(standard_only, monkeypatch):
+    """Test that stop statements are parsed correctly [R849].
+    It tests both pure 2003 standard compliance, but also
+    that negative numbers and string concatenations are accepted.
+    """
+    if standard_only:
+        # Disable the stop-stmt extension for this test to verify
+        # that really only standard expressions are accepted
+        monkeypatch.setattr(utils, "_EXTENSIONS", [])
+
     tcls = Stop_Stmt
     obj = tcls("stop")
     assert isinstance(obj, tcls), repr(obj)
@@ -2109,6 +2121,33 @@ def test_stop_stmt():  # R849
     obj = tcls("stop   'hey you'")
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == "STOP 'hey you'"
+
+    # This should not be accepted even with the extension enabled:
+    with pytest.raises(NoMatchError) as excinfo:
+        tcls("stop 12 .and. 34")
+    assert "Stop_Stmt: 'stop 12 .and. 34'" in str(excinfo.value)
+
+    if standard_only:
+        # This should not be accepted according to F2003
+        with pytest.raises(NoMatchError) as excinfo:
+            tcls('stop "123"//"456"')
+        assert 'Stop_Stmt: \'stop "123"//"456"' in str(excinfo.value)
+
+        # This should not be accepted according to F2003
+        with pytest.raises(NoMatchError) as excinfo:
+            tcls("stop -321")
+        assert "Stop_Stmt: 'stop -321'" in str(excinfo.value)
+
+    else:
+        # Test the F2003 standard extensions, which should
+        # accept these expressions
+        obj = tcls('stop "123"//"456"')
+        assert isinstance(obj, tcls), repr(obj)
+        assert str(obj) == 'STOP "123" // "456"'
+
+        obj = tcls("stop -321")
+        assert isinstance(obj, tcls), repr(obj)
+        assert str(obj) == "STOP - 321"
 
 
 #

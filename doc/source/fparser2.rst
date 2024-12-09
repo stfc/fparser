@@ -374,6 +374,19 @@ This extension is supported by (at least) the Gnu, Intel and Cray compilers
 but is not a part of any Fortran standard. More details can be found at
 https://gcc.gnu.org/onlinedocs/gfortran/CONVERT-specifier.html
 
+Extended arguments for STOP
++++++++++++++++++++++++++++
+
+Many compilers support extended arguments for the STOP statement before Fortran 2008.
+Examples are negative numbers, and string operations::
+
+    STOP -1
+    STOP str1 // str2
+
+This extension will accept these expressions in Fortran 2003. Note that the
+Fortran 2008 standard changes the definition of the stop code to accept even
+more flexible expressions.
+
 Classes
 -------
 

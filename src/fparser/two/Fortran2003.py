@@ -252,19 +252,23 @@ class Program(BlockBase):  # R201
     use_names = ["Program_Unit"]
 
     @show_result
-    def __new__(cls, string):
+    def __new__(cls, string, _deepcopy=False):
         """Wrapper around base class __new__ to catch an internal NoMatchError
         exception and raise it as an external FortranSyntaxError exception.
 
         :param type cls: the class of object to create
         :param string: (source of) Fortran string to parse
         :type string: :py:class:`FortranReaderBase`
+        :param _deepcopy: Flag to signal whether this class is
+            created by a deep copy
+        :type _deepcopy: bool
+
         :raises FortranSyntaxError: if the code is not valid Fortran
 
         """
         # pylint: disable=unused-argument
         try:
-            return Base.__new__(cls, string)
+            return Base.__new__(cls, string, _deepcopy=_deepcopy)
         except NoMatchError:
             # At the moment there is no useful information provided by
             # NoMatchError so we pass on an empty string.
@@ -276,6 +280,18 @@ class Program(BlockBase):  # R201
             # FortranSyntaxError, adding the reader object (which
             # provides line number information).
             raise FortranSyntaxError(string, excinfo)
+
+    def __getnewargs__(self):
+        """Method to dictate the values passed to the __new__() method upon
+        unpickling. The method must return a pair (args, kwargs) where
+        args is a tuple of positional arguments and kwargs a dictionary
+        of named arguments for constructing the object. Those will be
+        passed to the __new__() method upon unpickling.
+
+        :return: set of arguments for __new__
+        :rtype: tuple[str, bool]
+        """
+        return (self.string, True)
 
     @staticmethod
     def match(reader):
@@ -8506,14 +8522,19 @@ class Stop_Code(StringBase):  # R850
 
         <stop-code> = <scalar-char-constant>
                       | <digit> [ <digit> [ <digit> [ <digit> [ <digit> ] ] ] ]
-
+        Extension:
+                      | Level_3_Expr
     """
 
     subclass_names = ["Scalar_Char_Constant"]
 
     @staticmethod
     def match(string):
-        return StringBase.match(pattern.abs_label, string)
+        result = StringBase.match(pattern.abs_label, string)
+        if result or not "extended-stop-args" in EXTENSIONS():
+            return result
+        # This will allow statements like `stop -1` and `stop str1//str2`
+        return Level_3_Expr(string)
 
 
 #

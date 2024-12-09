@@ -1,4 +1,6 @@
 # News #
+  * 26/11/2024 Version 0.2.0 released (support for statements behind OMP sentinels, non-standard
+    STOP and bug fix for type-guard statements).
   * 31/01/2024 Version 0.1.4 released (resolves issues with WHERE statements and intrinsics).
   * 18/09/2023 Version 0.1.3 released (resolves issues with support for DO CONCURRENT).
   * 19/06/2023 Version 0.1.2 released (bug fix for handling of INCLUDE files).

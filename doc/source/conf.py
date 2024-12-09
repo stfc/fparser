@@ -10,7 +10,7 @@ import fparser
 
 project = 'fparser'
 copyright = '2017-2024, Science and Technology Facilities Council'
-author = 'Andrew Porter, Rupert Ford, Balthasar Reuter and Pearu Peterson'
+author = 'Andrew Porter, Rupert Ford, Balthasar Reuter, Joerg Henrichs and Pearu Peterson'
 
 version = fparser._get_version()
 release = fparser._get_version()
@@ -55,3 +55,26 @@ intersphinx_mapping = {
 
 # Generate the Doxygen documentation
 subprocess.call('cd ..; doxygen doxygen.config', shell=True)
+
+
+# -- Options for LaTeX output ------------------------------------------------
+
+latex_elements = {
+    # The paper size ('letterpaper' or 'a4paper').
+    # 'papersize': 'letterpaper',
+
+    # The font size ('10pt', '11pt' or '12pt').
+    # 'pointsize': '10pt',
+
+    # Additional stuff for the LaTeX preamble.
+    # 'preamble': '',
+}
+
+# Grouping the document tree into LaTeX files. List of tuples
+# (source start file, target name, title, author,
+#  documentclass [howto/manual]).
+latex_documents = [
+    ('index', 'fparser.tex', 'fparser Documentation',
+     'Andrew Porter, Rupert Ford, Balthasar Reuter, \\\\ '
+     'Joerg Henrichs and Pearu Peterson', 'manual'),
+]

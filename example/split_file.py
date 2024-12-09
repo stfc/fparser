@@ -192,6 +192,7 @@ def main():
             sys.exit(-1)
         with open(filename, mode="w", encoding="utf-8") as f_out:
             f_out.write(str(unit))
+            f_out.write("\n")
         all_filenames.append(filename)
         all_objs.append(f"{unit_name}.o")
 

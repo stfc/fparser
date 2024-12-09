@@ -403,7 +403,7 @@ and for Fortran2008 it is
     R202 program-unit is main-program
                          or external-subprogram
                          or module
-			 or submodule
+                         or submodule
                          or block-data
 
 Therefore to implement the Fortran2008 version of this class, the
@@ -1009,7 +1009,7 @@ f2003_create        --                      Sets-up the class hierarchy for the
                                             Fortran2003 parser.
 f2003_parser        `Fortran2003.Program`   Sets-up the class hierarchy for the
                                             Fortran2003 parser and returns the
-					    top-level Program object.
+                                            top-level Program object.
 clear_symbol_table  --                      Removes all stored symbol tables.
 fake_symbol_table   --                      Creates a fake scoping region and
                                             associated symbol table.

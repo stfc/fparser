@@ -35,6 +35,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ##############################################################################
 # Modified M.Hambley, UK Met Office
+# Modified by J. Henrichs, Bureau of Meteorology
 ##############################################################################
 """
 Test battery associated with fparser.sourceinfo package.
@@ -315,7 +316,7 @@ def extension(request):
 ##############################################################################
 
 
-def test_get_source_info_filename(extension, header, content):
+def test_get_source_info_filename(tmpdir, extension, header, content):
     # pylint: disable=redefined-outer-name
     """
     Tests that source format is correctly identified when read from a file.
@@ -326,8 +327,7 @@ def test_get_source_info_filename(extension, header, content):
     if content[0] is not None:
         full_source += content[0]
 
-    source_file, filename = tempfile.mkstemp(suffix=extension[0], text=True)
-    os.close(source_file)
+    filename = f"{tmpdir}/out{extension[0]}"
 
     with open(filename, "w") as source_file:
         print(full_source, file=source_file)
