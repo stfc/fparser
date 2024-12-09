@@ -128,6 +128,11 @@ Description:
         choices=["f2003", "f2008"],
         help="Specify the Fortran standard to use. Default: %default.",
     )
+    parser.add_option(
+        "--decls-only",
+        action="store_true",
+        help="Only parse the declarations. Default: %default.",
+    )
 
 
 def get_fortran_code_group(parser):

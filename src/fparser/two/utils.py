@@ -641,29 +641,32 @@ class BlockBase(Base):
         enable_where_construct_hook=False,
         strict_order=False,
         strict_match_names=False,
+        skip_body=False,
     ):
         """
         Checks whether the content in reader matches the given
         type of block statement (e.g. DO..END DO, IF...END IF etc.)
 
         :param type startcls: the class marking the beginning of the block
-        :param list subclasses: list of classes that can be children of \
+        :param list subclasses: list of classes that can be children of
                                 the block.
         :param type endcls: the class marking the end of the block.
         :param reader: content to check for match.
         :type reader: str or instance of :py:class:`FortranReaderBase`
-        :param bool match_labels: whether or not the statement terminating \
-            the block must have a label that matches the opening statement. \
+        :param bool match_labels: whether or not the statement terminating
+            the block must have a label that matches the opening statement.
             Default is False.
         :param bool match_names: TBD
         :param tuple match_name_classes: TBD
         :param bool enable_do_label_construct_hook: TBD
         :param bool enable_if_construct_hook: TBD
         :param bool enable_where_construct_hook: TBD
-        :param bool strict_order: whether to enforce the order of the \
+        :param bool strict_order: whether to enforce the order of the
                                   given subclasses.
-        :param bool strict_match_names: if start name present, end name \
+        :param bool strict_match_names: if start name present, end name
                                         must exist and match.
+        :param bool skip_body: whether to attempt matching the body of the
+            node, can be disabled for quick parsing of top-level nodes.
 
         :return: instance of startcls or None if no match is found
         :rtype: startcls
@@ -712,17 +715,19 @@ class BlockBase(Base):
             if match_names:
                 start_name = obj.get_start_name()
 
-        # Comments and Include statements are always valid sub-classes
-        classes = subclasses + [di.Comment, di.Include_Stmt]
+        classes = []
+        if endcls is not None:
+            classes += [endcls]
+            endcls_all = tuple([endcls] + endcls.subclasses[endcls.__name__])
+        if not skip_body:
+            # Comments and Include statements are always valid sub-classes
+            classes += subclasses + [di.Comment, di.Include_Stmt]
         # Preprocessor directives are always valid sub-classes
         cpp_classes = [
             getattr(di.C99Preprocessor, cls_name)
             for cls_name in di.C99Preprocessor.CPP_CLASS_NAMES
         ]
         classes += cpp_classes
-        if endcls is not None:
-            classes += [endcls]
-            endcls_all = tuple([endcls] + endcls.subclasses[endcls.__name__])
 
         try:
             # Start trying to match the various subclasses, starting from
@@ -740,6 +745,7 @@ class BlockBase(Base):
                             content.append(obj)
                             continue
                         obj.restore_reader(reader)
+
                 # Attempt to match the i'th subclass
                 cls = classes[i]
                 try:
@@ -747,10 +753,14 @@ class BlockBase(Base):
                 except NoMatchError:
                     obj = None
                 if obj is None:
-                    # No match for this class, continue checking the list
-                    # starting from the i+1'th...
-                    i += 1
-                    continue
+                    if skip_body and classes[i] is endcls:
+                        reader.get_item()
+                        continue
+                    else:
+                        # No match for this class, continue checking the list
+                        # starting from the i+1'th...
+                        i += 1
+                        continue
 
                 # We got a match for this class
                 had_match = True
@@ -807,7 +817,7 @@ class BlockBase(Base):
                     # We've found the enclosing end statement so break out
                     found_end = True
                     break
-                if not strict_order:
+                if not strict_order and not skip_body:
                     # Return to start of classes list now that we've matched.
                     i = 0
                 if enable_if_construct_hook:

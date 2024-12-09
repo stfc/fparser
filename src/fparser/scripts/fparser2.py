@@ -89,6 +89,7 @@ def runner(_, options, args):
     """
     from fparser.two.parser import ParserFactory
     from fparser.two.Fortran2003 import FortranSyntaxError, InternalError
+    from fparser.two.Fortran2003 import Subroutine_Subprogram
     from fparser.common.readfortran import FortranFileReader
 
     if not args:
@@ -102,6 +103,9 @@ def runner(_, options, args):
             print(error, file=sys.stderr)
             continue
         try:
+            if options.decls_only:
+                from fparser.two import Fortran2003
+                Fortran2003.ONLY_PARSE_DECLARATIONS = True
             fparser = ParserFactory().create(std=options.std)
             program = fparser(reader)
             if options.task == "show":

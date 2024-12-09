@@ -121,6 +121,8 @@ from fparser.two.utils import (
 # SECTION  2
 #
 
+ONLY_PARSE_DECLARATIONS = False
+
 
 class Comment(Base):
     """
@@ -12904,6 +12906,7 @@ class Subroutine_Subprogram(BlockBase):  # R1231
             [Specification_Part, Execution_Part, Internal_Subprogram_Part],
             End_Subroutine_Stmt,
             reader,
+            skip_body=ONLY_PARSE_DECLARATIONS,
         )
 
 
