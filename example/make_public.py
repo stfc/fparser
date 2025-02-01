@@ -3,7 +3,7 @@
 # -----------------------------------------------------------------------------
 # BSD 3-Clause License
 #
-# Copyright (c) 2024, Science and Technology Facilities Council.
+# Copyright (c) 2024-2025, Science and Technology Facilities Council.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -64,7 +64,9 @@ def remove_private(filename):
     """Simple function that removes all private and protected declarations.
     :param str filename: the file in which to remove private and protected
     """
-    reader = FortranFileReader(filename)
+    # Do not filter out comments, since this would remove UM-style
+    # 'depends on' comments for dependencies that are otherwise not detected.
+    reader = FortranFileReader(filename, ignore_comments=False)
     parser = ParserFactory().create(std="f2008")
     parse_tree = parser(reader)
     # A useful print to see the actual rules
