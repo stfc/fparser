@@ -263,6 +263,23 @@ def test_base_handle_multilines(log):
     assert result == expected
 
 
+def test_base_handle_quoted_backslashes(log):
+    """
+    Test that the reader isn't tripped-up when a string contains a backslash.
+    """
+    log.reset()
+    code = "If (MetFolder(L:L) == '' .and. L <= MaxFileNameLength) Then"
+    reader = FortranStringReader(code)
+    mode = FortranFormat(True, True)
+    reader.set_format(mode)  # Force strict free format
+    reader.get_source_item()
+    assert log.messages["debug"] == []
+    assert log.messages["info"] == []
+    assert log.messages["error"] == []
+    assert log.messages["critical"] == []
+    assert log.messages["warning"] == []
+
+
 def test_base_fixed_nonlabel(log):
     """
     Tests that FortranReaderBase.get_source_item() logs the correct messages

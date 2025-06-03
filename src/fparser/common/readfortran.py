@@ -1200,18 +1200,13 @@ class FortranReaderBase:
 
         """
         had_comment = False
-        if (
-            quotechar is None
-            and "!" not in line
-            and '"' not in line
-            and "'" not in line
-        ):
-            # There's no comment on this line
+        if "!" not in line:
+            # Definitely no comment if there's no '!'
             return line, quotechar, had_comment
 
         idx = line.find("!")
         put_item = self.fifo_item.append
-        if quotechar is None and idx != -1:
+        if quotechar is None:
             # first try a quick method:
             newline = line[:idx]
             if '"' not in newline and "'" not in newline:
