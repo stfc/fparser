@@ -162,12 +162,11 @@ def string_replace_map(line, lower=False):
        `F2PY_REAL_CONSTANT_<index>_`
 
     :param str line: the line of text in which to perform substitutions.
-    :param bool lower: whether or not the call to splitquote() should return \
+    :param bool lower: whether or not the call to splitquote() should return
         items as lowercase (default is to leave the case unchanged).
 
     :returns: a new line and the replacement map.
-    :rtype: 2-tuple of str and \
-            :py:class:`fparser.common.splitline.StringReplaceDict`
+    :rtype: Tuple[str, :py:class:`fparser.common.splitline.StringReplaceDict`]
 
     """
 
@@ -249,24 +248,159 @@ def splitquote(line, stopchar=None, lower=False, quotechars="\"'"):
     current closing quotation character to be specified.
 
     :param str line: the line to split.
-    :param Optional[str] stopchar: the quote character that will terminate an \
+    :param Optional[str] stopchar: the quote character that will terminate an
                                    existing quoted string or None otherwise.
-    :param bool lower: whether or not to convert the split parts of the line \
+    :param bool lower: whether or not to convert the split parts of the line
                        to lowercase.
-    :param str quotechars: the characters that are considered to delimit \
+    :param str quotechars: the characters that are considered to delimit
                            quoted strings.
 
-    :returns: tuple containing a list of the parts of the line split into \
-              those parts that are not quoted strings and those parts that are \
-              as well as the quote character corresponding with any quoted \
+    :returns: tuple containing a list of the parts of the line split into
+              those parts that are not quoted strings and those parts that are
+              as well as the quote character corresponding with any quoted
               string that has not been closed before the end of the line.
     :rtype: Tuple[List[str], str]
 
     """
+    """
+    Splits a Fortran line into quoted character strings and other parts.
+    Handles both single and double quotes and Fortran-style escaped quotes.
+    If an un-terminated quoted string is found, the output is a tuple:
+        (list of segments, unterminated_quote_char or None)
+    Each quoted string is returned as a String instance (including the quote marks).
+    All other parts are plain str.
+    """
+    pattern = re.compile(
+        r'''
+        (                           # Group for a string literal
+            "                       # Opening double quote
+            (?: [^"] | "" )*        # Any number of non-quote or escaped ""
+            "
+          |                         
+            '                       
+            (?: [^'] | '' )*        
+            '
+        )
+        ''', re.VERBOSE)
+
+    pos = 0
+    result = []
+    unterminated_quote = None
+
+    for m in pattern.finditer(line):
+        start, end = m.span()
+        if start > pos:
+            result.append(line[pos:start])
+        # Use String class for quoted string
+        result.append(String(line[start:end]))
+        pos = end
+
+    # Check for unterminated string after the last match
+    if pos < len(line):
+        rest = line[pos:]
+        # Find first single or double quote in rest
+        min_pos = None
+        quote_char = None
+        for qc in ("'", '"'):
+            idx = rest.find(qc)
+            if idx != -1 and (min_pos is None or idx < min_pos):
+                min_pos = idx
+                quote_char = qc
+        if min_pos is not None:
+            # There is an opening quote
+            # Now, check if it's unterminated
+            s = rest[min_pos:]
+            i = 1
+            while i < len(s):
+                c = s[i]
+                if c == quote_char:
+                    # Fortran-style escape
+                    if i+1 < len(s) and s[i+1] == quote_char:
+                        i += 2
+                        continue
+                    else:
+                        break
+                i += 1
+            else:
+                # Unterminated
+                if min_pos > 0:
+                    result.append(rest[:min_pos])
+                result.append(String(s))
+                unterminated_quote = quote_char
+                return (result, unterminated_quote)
+        result.append(rest)
+    return (result, unterminated_quote)
+    """
+    Splits a Fortran line into quoted character strings and other parts.
+    Handles both single and double quotes and Fortran-style escaped quotes.
+    If an un-terminated quoted string is found, the output is a tuple:
+        (list of segments, unterminated_quote_char or None)
+    Each quoted string is included as-is (including the quote marks).
+    """
+    pattern = re.compile(
+        r'''
+        (                           # Group for a string literal
+            "                       # Opening double quote
+            (?: [^"] | "" )*        # Any number of non-quote or escaped ""
+            "
+          |                         
+            '                       
+            (?: [^'] | '' )*        
+            '
+        )
+        ''', re.VERBOSE)
+
+    pos = 0
+    result = []
+    unterminated_quote = None
+
+    for m in pattern.finditer(line):
+        start, end = m.span()
+        if start > pos:
+            result.append(line[pos:start])
+        result.append(line[start:end])
+        pos = end
+
+    # Check for unterminated string after the last match
+    if pos < len(line):
+        rest = line[pos:]
+        # Find first single or double quote in rest
+        min_pos = None
+        quote_char = None
+        for qc in ("'", '"'):
+            idx = rest.find(qc)
+            if idx != -1 and (min_pos is None or idx < min_pos):
+                min_pos = idx
+                quote_char = qc
+        if min_pos is not None:
+            # There is an opening quote
+            # Now, check if it's unterminated
+            s = rest[min_pos:]
+            i = 1
+            while i < len(s):
+                c = s[i]
+                if c == quote_char:
+                    # Fortran-style escape
+                    if i+1 < len(s) and s[i+1] == quote_char:
+                        i += 2
+                        continue
+                    else:
+                        break
+                i += 1
+            else:
+                # Unterminated
+                if min_pos > 0:
+                    result.append(rest[:min_pos])
+                result.append(s)
+                unterminated_quote = quote_char
+                return ([String("".join(item)) for item in result], unterminated_quote)
+        result.append(rest)
+    return ([String("".join(item)) for item in result], unterminated_quote)
     # Will hold the various parts that `line` is split into.
     items = []
     # The current position in the line being processed.
     ipos = 0
+    line_len = len(line)
     while 1:
         # Move on to the next character in the line.
         try:
@@ -275,20 +409,15 @@ def splitquote(line, stopchar=None, lower=False, quotechars="\"'"):
         except IndexError:
             break
         part = []
-        nofslashes = 0
         if stopchar is None:
-            # search for string start
+            # We're not in a continued string so search for string start
             while 1:
-                if char in quotechars and not nofslashes % 2:
-                    # Found an un-escaped quote character.
+                if char in quotechars:
+                    # Found an opening quote character.
                     stopchar = char
                     ipos -= 1
                     # This marks the end of the current part.
                     break
-                if char == "\\":
-                    nofslashes += 1
-                else:
-                    nofslashes = 0
                 part.append(char)
                 try:
                     char = line[ipos]
@@ -318,15 +447,24 @@ def splitquote(line, stopchar=None, lower=False, quotechars="\"'"):
                 break
         # else continued string
         while 1:
-            if char == stopchar and not nofslashes % 2:
+            if char == stopchar:
+                if ipos + 1 < line_len:
+                    next_char = line[ipos + 1]
+                    if next_char == char:
+                        # This is an escaped (i.e. repeated) quotation character.
+                        # Add them both to the current part and continue.
+                        part.append(char)
+                        part.append(next_char)
+                        try:
+                            ipos += 2
+                            char = line[ipos]
+                        except IndexError:
+                            break
+                        continue
                 # We've found the closing quote character.
                 part.append(char)
                 stopchar = None
                 break
-            if char == "\\":
-                nofslashes += 1
-            else:
-                nofslashes = 0
             part.append(char)
             try:
                 char = line[ipos]

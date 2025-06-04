@@ -76,6 +76,17 @@ def test_complicated_case():
     )
 
 
+@pytest.mark.usefixtures("f2003_create", "fake_symbol_table")
+def test_string_comparison_with_backslash():
+    """
+    Check that a logical expression involving comparison with a string containing
+    a backslash is parsed correctly.
+
+    """
+    result = Logical_Expr("MetFolder(L:L) == '\\' .and. L <= MaxFileNameLength")
+    assert isinstance(result, Equiv_Operand)
+
+
 @pytest.mark.parametrize(
     "string", ["1", "b'1010'", "o'7070'", "h'f0f0'", "1.0", "(1.0,1.0)", "'hello'"]
 )
