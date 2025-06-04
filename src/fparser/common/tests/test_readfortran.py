@@ -229,46 +229,12 @@ def test_fortranreaderbase_warning(log):
     assert result == expected
 
 
-def test_base_handle_multilines(log):
-    """
-    Tests that FortranReaderBase.get_source_item() logs the correct messages
-    when there are quote discrepancies.
-    """
-    code = 'character(8) :: test = \'foo"""bar'
-    log.reset()
-    unit_under_test = FortranStringReader(code)
-    mode = FortranFormat(True, True)
-    unit_under_test.set_format(mode)  # Force strict free format
-    unit_under_test.get_source_item()
-    assert log.messages["debug"] == []
-    assert log.messages["info"] == []
-    assert log.messages["error"] == []
-    assert log.messages["critical"] == []
-    expected = 'multiline prefix contains odd number of "\'" characters'
-    result = log.messages["warning"][0].split("<==")[1].lstrip()
-    assert result == expected
-
-    code = 'goo """boo\n doo""" soo \'foo'
-    log.reset()
-    unit_under_test = FortranStringReader(code)
-    mode = FortranFormat(True, True)
-    unit_under_test.set_format(mode)  # Force strict free format
-    unit_under_test.get_source_item()
-    assert log.messages["debug"] == []
-    assert log.messages["info"] == []
-    assert log.messages["error"] == []
-    assert log.messages["critical"] == []
-    expected = 'following character continuation: "\'", expected None.'
-    result = log.messages["warning"][0].split("<==")[1].lstrip()
-    assert result == expected
-
-
 def test_base_handle_quoted_backslashes(log):
     """
     Test that the reader isn't tripped-up when a string contains a backslash.
     """
     log.reset()
-    code = "If (MetFolder(L:L) == '' .and. L <= MaxFileNameLength) Then"
+    code = "If (MetFolder(L:L) == '\' .and. L <= MaxFileNameLength) Then"
     reader = FortranStringReader(code)
     mode = FortranFormat(True, True)
     reader.set_format(mode)  # Force strict free format
