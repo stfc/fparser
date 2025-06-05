@@ -42,7 +42,7 @@ from fparser.two.Fortran2003 import (
     Logical_Expr,
     Logical_Literal_Constant,
     Equiv_Operand,
-    Or_Operand
+    Or_Operand,
 )
 from fparser.two.utils import NoMatchError
 
@@ -85,7 +85,7 @@ def test_string_comparison_with_backslash():
 
     """
     result = Logical_Expr("MetFolder(L:L) == '\\' .and. L <= MaxFileNameLength")
-    assert isinstance(result, Or_Operand) # TODO: why OR??
+    assert isinstance(result, Or_Operand)  # TODO: why OR??
     assert str(result) == "MetFolder(L : L) == '\\' .AND. L <= MaxFileNameLength"
 
 

@@ -234,7 +234,7 @@ def test_base_handle_quoted_backslashes(log):
     Test that the reader isn't tripped-up when a string contains a backslash.
     """
     log.reset()
-    code = "If (MetFolder(L:L) == '\' .and. L <= MaxFileNameLength) Then"
+    code = "If (MetFolder(L:L) == '' .and. L <= MaxFileNameLength) Then"
     reader = FortranStringReader(code)
     mode = FortranFormat(True, True)
     reader.set_format(mode)  # Force strict free format

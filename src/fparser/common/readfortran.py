@@ -1201,10 +1201,10 @@ class FortranReaderBase:
         """
         had_comment = False
         if (
-                quotechar is None
-                and "!" not in line
-                and '"' not in line
-                and "'" not in line
+            quotechar is None
+            and "!" not in line
+            and '"' not in line
+            and "'" not in line
         ):
             # No comment present.
             return line, quotechar, had_comment
