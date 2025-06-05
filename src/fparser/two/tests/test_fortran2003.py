@@ -185,6 +185,9 @@ def test_literal_constant():
     assert isinstance(obj, Char_Literal_Constant), repr(obj)
     assert str(obj) == "'(3(A5,1X))'"
 
+    obj = tcls("'\\'")
+    assert isinstance(obj, Char_Literal_Constant), repr(obj)
+
     obj = tcls('B"01011101"')
     assert isinstance(obj, Binary_Constant), repr(obj)
     assert str(obj) == 'B"01011101"'
