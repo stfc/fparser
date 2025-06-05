@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# Modified work Copyright (c) 2017-2024 Science and Technology
+# Modified work Copyright (c) 2017-2025 Science and Technology
 # Facilities Council.
 # Original work Copyright (c) 1999-2008 Pearu Peterson
 
@@ -553,7 +553,10 @@ class FortranReaderBase:
                  `sourceinfo.get_source_info()`
     :type mode: :py:class:`fparser.common.sourceinfo.Format`
     :param bool isstrict: whether we are strictly enforcing fixed format.
-    :param bool ignore_comments: whether or not to discard comments.
+    :param bool ignore_comments: whether or not to discard comments. If
+        comments are not ignored, they will be added as special Comment node
+        to the tree, and will therefore also be added to the output Fortran
+        source code.
     :param Optional[bool] include_omp_conditional_lines: whether or not the
         content of a line with an OMP sentinel is parsed or not. Default is
         False (in which case it is treated as a Comment).
@@ -1633,7 +1636,10 @@ class FortranFileReader(FortranReaderBase):
     :param list include_dirs: Directories in which to look for inclusions.
     :param list source_only: Fortran source files to search for modules
         required by "use" statements.
-    :param bool ignore_comments: Whether or not to ignore comments
+    :param bool ignore_comments: whether or not to discard comments. If
+        comments are not ignored, they will be added as special Comment node
+        to the tree, and will therefore also be added to the output Fortran
+        source code.
     :param Optional[bool] ignore_encoding: whether or not to ignore
         Python-style encoding information (e.g. "-*- fortran -*-") when
         attempting to determine the format of the file. Default is True.
@@ -1714,7 +1720,10 @@ class FortranStringReader(FortranReaderBase):
     :param list include_dirs: List of dirs to search for include files
     :param list source_only: Fortran source files to search for modules
         required by "use" statements.
-    :param bool ignore_comments: Whether or not to ignore comments
+    :param bool ignore_comments: whether or not to discard comments. If
+        comments are not ignored, they will be added as special Comment node
+        to the tree, and will therefore also be added to the output Fortran
+        source code.
     :param Optional[bool] ignore_encoding: whether or not to ignore
         Python-style encoding information (e.g. "-*- fortran -*-") when
         attempting to determine the format of the source. Default is True.
