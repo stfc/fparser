@@ -33,9 +33,9 @@
 # -----------------------------------------------------------------------------
 
 """
-    Module containing tests for Fortran2003 where_construct_stmt rule R745.
+Module containing tests for Fortran2003 where_construct_stmt rule R745.
 
-    R745 where-construct-stmt is [where-construct-name:] WHERE ( mask-expr )
+R745 where-construct-stmt is [where-construct-name:] WHERE ( mask-expr )
 
 """
 import pytest

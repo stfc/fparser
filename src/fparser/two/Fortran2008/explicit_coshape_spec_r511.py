@@ -33,7 +33,7 @@
 # -----------------------------------------------------------------------------
 
 """
-    Module containing Fortran2008 Explicit_Coshape_Spec rule R511
+Module containing Fortran2008 Explicit_Coshape_Spec rule R511
 """
 from fparser.common.splitline import string_replace_map
 from fparser.two.Fortran2008.lower_cobound_r512 import Lower_Cobound
