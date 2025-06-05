@@ -34,7 +34,7 @@
 
 """Test Fortran 2008 rule R510
 
-    deferred-coshape-spec is :
+deferred-coshape-spec is :
 
 """
 

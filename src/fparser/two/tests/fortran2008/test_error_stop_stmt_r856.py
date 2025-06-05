@@ -34,7 +34,7 @@
 
 """Test Fortran 2008 rule R856
 
-    error-stop-stmt is ERROR STOP [ stop-code ]
+error-stop-stmt is ERROR STOP [ stop-code ]
 """
 
 import pytest

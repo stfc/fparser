@@ -33,7 +33,7 @@
 # -----------------------------------------------------------------------------
 
 """
-    Module containing Fortran2008 Coarray_Spec rule R509
+Module containing Fortran2008 Coarray_Spec rule R509
 """
 from fparser.two.utils import Base
 

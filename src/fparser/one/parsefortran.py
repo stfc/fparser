@@ -64,8 +64,7 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 # DAMAGE.
 
-"""Provides FortranParser.
-"""
+"""Provides FortranParser."""
 # Author: Pearu Peterson <pearu@cens.ioc.ee>
 # Created: May 2006
 

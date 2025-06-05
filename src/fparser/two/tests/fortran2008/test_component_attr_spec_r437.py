@@ -34,12 +34,12 @@
 
 """Test Fortran 2008 rule R437.
 
-    component-attr-spec = access-spec
-                          or ALLOCATABLE
-                          or CODIMENSION lbracket coarray-spec rbracket
-                          or CONTIGUOUS
-                          or DIMENSION ( component-array-spec )
-                          or POINTER
+component-attr-spec = access-spec
+                      or ALLOCATABLE
+                      or CODIMENSION lbracket coarray-spec rbracket
+                      or CONTIGUOUS
+                      or DIMENSION ( component-array-spec )
+                      or POINTER
 """
 
 import pytest

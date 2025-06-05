@@ -33,7 +33,7 @@
 # -----------------------------------------------------------------------------
 
 """
-    Module containing Fortran2008 Specification_Part constraint C1112
+Module containing Fortran2008 Specification_Part constraint C1112
 """
 from fparser.two.Fortran2003 import Specification_Part, Use_Stmt, Import_Stmt
 from fparser.two.Fortran2008.declaration_construct_c1112 import (

@@ -33,7 +33,7 @@
 # -----------------------------------------------------------------------------
 
 """
-    Module containing Fortran2008 Attr_Spec rule R502
+Module containing Fortran2008 Attr_Spec rule R502
 """
 from fparser.two import pattern_tools as pattern
 from fparser.two.Fortran2003 import Attr_Spec as Attr_Spec_2003

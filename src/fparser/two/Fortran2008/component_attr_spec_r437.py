@@ -33,7 +33,7 @@
 # -----------------------------------------------------------------------------
 
 """
-    Module containing Fortran2008 Component_Attr_Spec rule R437
+Module containing Fortran2008 Component_Attr_Spec rule R437
 """
 from fparser.two.Fortran2003 import Component_Attr_Spec as Component_Attr_Spec_2003
 

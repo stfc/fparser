@@ -33,7 +33,7 @@
 # -----------------------------------------------------------------------------
 
 """
-    Module containing Fortran2008 Alloc_Opt rule R627
+Module containing Fortran2008 Alloc_Opt rule R627
 """
 from fparser.two.Fortran2003 import (
     Alloc_Opt as Alloc_Opt_2003,
