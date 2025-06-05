@@ -33,9 +33,9 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-""" pytest module for the Fortran2003 Non-block Do Construct - R835. Note that
-    this requires re-implementing and extending to fully cover the
-    language specification (#232)."""
+"""pytest module for the Fortran2003 Non-block Do Construct - R835. Note that
+this requires re-implementing and extending to fully cover the
+language specification (#232)."""
 
 import pytest
 from fparser.api import get_reader

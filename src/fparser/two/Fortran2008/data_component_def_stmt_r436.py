@@ -33,7 +33,7 @@
 # -----------------------------------------------------------------------------
 
 """
-    Module containing Fortran2008 Data_Component_Def_Stmt rule R436
+Module containing Fortran2008 Data_Component_Def_Stmt rule R436
 """
 from fparser.two.Fortran2003 import (
     Data_Component_Def_Stmt as Data_Component_Def_Stmt_2003,

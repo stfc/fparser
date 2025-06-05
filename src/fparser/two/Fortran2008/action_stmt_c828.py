@@ -33,7 +33,7 @@
 # -----------------------------------------------------------------------------
 
 """
-    Module containing Fortran2008 Action_Stmt constraint C828
+Module containing Fortran2008 Action_Stmt constraint C828
 """
 from fparser.two.Fortran2003 import Action_Stmt_C802 as Action_Stmt_C802_2003
 from fparser.two.Fortran2008.action_stmt_r214 import Action_Stmt

@@ -33,7 +33,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-""" pytest module for the Fortran2003 Do Construct - R826."""
+"""pytest module for the Fortran2003 Do Construct - R826."""
 
 import pytest
 from fparser.api import get_reader

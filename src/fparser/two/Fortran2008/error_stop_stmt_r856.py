@@ -33,7 +33,7 @@
 # -----------------------------------------------------------------------------
 
 """
-    Module containing Fortran2008 Error_Stop_Stmt rule R856
+Module containing Fortran2008 Error_Stop_Stmt rule R856
 """
 from fparser.two.Fortran2003 import Stop_Code
 from fparser.two.utils import StmtBase, WORDClsBase

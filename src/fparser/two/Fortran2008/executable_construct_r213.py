@@ -33,7 +33,7 @@
 # -----------------------------------------------------------------------------
 
 """
-    Module containing Fortran2008 Executable_Construct rule R213
+Module containing Fortran2008 Executable_Construct rule R213
 """
 from fparser.two.Fortran2003 import Executable_Construct as Executable_Construct_2003
 

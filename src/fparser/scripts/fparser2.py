@@ -64,7 +64,7 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 # DAMAGE.
 
-""" Example script to parse a Fortran program using fparser """
+"""Example script to parse a Fortran program using fparser"""
 
 import logging
 import sys

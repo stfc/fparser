@@ -33,7 +33,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # -----------------------------------------------------------------------------
 
-""" Module containing tests for the ModuleUse class. """
+"""Module containing tests for the ModuleUse class."""
 
 import pytest
 from fparser.two.symbol_table import ModuleUse

@@ -34,12 +34,12 @@
 
 """Test Fortran 2008 rule R818
 
-    loop-control is [ , ] do-variable = scalar-int-expr , scalar-int-expr
-                       [ , scalar-int-expr ]
-                    or [ , ] WHILE ( scalar-logical-expr )
-                    or [ , ] CONCURRENT forall-header
+loop-control is [ , ] do-variable = scalar-int-expr , scalar-int-expr
+                   [ , scalar-int-expr ]
+                or [ , ] WHILE ( scalar-logical-expr )
+                or [ , ] CONCURRENT forall-header
 
-    Extends the Fortran2003 rule R830 with the additional CONCURRENT clause.
+Extends the Fortran2003 rule R830 with the additional CONCURRENT clause.
 
 """
 import pytest

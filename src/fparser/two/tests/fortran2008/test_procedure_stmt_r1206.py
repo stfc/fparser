@@ -34,7 +34,7 @@
 
 """Test Fortran 2008 rule R1206
 
-    procedure-stmt is [ MODULE ] PROCEDURE [ :: ] procedure-name-list
+procedure-stmt is [ MODULE ] PROCEDURE [ :: ] procedure-name-list
 
 """
 

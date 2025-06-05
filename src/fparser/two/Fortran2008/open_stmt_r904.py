@@ -33,7 +33,7 @@
 # -----------------------------------------------------------------------------
 
 """
-    Module containing Fortran2008 Open_Stmt rule R904
+Module containing Fortran2008 Open_Stmt rule R904
 """
 from fparser.two.Fortran2003 import Open_Stmt as Open_Stmt_2003
 from fparser.two.utils import CALLBase
