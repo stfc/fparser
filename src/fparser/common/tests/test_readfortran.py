@@ -234,7 +234,7 @@ def test_base_handle_multilines(log):
     Tests that FortranReaderBase.get_source_item() logs the correct messages
     when there are quote discrepancies.
     """
-    code = "character(8) :: test = 'foo\"\"\"bar"
+    code = 'character(8) :: test = \'foo"""bar'
     log.reset()
     unit_under_test = FortranStringReader(code)
     mode = FortranFormat(True, True)
