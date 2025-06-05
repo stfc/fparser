@@ -33,9 +33,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""Test Fortran 2003 rule R504: entity-decl
-
-"""
+"""Test Fortran 2003 rule R504: entity-decl"""
 
 from fparser.two.Fortran2003 import Entity_Decl, Name
 

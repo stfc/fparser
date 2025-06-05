@@ -34,16 +34,16 @@
 
 """Test Fortran 2008 rule R1116 and its constraints C1112 and C1114.
 
-    submodule is submodule-stmt
-                 [ specification-part ]
-                 [ module-subprogram-part ]
-                 end-submodule-stmt
+submodule is submodule-stmt
+             [ specification-part ]
+             [ module-subprogram-part ]
+             end-submodule-stmt
 
-    C1112 A submodule specification-part shall not contain a
-    format-stmt, entry-stmt, or stmt-function-stmt.
+C1112 A submodule specification-part shall not contain a
+format-stmt, entry-stmt, or stmt-function-stmt.
 
-    C1114 If a submodule-name appears in the end-submodule-stmt, it
-    shall be identical to the one in the submodule-stmt.
+C1114 If a submodule-name appears in the end-submodule-stmt, it
+shall be identical to the one in the submodule-stmt.
 
 """
 

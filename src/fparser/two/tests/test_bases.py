@@ -32,7 +32,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-""" Module containing pytest tests for fparser2 base classes """
+"""Module containing pytest tests for fparser2 base classes"""
 
 import pytest
 from fparser.common.readfortran import FortranStringReader

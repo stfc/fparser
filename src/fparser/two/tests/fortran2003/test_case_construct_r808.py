@@ -33,9 +33,9 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-""" pytest module for the Fortran2003 Case Construct - R808.
-    Does not test all aspects of R808, in particular the conditions C803-7
-    are not checked - #232. """
+"""pytest module for the Fortran2003 Case Construct - R808.
+Does not test all aspects of R808, in particular the conditions C803-7
+are not checked - #232."""
 
 import pytest
 from fparser.api import get_reader

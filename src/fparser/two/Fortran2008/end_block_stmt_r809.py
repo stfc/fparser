@@ -33,7 +33,7 @@
 # -----------------------------------------------------------------------------
 
 """
-    Module containing Fortran2008 End_Block_Stmt rule R809
+Module containing Fortran2008 End_Block_Stmt rule R809
 """
 from fparser.two.utils import EndStmtBase
 

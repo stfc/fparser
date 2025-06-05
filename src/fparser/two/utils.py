@@ -63,9 +63,7 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 # DAMAGE.
 
-"""Base classes and exception handling for Fortran parser.
-
-"""
+"""Base classes and exception handling for Fortran parser."""
 # Original author: Pearu Peterson <pearu@cens.ioc.ee>
 # First version created: Oct 2006
 

@@ -34,7 +34,7 @@
 
 """Test Fortran 2003 rule R807
 
-    if-stmt is IF ( scalar-logical-expr ) action-stmt
+if-stmt is IF ( scalar-logical-expr ) action-stmt
 """
 
 import pytest

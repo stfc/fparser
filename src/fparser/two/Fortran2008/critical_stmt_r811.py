@@ -33,7 +33,7 @@
 # -----------------------------------------------------------------------------
 
 """
-    Module containing Fortran2008 Critical_Stmt rule R811
+Module containing Fortran2008 Critical_Stmt rule R811
 """
 from fparser.two.utils import StmtBase, WORDClsBase
 

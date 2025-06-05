@@ -33,7 +33,7 @@
 # -----------------------------------------------------------------------------
 
 """
-    Module containing Fortran2008 Do_Term_Action_Stmt rule R826
+Module containing Fortran2008 Do_Term_Action_Stmt rule R826
 """
 from fparser.two.Fortran2003 import Do_Term_Action_Stmt as Do_Term_Action_Stmt_2003
 

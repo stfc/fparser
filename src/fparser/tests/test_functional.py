@@ -32,8 +32,8 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-""" Module containing functional tests - i.e. tests of specific functionality
-    within the context of parsing a piece of compilable Fortran """
+"""Module containing functional tests - i.e. tests of specific functionality
+within the context of parsing a piece of compilable Fortran"""
 
 
 def test_procedure_interface():

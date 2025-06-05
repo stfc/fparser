@@ -62,7 +62,7 @@ jobs:
 
   unit-tests:
 
-    # TODO 2837: Switch to ubuntu-latest once Python 3.7 support is removed.
+    # TODO #464: Switch to ubuntu-latest once Python 3.7 support is removed.
     runs-on: ubuntu-22.04
     strategy:
       matrix:

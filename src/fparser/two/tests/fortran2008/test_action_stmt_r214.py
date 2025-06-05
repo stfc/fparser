@@ -34,52 +34,52 @@
 
 """Test Fortran 2008 rule R214
 
-    action-stmt is allocate-stmt
-                    or assignment-stmt
-                    or backspace-stmt
-                    or call-stmt
-                    or close-stmt
-                    or continue-stmt
-                    or cycle-stmt
-                    or deallocate-stmt
-                    or end-function-stmt
-                    or end-mp-subprogram-stmt
-                    or end-program-stmt
-                    or end-subroutine-stmt
-                    or endfile-stmt
-                    or error-stop-stmt
-                    or exit-stmt
-                    or flush-stmt
-                    or forall-stmt
-                    or goto-stmt
-                    or if-stmt
-                    or inquire-stmt
-                    or lock-stmt
-                    or nullify-stmt
-                    or open-stmt
-                    or pointer-assignment-stmt
-                    or print-stmt
-                    or read-stmt
-                    or return-stmt
-                    or rewind-stmt
-                    or stop-stmt
-                    or sync-all-stmt
-                    or sync-images-stmt
-                    or sync-memory-stmt
-                    or unlock-stmt
-                    or wait-stmt
-                    or where-stmt
-                    or write-stmt
-                    or arithmetic-if-stmt
-                    or computed-goto-stmt
+action-stmt is allocate-stmt
+                or assignment-stmt
+                or backspace-stmt
+                or call-stmt
+                or close-stmt
+                or continue-stmt
+                or cycle-stmt
+                or deallocate-stmt
+                or end-function-stmt
+                or end-mp-subprogram-stmt
+                or end-program-stmt
+                or end-subroutine-stmt
+                or endfile-stmt
+                or error-stop-stmt
+                or exit-stmt
+                or flush-stmt
+                or forall-stmt
+                or goto-stmt
+                or if-stmt
+                or inquire-stmt
+                or lock-stmt
+                or nullify-stmt
+                or open-stmt
+                or pointer-assignment-stmt
+                or print-stmt
+                or read-stmt
+                or return-stmt
+                or rewind-stmt
+                or stop-stmt
+                or sync-all-stmt
+                or sync-images-stmt
+                or sync-memory-stmt
+                or unlock-stmt
+                or wait-stmt
+                or where-stmt
+                or write-stmt
+                or arithmetic-if-stmt
+                or computed-goto-stmt
 
-    Associated constraints are:
+Associated constraints are:
 
-    "C201 (R208) An execution-part shall not contain an end-function-stmt,
-          end-mp-subprogram-stmt, end-program-stmt, or end-subroutine-stmt."
+"C201 (R208) An execution-part shall not contain an end-function-stmt,
+      end-mp-subprogram-stmt, end-program-stmt, or end-subroutine-stmt."
 
-    TODO: Implement and test lock-stmt, sync-all-stmt, sync-images-stmt,
-          sync-memory-stmt, unlock-stmt (#321)
+TODO: Implement and test lock-stmt, sync-all-stmt, sync-images-stmt,
+      sync-memory-stmt, unlock-stmt (#321)
 """
 
 import pytest

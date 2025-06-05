@@ -33,7 +33,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-""" pytest module for the Fortran2003 Allocate Statement - R263. """
+"""pytest module for the Fortran2003 Allocate Statement - R263."""
 
 import pytest
 from fparser.two.utils import NoMatchError
