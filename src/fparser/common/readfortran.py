@@ -1206,7 +1206,7 @@ class FortranReaderBase:
             and '"' not in line
             and "'" not in line
         ):
-            # No comment present.
+            # There's no comment on this line
             return line, quotechar, had_comment
 
         idx = line.find("!")
