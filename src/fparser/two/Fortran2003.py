@@ -2960,7 +2960,7 @@ class Ac_Implied_Do(Base):
             return None
         line, repmap = string_replace_map(string[1:-1].strip())
         i = line.rfind("=")
-        if i == -1 or (i > 0 and line[i-1] == "="):
+        if i == -1 or (i > 0 and line[i - 1] == "="):
             # No "=" or it is "==" so no match.
             return None
         j = line[:i].rfind(",")
