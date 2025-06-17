@@ -1,4 +1,4 @@
-# Copyright (c) 2020-2021 Science and Technology Facilities Council.
+# Copyright (c) 2020-2025 Science and Technology Facilities Council.
 #
 # All rights reserved.
 #
@@ -55,6 +55,18 @@ def test_implicit_loop_constructor_no_parentheses():
     reader = FortranStringReader(fcode)
     ast = Fortran2003.Array_Constructor(reader)
     assert ast is None
+
+
+@pytest.mark.usefixtures("f2003_create")
+def test_no_implicit_loop_constructor_with_is_equal_to():
+    """Test that the parser does not match an implicit loop if the
+    array constructor contains '=='."""
+    fcode = "(/lval1, ival1==ival2/)"
+    reader = FortranStringReader(fcode)
+    ast = Fortran2003.Array_Constructor(reader)
+    # Should have an array constructor without an implicit loop.
+    assert isinstance(ast, Fortran2003.Array_Constructor)
+    assert isinstance(ast.children[1], Fortran2003.Ac_Value_List)
 
 
 @pytest.mark.xfail(reason="#257 Constraint C497 is not checked.")
