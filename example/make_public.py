@@ -96,8 +96,9 @@ def remove_private(filename):
         # with DrHook to specify the name of the module. If at the same time
         # another modules does a wild-card import, this importing module will
         # have two definitions of ModuleName, its own and the imported one.
-        # The following code can be uncommented to test for this type of
-        # definition and leave it private.
+        # You can add any variable names that should not be turned public
+        # to the `names_to_ignore` list, and the listed names will not be
+        # made public.
         names_to_ignore = []
         if isinstance(node.parent.parent, Type_Declaration_Stmt):
             # type-declaration-stmt is declaration-type-spec [
