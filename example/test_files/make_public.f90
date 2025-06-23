@@ -1,9 +1,9 @@
 module a_mod
 
-   ! Access_Stmt
+   ! Access_Stmt private will be removed:
    private
 
-   ! Attr_Spec with 0 and 1 additional attribute
+   ! Attr_Spec with 0 and 1 additional attribute, the protected will be remobed
    REAL, protected  :: planet_radius = 123
    REAL, parameter, protected  :: planet_radius_constant = 123
 
@@ -11,23 +11,24 @@ module a_mod
    LOGICAL :: only_protected = .FALSE.
    LOGICAL :: private_protected = .FALSE.
 
-   ! Access_stmt
+   ! Access_stmt with public, this will be unmodified
    PUBLIC  :: public_protected
-   ! Protected_Stmt
+   ! Protected_Stmt - the whole statement will be removed
    PROTECTED :: public_protected, only_protected
-   ! Access_stmt
+   ! Access_stmt with private - the whole statement will be removed
    private :: private_protected
 
    type :: my_type
-      ! Private_Components_Stmt
+      ! Private_Components_Stmt in a type will be removed
       private
       integer :: a, b
    contains
+      ! This private will also be removed.
       private
 
    end type my_type
 
-   ! Access_Spec
+   ! Access_Spec - the `private` will be removed
    type(my_type), private :: my_var
 
 contains
