@@ -168,7 +168,9 @@ def test_splitparen():
 
 def test_next_quote():
     """Test the _next_quote() method."""
+    # By default, both ' and " are considered.
     assert _next_quote("hello 'andy'") == 6
+    assert _next_quote('hello "andy"') == 6
     assert _next_quote("hello 'andy'", quote_char="'") == 6
     assert _next_quote("hello 'andy'", quote_char="'", start=7) == 11
     assert _next_quote("hello 'andy'", quote_char='"') == -1

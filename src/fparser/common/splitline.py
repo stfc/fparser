@@ -240,7 +240,15 @@ def string_replace_map(line, lower=False):
 
 def _next_quote(line: str, quote_char: Optional[str] = None, start: int = 0) -> int:
     """
-    :returns: the index of the next quotation char in the supplied string or -1 if
+    Find the location of the first quotation char from the specified start position
+    (defaults to the beginning of the string).
+
+    :param line: the line of text to search.
+    :param quote_char: the specific quotation character to search for. If not
+        specified then both ' and " are searched for.
+    :param start: the position in the line from which to search.
+
+    :returns: the index of the quotation char in the supplied string or -1 if
               none is found.
     """
     line_len = len(line)
@@ -254,6 +262,7 @@ def _next_quote(line: str, quote_char: Optional[str] = None, start: int = 0) -> 
         if line[i] in target_quote_chars:
 
             if i < line_len - 1 and line[i + 1] == line[i]:
+                # An escaped quotation character ('' or "").
                 i += 2
                 continue
             return i
