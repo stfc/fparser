@@ -233,6 +233,14 @@ def test_next_quote():
         ),
         ("'value = 1.0d-3'", ["'value = 1.0d-3'"], None),
         ("a()", ["a()"], None),
+        # Empty string.
+        (
+            "print *, 'test', '', 'the end'",
+            ["print *, ", "'test'", ", ", "''", ", ", "'the end'"],
+            None,
+        ),
+        # String contains single quote char
+        ("'", ["'"], "'"),
         ("'\\'", ["'\\'"], None),
     ],
 )

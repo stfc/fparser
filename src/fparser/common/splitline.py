@@ -243,8 +243,14 @@ def _next_quote(line: str, quote_char: Optional[str] = None, start: int = 0) -> 
     Find the location of the first quotation char from the specified start position
     (defaults to the beginning of the string).
 
+    In Fortran, quotation marks within quoted strings are escaped through
+    repetition, i.e. '""' means '"' and "''" means "'". If the `quote_char` argument
+    is supplied then this is taken to mean that we are searching within a quoted
+    string and therefore any repeated quotation marks are interpreted as escaped
+    quotation marks.
+
     :param line: the line of text to search.
-    :param quote_char: the specific quotation character to search for. If not
+    :param quote_char: the specific quotation character to search for. If it is not
         specified then both ' and " are searched for.
     :param start: the position in the line from which to search.
 
@@ -261,8 +267,9 @@ def _next_quote(line: str, quote_char: Optional[str] = None, start: int = 0) -> 
     while i < line_len:
         if line[i] in target_quote_chars:
 
-            if i < line_len - 1 and line[i + 1] == line[i]:
-                # An escaped quotation character ('' or "").
+            if quote_char and i < line_len - 1 and line[i + 1] == line[i]:
+                # We're inside a quoted string so this is an escaped quotation
+                # character ('' or "").
                 i += 2
                 continue
             return i
