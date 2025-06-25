@@ -238,6 +238,29 @@ def string_replace_map(line, lower=False):
     return "".join(items), string_map
 
 
+def _next_quote(line: str, quote_char: Optional[str] = None, start: int = 0) -> int:
+    """
+    :returns: the index of the next quotation char in the supplied string or -1 if
+              none is found.
+    """
+    line_len = len(line)
+    i = start
+    if quote_char:
+        target_quote_chars = [quote_char]
+    else:
+        target_quote_chars = ["'", '"']
+
+    while i < line_len:
+        if line[i] in target_quote_chars:
+
+            if i < line_len - 1 and line[i + 1] == line[i]:
+                i += 2
+                continue
+            return i
+        i += 1
+    return -1
+
+
 def splitquote(
     line: str, stopchar: Optional[str] = None, lower: bool = False
 ) -> Tuple[List[Union[String, str]], Optional[str]]:
@@ -262,46 +285,48 @@ def splitquote(
               before the end of the line.
 
     """
+
+    def _lower(text: str):
+        """
+        :returns: the supplied text lower-cased if the 'lower' argument to
+                  the parent routine is True.
+        """
+        if lower:
+            return text.lower()
+        return text
+
     segments = []
     i = 0
+    pos = 0
     n = len(line)
-    quote_char = stopchar
-
-    while i < n:
-        if quote_char is None and line[i] in ("'", '"'):
-            quote_char = line[i]
-            start = i
-            i += 1
-            while i < n:
-                if line[i] == quote_char:
-                    if i + 1 < n and line[i + 1] == quote_char:
-                        i += 2  # Escaped quote
-                    else:
-                        i += 1
-                        break
-                else:
-                    i += 1
-            if i > n or (i == n and line[i - 1] != quote_char):
-                segment = String(line[start:])
-                segments.append(segment)
-                return [
-                    s if isinstance(s, String) else s.lower() if lower else s
-                    for s in segments
-                ], quote_char
-            else:
-                segment = String(line[start:i])
-                segments.append(segment)
-                quote_char = None
+    if stopchar:
+        # We start inside an existing quoted region.
+        end = _next_quote(line, quote_char=stopchar)
+        if end != -1:
+            # Has to be 'end+1' to include quotation char.
+            segments.append(String(line[pos : end + 1]))
+            pos = end + 1
         else:
-            start = i
-            while i < n and (quote_char is not None or line[i] not in ("'", '"')):
-                i += 1
-            segment = line[start:i]
-            segments.append(segment)
+            # Didn't find a closing quotation char.
+            return String(line), stopchar
 
-    return [
-        s if isinstance(s, String) else s.lower() if lower else s for s in segments
-    ], quote_char
+    while pos < n:
+        start = _next_quote(line, start=pos)
+        if start == -1:
+            # No opening quotation char found
+            segments.append(_lower(line[pos:]))
+            return segments, None
+        if start != pos:
+            segments.append(_lower(line[pos:start]))
+        end = _next_quote(line, quote_char=line[start], start=start + 1)
+        if end == -1:
+            # Didn't find a closing quotation char.
+            segments.append(String(line[start:]))
+            return segments, line[start]
+        segments.append(String(line[start : end + 1]))
+        pos = end + 1
+
+    return segments, None
 
 
 def splitparen(line, paren_open="([", paren_close=")]"):

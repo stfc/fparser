@@ -75,6 +75,7 @@ Test parsing single Fortran lines.
 import pytest
 
 from fparser.common.splitline import (
+    _next_quote,
     splitparen,
     splitquote,
     string_replace_map,
@@ -165,6 +166,14 @@ def test_splitparen():
     #     print i,l[i],EXPECTED[i],l[i]==EXPECTED[i]
 
 
+def test_next_quote():
+    """Test the _next_quote() method."""
+    assert _next_quote("hello 'andy'") == 6
+    assert _next_quote("hello 'andy'", quote_char="'") == 6
+    assert _next_quote("hello 'andy'", quote_char="'", start=7) == 11
+    assert _next_quote("hello 'andy'", quote_char='"') == -1
+
+
 @pytest.mark.parametrize(
     "input_line, expected_parts, expected_unterm",
     [
@@ -225,7 +234,8 @@ def test_splitparen():
         ("'\\'", ["'\\'"], None),
     ],
 )
-def test_split_fortran_strings(input_line, expected_parts, expected_unterm):
+def test_splitquote(input_line, expected_parts, expected_unterm):
+    """Tests the splitquote() method."""
     parts, unterminated = splitquote(input_line)
     assert parts == expected_parts, (
         f"For input: {input_line!r} got parts: {parts!r} but expected: "
@@ -235,6 +245,39 @@ def test_split_fortran_strings(input_line, expected_parts, expected_unterm):
         f"For input: {input_line!r} got unterminated: {unterminated!r} but "
         f"expected: {expected_unterm!r}"
     )
+
+
+@pytest.mark.parametrize(
+    "input_line, expected_parts, expected_unterm, stopchar, lower",
+    [
+        ("this is STILL a quote'", ["this is STILL a quote'"], None, "'", True),
+        ("'' STILL a quote'", ["'' STILL a quote'"], None, "'", True),
+        ("'' STILL a', Quote", ["'' STILL a'", ", quote"], None, "'", True),
+        ("'' STILL a', Quote", ["'' STILL a'", ", Quote"], None, "'", False),
+        ("no quotes HERE", ["no quotes here"], None, None, True),
+        ("' no quotes HERE", ["'", " no quotes here"], None, "'", True),
+        # Line ends with a different, opening quotation mark.
+        ("'' STILL a', Quote, \"", ["'' STILL a'", ", Quote, ", '"'], '"', "'", False),
+        # Line ends with a new quotation that itself contains a quotation mark.
+        (
+            " STILL a', Quote, \"old'",
+            [" STILL a'", ", Quote, ", "\"old'"],
+            '"',
+            "'",
+            False,
+        ),
+    ],
+)
+def test_splitquote_with_stopchar(
+    input_line, expected_parts, expected_unterm, stopchar, lower
+):
+    """Tests the splitquote() method when the stopchar argument is provided
+    (i.e. for a continued, quoted line).
+
+    """
+    parts, unterminated = splitquote(input_line, stopchar=stopchar, lower=lower)
+    assert parts == expected_parts
+    assert unterminated == expected_unterm
 
 
 @pytest.mark.parametrize(
