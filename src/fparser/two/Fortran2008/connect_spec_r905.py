@@ -33,7 +33,7 @@
 # -----------------------------------------------------------------------------
 
 """
-    Module containing Fortran2008 Connect_Spec rule R905
+Module containing Fortran2008 Connect_Spec rule R905
 """
 from fparser.two.Fortran2003 import (
     Connect_Spec as Connect_Spec_2003,

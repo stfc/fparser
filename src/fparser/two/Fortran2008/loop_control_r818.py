@@ -33,7 +33,7 @@
 # -----------------------------------------------------------------------------
 
 """
-    Module containing Fortran2008 Loop_Control rule R818
+Module containing Fortran2008 Loop_Control rule R818
 """
 from fparser.two.Fortran2003 import Loop_Control as Loop_Control_2003, Forall_Header
 

@@ -34,14 +34,14 @@
 
 """Test Fortran 2008 rule R1118 (C1113).
 
-   parent-identifier is ancestor-module-name [ : parent-submodule-name ]
+parent-identifier is ancestor-module-name [ : parent-submodule-name ]
 
-   C1113 The ancestor-module-name shall be the name of a nonintrinsic
-   module; the parent-submodule name shall be the name of a
-   descendant of that module.
+C1113 The ancestor-module-name shall be the name of a nonintrinsic
+module; the parent-submodule name shall be the name of a
+descendant of that module.
 
-   It is not possible to test C1113 with fparser as the names may be
-   in different files.
+It is not possible to test C1113 with fparser as the names may be
+in different files.
 
 """
 import pytest

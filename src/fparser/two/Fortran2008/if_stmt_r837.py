@@ -33,7 +33,7 @@
 # -----------------------------------------------------------------------------
 
 """
-    Module containing Fortran2008 If_Stmt rule R837
+Module containing Fortran2008 If_Stmt rule R837
 """
 from fparser.two.Fortran2003 import If_Stmt as If_Stmt_2003
 from fparser.two.Fortran2008.action_stmt_c828 import Action_Stmt_C828

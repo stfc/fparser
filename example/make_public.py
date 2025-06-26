@@ -3,7 +3,7 @@
 # -----------------------------------------------------------------------------
 # BSD 3-Clause License
 #
-# Copyright (c) 2024, Science and Technology Facilities Council.
+# Copyright (c) 2024-2025, Science and Technology Facilities Council.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -56,6 +56,7 @@ from fparser.two.Fortran2003 import (
     Protected_Stmt,
 )
 from fparser.two.parser import ParserFactory
+from fparser.two.Fortran2003 import Type_Declaration_Stmt
 from fparser.two.utils import walk
 
 
@@ -64,7 +65,9 @@ def remove_private(filename):
     """Simple function that removes all private and protected declarations.
     :param str filename: the file in which to remove private and protected
     """
-    reader = FortranFileReader(filename)
+    # Do not filter out comments, since this would remove UM-style
+    # 'depends on' comments for dependencies that are otherwise not detected.
+    reader = FortranFileReader(filename, ignore_comments=False)
     parser = ParserFactory().create(std="f2008")
     parse_tree = parser(reader)
     # A useful print to see the actual rules
@@ -85,8 +88,26 @@ def remove_private(filename):
             node.parent.children.remove(node)
 
     for node in walk(parse_tree, Access_Spec):
-        if str(node) == "PRIVATE":
-            node.string = "PUBLIC"
+        if str(node) != "PRIVATE":
+            continue
+
+        # In some cases it might be required to leave certain declarations
+        # private. One example is the variable `ModuleName`` which is used
+        # with DrHook to specify the name of the module. If at the same time
+        # another modules does a wild-card import, this importing module will
+        # have two definitions of ModuleName, its own and the imported one.
+        # You can add any variable names that should not be turned public
+        # to the `names_to_ignore` list, and the listed names will not be
+        # made public.
+        names_to_ignore = []
+        if isinstance(node.parent.parent, Type_Declaration_Stmt):
+            # type-declaration-stmt is declaration-type-spec [
+            #     [ , attr-spec ]... :: ] entity-decl-list
+            entity_decl = node.parent.parent.items[-1].items[0]
+            if str(entity_decl.items[0]).lower() in names_to_ignore:
+                # Don't change a variable in the names_to_ignore list
+                continue
+        node.string = "PUBLIC"
 
     all_nodes = list(walk(parse_tree, Attr_Spec))
     for node in all_nodes:

@@ -34,8 +34,8 @@
 
 """Test Fortran 2008 rule R501.
 
-    type-declaration-stmt is declaration-type-spec [ [ , attr-spec ] ... :: ]
-                             entity-decl-list
+type-declaration-stmt is declaration-type-spec [ [ , attr-spec ] ... :: ]
+                         entity-decl-list
 
 """
 

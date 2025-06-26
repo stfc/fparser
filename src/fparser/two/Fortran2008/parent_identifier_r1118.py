@@ -33,7 +33,7 @@
 # -----------------------------------------------------------------------------
 
 """
-    Module containing Fortran2008 Parent_Identifier rule R1118
+Module containing Fortran2008 Parent_Identifier rule R1118
 """
 from fparser.two.utils import Base
 

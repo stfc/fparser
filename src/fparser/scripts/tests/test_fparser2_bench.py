@@ -29,9 +29,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""Tests for the fparser2_bench script.
-
-"""
+"""Tests for the fparser2_bench script."""
 
 import pytest
 from fparser.scripts import fparser2_bench

@@ -34,8 +34,8 @@
 
 """Test Fortran 2008 rule R509
 
-    coarray-spec is deferred-coshape-spec-list
-                    or explicit-coshape-spec-list
+coarray-spec is deferred-coshape-spec-list
+                or explicit-coshape-spec-list
 
 """
 

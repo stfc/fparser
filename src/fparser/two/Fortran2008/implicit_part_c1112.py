@@ -33,7 +33,7 @@
 # -----------------------------------------------------------------------------
 
 """
-    Module containing Fortran2008 Implicit_Part_Stmt constraint C1112
+Module containing Fortran2008 Implicit_Part_Stmt constraint C1112
 """
 from fparser.two.Fortran2003 import Implicit_Part
 from fparser.two.Fortran2008.implicit_part_stmt_c1112 import Implicit_Part_Stmt_C1112

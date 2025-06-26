@@ -34,7 +34,7 @@
 
 """Test Fortran 2008 rule R513
 
-    upper-cobound is specification-expr
+upper-cobound is specification-expr
 
 """
 

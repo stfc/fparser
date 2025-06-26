@@ -32,8 +32,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""C99 Preprocessor Syntax Rules.
-"""
+"""C99 Preprocessor Syntax Rules."""
 # Author: Balthasar Reuter <balthasar.reuter@ecmwf.int>
 # Based on previous work by Martin Schlipf (https://github.com/martin-schlipf)
 # First version created: Jan 2020

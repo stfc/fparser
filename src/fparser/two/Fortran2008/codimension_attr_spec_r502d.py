@@ -33,7 +33,7 @@
 # -----------------------------------------------------------------------------
 
 """
-    Module containing Fortran2008 Codimension_Attr_Spec rule R502.d
+Module containing Fortran2008 Codimension_Attr_Spec rule R502.d
 """
 from fparser.two.Fortran2008.coarray_bracket_spec_r502d0 import Coarray_Bracket_Spec
 from fparser.two.utils import WORDClsBase
