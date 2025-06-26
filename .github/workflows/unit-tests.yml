@@ -62,11 +62,10 @@ jobs:
 
   unit-tests:
 
-    # TODO #464: Switch to ubuntu-latest once Python 3.7 support is removed.
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.7', '3.8', '3.11']
+        python-version: ['3.10', '3.13']
     steps:
     - uses: actions/checkout@v3
       with:
@@ -82,9 +81,7 @@ jobs:
         pip install .
     - name: Test with pytest
       run: |
-        # fparser should work even under limited terminal conditions so set
-        # LC_ALL (this is only relevant for versions before Python 3.7).
-        LC_ALL=POSIX pytest --cov=fparser --cov-report=xml src/fparser
+        pytest --cov=fparser --cov-report=xml src/fparser
     - name: Test examples
       run: |
         make -C example test
