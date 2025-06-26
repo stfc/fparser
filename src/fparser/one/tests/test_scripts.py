@@ -81,6 +81,8 @@ def test_log(caplog, monkeypatch):
         "Skipped bad character in input file. Error returned was " "'utf"
     ) in caplog.text
     # Check the output
-    assert ("Skipped bad character in input file. Error returned was 'utf-8' "
-            "codec can't decode byte 0xca in position 1815: invalid "
-            "continuation byte." in caplog.text)
+    assert (
+        "Skipped bad character in input file. Error returned was 'utf-8' "
+        "codec can't decode byte 0xca in position 1815: invalid "
+        "continuation byte." in caplog.text
+    )
