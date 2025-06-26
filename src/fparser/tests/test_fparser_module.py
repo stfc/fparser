@@ -82,6 +82,7 @@ def test_fparser_logging_handler(tmpdir, caplog):
         "Skipped bad character in input file. Error returned was 'ascii' "
         "codec can't decode byte "
     ) in caplog.text
-    # Can't check the actual value as some versions of Python3 return
-    # a different value to the one above.
-    assert "in position 1: ordinal not in range(128)." in caplog.text
+
+    assert ("Skipped bad character in input file. Error returned was 'ascii' "
+            "codec can't decode byte 0xc3 in position 1: ordinal not in "
+            "range(128)." in caplog.text)
