@@ -33,7 +33,7 @@
 # -----------------------------------------------------------------------------
 
 """
-    Module containing Fortran2008 End_Critical_Stmt rule R812
+Module containing Fortran2008 End_Critical_Stmt rule R812
 """
 from fparser.two.utils import EndStmtBase
 

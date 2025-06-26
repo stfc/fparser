@@ -34,9 +34,9 @@
 
 """Test Fortran 2003 rule R823
 
-        type-guard-stmt is TYPE IS ( type-spec ) [ select-construct-name ]
-                        or CLASS IS ( type-spec ) [ select-construct-name ]
-                        or CLASS DEFAULT [ select-construct-name ]
+type-guard-stmt is TYPE IS ( type-spec ) [ select-construct-name ]
+                or CLASS IS ( type-spec ) [ select-construct-name ]
+                or CLASS DEFAULT [ select-construct-name ]
 
 """
 import pytest

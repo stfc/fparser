@@ -31,7 +31,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-""" Module containing tests for aspects of fparser2 related to comments """
+"""Module containing tests for aspects of fparser2 related to comments"""
 
 import pytest
 from fparser.two.Fortran2003 import Program, Comment, Directive, Subroutine_Subprogram

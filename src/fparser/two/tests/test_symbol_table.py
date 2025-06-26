@@ -33,8 +33,8 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # -----------------------------------------------------------------------------
 
-""" Module containing tests for the symbol-table functionality
- of fparser2. """
+"""Module containing tests for the symbol-table functionality
+of fparser2."""
 
 import pytest
 from fparser.api import get_reader

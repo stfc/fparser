@@ -34,24 +34,24 @@
 
 """Test Fortran 2008 rule R502.
 
-    attr-spec is access-spec
-                 or ALLOCATABLE
-                 or ASYNCHRONOUS
-                 or CODIMENSION lbracket coarray-spec rbracket
-                 or CONTIGUOUS
-                 or DIMENSION ( component-array-spec )
-                 or EXTERNAL
-                 or INTENT ( intent-spec )
-                 or INTRINSIC
-                 or language-binding-spec
-                 or OPTIONAL
-                 or PARAMETER
-                 or POINTER
-                 or PROTECTED
-                 or SAVE
-                 or TARGET
-                 or VALUE
-                 or VOLATILE
+attr-spec is access-spec
+             or ALLOCATABLE
+             or ASYNCHRONOUS
+             or CODIMENSION lbracket coarray-spec rbracket
+             or CONTIGUOUS
+             or DIMENSION ( component-array-spec )
+             or EXTERNAL
+             or INTENT ( intent-spec )
+             or INTRINSIC
+             or language-binding-spec
+             or OPTIONAL
+             or PARAMETER
+             or POINTER
+             or PROTECTED
+             or SAVE
+             or TARGET
+             or VALUE
+             or VOLATILE
 """
 
 import pytest

@@ -33,7 +33,7 @@
 # -----------------------------------------------------------------------------
 
 """
-    Module containing Fortran2008 Coarray_Bracket_Spec rule R502.d.0
+Module containing Fortran2008 Coarray_Bracket_Spec rule R502.d.0
 """
 from fparser.two.Fortran2008.coarray_spec_r509 import Coarray_Spec
 from fparser.two.utils import BracketBase

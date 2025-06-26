@@ -33,7 +33,7 @@
 # -----------------------------------------------------------------------------
 
 """
-    Module containing Fortran2008 End_Submodule_Stmt rule R1119
+Module containing Fortran2008 End_Submodule_Stmt rule R1119
 """
 from fparser.two.utils import EndStmtBase
 
