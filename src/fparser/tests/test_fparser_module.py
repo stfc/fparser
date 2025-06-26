@@ -52,15 +52,8 @@ def test_fparser_get_version(monkeypatch):
         """Broken routine with which to patch the `version` method."""
         raise fparser.PackageNotFoundError()
 
-    try:
-        from importlib import metadata
-
-        monkeypatch.setattr(metadata, "version", _broken_version)
-    except ImportError:
-        # Use backport package for python <3.8
-        import importlib_metadata
-
-        monkeypatch.setattr(importlib_metadata, "version", _broken_version)
+    from importlib import metadata
+    monkeypatch.setattr(metadata, "version", _broken_version)
     ver2 = fparser._get_version()
     assert isinstance(ver2, str)
     assert "." in ver2

@@ -65,13 +65,8 @@
 # First version by: Pearu Peterson <pearu@cens.ioc.ee>
 # First created: Oct 2006
 
-try:
-    from importlib.metadata import PackageNotFoundError
-    from importlib import metadata
-except ImportError:
-    # Use backport package for python <3.8
-    from importlib_metadata import PackageNotFoundError
-    import importlib_metadata as metadata
+from importlib.metadata import PackageNotFoundError
+from importlib import metadata
 
 import logging
 import codecs
