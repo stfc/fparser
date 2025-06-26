@@ -53,6 +53,7 @@ def test_fparser_get_version(monkeypatch):
         raise fparser.PackageNotFoundError()
 
     from importlib import metadata
+
     monkeypatch.setattr(metadata, "version", _broken_version)
     ver2 = fparser._get_version()
     assert isinstance(ver2, str)
