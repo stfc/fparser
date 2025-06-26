@@ -34,7 +34,12 @@
 """ Module containing tests for aspects of fparser2 related to comments """
 
 import pytest
-from fparser.two.Fortran2003 import Program, Comment, Subroutine_Subprogram
+from fparser.two.Fortran2003 import (
+    Program,
+    Comment,
+    Directive,
+    Subroutine_Subprogram
+)
 from fparser.two.utils import walk
 from fparser.api import get_reader
 
@@ -409,3 +414,32 @@ end if
     assert "a big array" in str(ifstmt)
     cmt = get_child(ifstmt, Comment)
     assert cmt.parent is ifstmt
+
+
+def test_directive_stmts():
+    """Test that directives are created instead of comments when
+    appropriate."""
+    source = """
+    Program my_prog
+        integer :: x !$dir inline
+
+        !$omp target
+        !$omp loop
+        do x= 1 , 100
+            ! A comment!
+        end do
+    End Program"""
+    reader = get_reader(source, isfree=True, ignore_comments=False)
+    program = Program(reader)
+    out = walk(program, Directive)
+    assert len(out) == 3
+    assert out[0].items[0] == "!$dir inline"
+    assert out[1].items[0] == "!$omp target"
+    assert out[2].items[0] == "!$omp loop"
+    out = walk(program, Comment)
+    comments = 0
+    for comment in out:
+        if comment.items[0] != '':
+            assert comment.items[0] == "! A comment!"
+            comments = comments + 1
+    assert comments == 1

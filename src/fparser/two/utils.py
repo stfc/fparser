@@ -333,6 +333,7 @@ class DynamicImport:
             End_Select_Type_Stmt,
             Case_Stmt,
             End_Select_Stmt,
+            Directive,
             Comment,
             Include_Stmt,
             add_comments_includes_directives,
@@ -349,6 +350,7 @@ class DynamicImport:
         DynamicImport.End_Select_Type_Stmt = End_Select_Type_Stmt
         DynamicImport.Case_Stmt = Case_Stmt
         DynamicImport.End_Select_Stmt = End_Select_Stmt
+        DynamicImport.Directive = Directive
         DynamicImport.Comment = Comment
         DynamicImport.Include_Stmt = Include_Stmt
         DynamicImport.C99Preprocessor = C99Preprocessor
@@ -712,8 +714,8 @@ class BlockBase(Base):
             if match_names:
                 start_name = obj.get_start_name()
 
-        # Comments and Include statements are always valid sub-classes
-        classes = subclasses + [di.Comment, di.Include_Stmt]
+        # Directives, Comments and Include statements are always valid sub-classes
+        classes = subclasses + [di.Directive, di.Comment, di.Include_Stmt]
         # Preprocessor directives are always valid sub-classes
         cpp_classes = [
             getattr(di.C99Preprocessor, cls_name)
