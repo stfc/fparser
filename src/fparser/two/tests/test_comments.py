@@ -34,12 +34,7 @@
 """ Module containing tests for aspects of fparser2 related to comments """
 
 import pytest
-from fparser.two.Fortran2003 import (
-    Program,
-    Comment,
-    Directive,
-    Subroutine_Subprogram
-)
+from fparser.two.Fortran2003 import Program, Comment, Directive, Subroutine_Subprogram
 from fparser.two.utils import walk
 from fparser.api import get_reader
 
@@ -439,7 +434,7 @@ def test_directive_stmts():
     out = walk(program, Comment)
     comments = 0
     for comment in out:
-        if comment.items[0] != '':
+        if comment.items[0] != "":
             assert comment.items[0] == "! A comment!"
             comments = comments + 1
     assert comments == 1

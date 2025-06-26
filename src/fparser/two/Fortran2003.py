@@ -117,6 +117,7 @@ from fparser.two.utils import (
 # R102: <xyz-name> = <name>
 # R103: <scalar-xyz> = <xyz>
 
+
 #
 # SECTION  2
 #
@@ -128,8 +129,7 @@ class Directive(Base):
     subclass_names = []
 
     @show_result
-    def __new__(cls, string: str | FortranReaderBase,
-                parent_cls=None):
+    def __new__(cls, string: str | FortranReaderBase, parent_cls=None):
         """
         Create a new Directive instance.
 
@@ -196,7 +196,6 @@ class Directive(Base):
         :type reader: :py:class:`fparser.readfortran.FortranReaderBase`
         """
         reader.put_item(self.item)
-
 
 
 class Comment(Base):
