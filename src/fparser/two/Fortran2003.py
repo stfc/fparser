@@ -141,11 +141,12 @@ class Directive(Base):
         from fparser.common import readfortran
 
         if isinstance(string, readfortran.Comment):
-            # We were after a comment and we got a comment. Construct
-            # one manually to avoid recursively calling this __new__
-            # method again...
+            # Directives must start with a $
             if not string.comment[1:].lstrip().startswith("$"):
                 return
+            # We were after a directive and we got a directive. Construct
+            # one manually to avoid recursively calling this __new__
+            # method again...
             obj = object.__new__(cls)
             obj.init(string)
             return obj
@@ -163,16 +164,16 @@ class Directive(Base):
                     reader.put_item(item)
                 return res
             else:
-                # We didn't get a comment so put the item back in the FIFO
+                # We didn't get a directive so put the item back in the FIFO
                 reader.put_item(item)
                 return
         else:
-            # We didn't get a comment
+            # We didn't get a directive
             return
 
     def init(self, comment) -> None:
         """
-        Initialise this Comment
+        Initialise this Directive
 
         :param comment: The comment object produced by the reader
         :type comment: :py:class:`readfortran.Comment`
@@ -182,16 +183,16 @@ class Directive(Base):
 
     def tostr(self) -> str:
         """
-        :returns: this comment as a string.
+        :returns: this directive as a string.
         """
         return str(self.items[0])
 
     def restore_reader(self, reader) -> None:
         """
-        Undo the read of this comment by putting its content back
+        Undo the read of this directive by putting its content back
         into the reader (which has a FIFO buffer)
 
-        :param reader: the reader instance to return the comment to
+        :param reader: the reader instance to return the directive to
         :type reader: :py:class:`fparser.readfortran.FortranReaderBase`
         """
         reader.put_item(self.item)

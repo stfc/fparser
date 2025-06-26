@@ -431,6 +431,16 @@ def test_directive_stmts():
     assert out[0].items[0] == "!$dir inline"
     assert out[1].items[0] == "!$omp target"
     assert out[2].items[0] == "!$omp loop"
+
+    assert out[2].tostr() == "!$omp loop"
+
+    # Check the restore_reader works correctly for directive.
+    old = reader.get_item()
+    assert old == None
+    out[2].restore_reader(reader)
+    old = reader.get_item()
+    assert old is not None
+
     out = walk(program, Comment)
     comments = 0
     for comment in out:
@@ -438,3 +448,8 @@ def test_directive_stmts():
             assert comment.items[0] == "! A comment!"
             comments = comments + 1
     assert comments == 1
+
+    # Check that passing something that isn't a comment into a Directive
+    # __new__ call doesn't create a Directive.
+    out = Directive(program)
+    assert out is None
