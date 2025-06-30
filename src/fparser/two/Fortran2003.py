@@ -142,8 +142,10 @@ class Directive(Base):
         from fparser.common import readfortran
 
         if isinstance(string, readfortran.Comment):
-            # Directives must start with a $
-            if not string.comment[1:].lstrip().startswith("$"):
+            # Directives must start with a $ or be !dir$ or cdir$
+            if not (string.comment[1:].lstrip().startswith("$") or
+                    string.comment.startswith("!dir$") or
+                    string.comment.startswith("cdir$")):
                 return
             # We were after a directive and we got a directive. Construct
             # one manually to avoid recursively calling this __new__

@@ -418,6 +418,7 @@ def test_directive_stmts():
     Program my_prog
         integer :: x !$dir inline
 
+        !dir$ compiler directive
         !$omp target
         !$omp loop
         do x= 1 , 100
@@ -428,12 +429,13 @@ def test_directive_stmts():
     reader = get_reader(source, isfree=True, ignore_comments=False)
     program = Program(reader)
     out = walk(program, Directive)
-    assert len(out) == 3
+    assert len(out) == 4
     assert out[0].items[0] == "!$dir inline"
-    assert out[1].items[0] == "!$omp target"
-    assert out[2].items[0] == "!$omp loop"
+    assert out[1].items[0] == "!dir$ compiler directive"
+    assert out[2].items[0] == "!$omp target"
+    assert out[3].items[0] == "!$omp loop"
 
-    assert out[2].tostr() == "!$omp loop"
+    assert out[3].tostr() == "!$omp loop"
 
     # Check the restore_reader works correctly for directive.
     old = reader.get_item()
@@ -455,3 +457,17 @@ def test_directive_stmts():
     # __new__ call doesn't create a Directive.
     out = Directive(program)
     assert out is None
+
+    # Fixed form test that directives are handled.
+    reader = get_reader(
+        """\
+      program foo
+cdir$ This is a directive
+        end program foo""",
+        isfree=False,
+        ignore_comments=False,
+    )
+    program = Program(reader)
+    out = walk(program, Directive)
+    assert len(out) == 1
+    assert out[0].items[0] == "cdir$ This is a directive"
