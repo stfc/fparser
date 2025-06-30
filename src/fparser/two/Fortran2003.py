@@ -143,9 +143,11 @@ class Directive(Base):
 
         if isinstance(string, readfortran.Comment):
             # Directives must start with a $ or be !dir$ or cdir$
-            if not (string.comment[1:].lstrip().startswith("$") or
-                    string.comment.startswith("!dir$") or
-                    string.comment.startswith("cdir$")):
+            if not (
+                string.comment[1:].lstrip().startswith("$")
+                or string.comment.startswith("!dir$")
+                or string.comment.startswith("cdir$")
+            ):
                 return
             # We were after a directive and we got a directive. Construct
             # one manually to avoid recursively calling this __new__
@@ -273,7 +275,7 @@ def match_comment_or_include(reader):
     :return: a comment or include object if found, otherwise `None`.
     :rtype: :py:class:`fparser.two.Fortran2003.Comment` or
             :py:class:`fparser.two.Fortran2003.Include_Stmt` 
-             or :py:class:`fparser.two.Fortran2003.Directive`
+            or :py:class:`fparser.two.Fortran2003.Directive`
 
     """
     obj = Directive(reader)
