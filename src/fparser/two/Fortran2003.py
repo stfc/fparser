@@ -274,7 +274,7 @@ def match_comment_or_include(reader):
 
     :return: a comment or include object if found, otherwise `None`.
     :rtype: :py:class:`fparser.two.Fortran2003.Comment` or
-            :py:class:`fparser.two.Fortran2003.Include_Stmt` 
+            :py:class:`fparser.two.Fortran2003.Include_Stmt`
             or :py:class:`fparser.two.Fortran2003.Directive`
 
     """
