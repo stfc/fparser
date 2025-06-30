@@ -116,9 +116,79 @@ from fparser.two.utils import (
 # R102: <xyz-name> = <name>
 # R103: <scalar-xyz> = <xyz>
 
+
 #
 # SECTION  2
 #
+class Directive(Base):
+    """
+    Represents a Directive. Directives are leaves in the tree, containing
+    a single item consisting of the directive string.
+    """
+
+    subclass_names = []
+
+    @show_result
+    def __new__(cls, string: str | FortranReaderBase, parent_cls=None):
+        """
+        Create a new Directive instance.
+
+        :param type cls: the class of object to create.
+        :param string: (source of) Fortran string to parse.
+        :param parent_cls: the parent class of this object.
+        :type parent_cls: :py:type:`type`
+
+        """
+        from fparser.common import readfortran
+
+        if isinstance(string, readfortran.Comment):
+            # Directives must start with a $ or be !dir$ or cdir$
+            if not (
+                string.comment[1:].lstrip().startswith("$")
+                or string.comment.startswith("!dir$")
+                or string.comment.startswith("cdir$")
+            ):
+                return
+            # We were after a directive and we got a directive. Construct
+            # one manually to avoid recursively calling this __new__
+            # method again...
+            obj = object.__new__(cls)
+            obj.init(string)
+            return obj
+        if isinstance(string, FortranReaderBase):
+            reader = string
+            item = reader.get_item()
+            if item is None:
+                return
+            if isinstance(item, readfortran.Comment):
+                # This effectively recursively calls this routine
+                res = Directive(item)
+                if not res:
+                    # We didn't get a directive so put the item back in
+                    # the FIFO
+                    reader.put_item(item)
+                return res
+            # We didn't get a directive so put the item back in the FIFO
+            reader.put_item(item)
+            return
+        # We didn't get a directive
+        return
+
+    def init(self, comment) -> None:
+        """
+        Initialise this Directive from a comment object.
+
+        :param comment: The comment object produced by the reader
+        :type comment: :py:class:`readfortran.Comment`
+        """
+        self.items = [comment.comment]
+        self.item = comment
+
+    def tostr(self) -> str:
+        """
+        :returns: this directive as a string.
+        """
+        return str(self.items[0])
 
 
 class Comment(Base):
@@ -196,18 +266,20 @@ class Comment(Base):
 def match_comment_or_include(reader):
     """Creates a comment or include object from the current line.
 
-    :param reader: the fortran file reader containing the line \
+    :param reader: the fortran file reader containing the line
                    of code that we are trying to match
-    :type reader: :py:class:`fparser.common.readfortran.FortranFileReader` \
-                  or \
-                  :py:class:`fparser.common.readfortran.FortranStringReader`
+    :type reader: :py:class:`fparser.common.readfortran.FortranFileReader`
+                   or
+                   :py:class:`fparser.common.readfortran.FortranStringReader`
 
     :return: a comment or include object if found, otherwise `None`.
-    :rtype: :py:class:`fparser.two.Fortran2003.Comment` or \
+    :rtype: :py:class:`fparser.two.Fortran2003.Comment` or
             :py:class:`fparser.two.Fortran2003.Include_Stmt`
+            or :py:class:`fparser.two.Fortran2003.Directive`
 
     """
-    obj = Comment(reader)
+    obj = Directive(reader)
+    obj = Comment(reader) if not obj else obj
     obj = Include_Stmt(reader) if not obj else obj
     return obj
 
