@@ -122,7 +122,8 @@ from fparser.two.utils import (
 #
 class Directive(Base):
     """
-    Represents a Directive.
+    Represents a Directive. Directives are leaves in the tree, containing
+    a single item consisting of the directive string.
     """
 
     subclass_names = []
@@ -150,7 +151,7 @@ class Directive(Base):
             obj = object.__new__(cls)
             obj.init(string)
             return obj
-        elif isinstance(string, FortranReaderBase):
+        if isinstance(string, FortranReaderBase):
             reader = string
             item = reader.get_item()
             if item is None:
@@ -163,17 +164,15 @@ class Directive(Base):
                     # the FIFO
                     reader.put_item(item)
                 return res
-            else:
-                # We didn't get a directive so put the item back in the FIFO
-                reader.put_item(item)
-                return
-        else:
-            # We didn't get a directive
+            # We didn't get a directive so put the item back in the FIFO
+            reader.put_item(item)
             return
+        # We didn't get a directive
+        return
 
     def init(self, comment) -> None:
         """
-        Initialise this Directive
+        Initialise this Directive from a comment object.
 
         :param comment: The comment object produced by the reader
         :type comment: :py:class:`readfortran.Comment`
@@ -186,16 +185,6 @@ class Directive(Base):
         :returns: this directive as a string.
         """
         return str(self.items[0])
-
-    def restore_reader(self, reader) -> None:
-        """
-        Undo the read of this directive by putting its content back
-        into the reader (which has a FIFO buffer)
-
-        :param reader: the reader instance to return the directive to
-        :type reader: :py:class:`fparser.readfortran.FortranReaderBase`
-        """
-        reader.put_item(self.item)
 
 
 class Comment(Base):
@@ -273,15 +262,16 @@ class Comment(Base):
 def match_comment_or_include(reader):
     """Creates a comment or include object from the current line.
 
-    :param reader: the fortran file reader containing the line \
+    :param reader: the fortran file reader containing the line
                    of code that we are trying to match
-    :type reader: :py:class:`fparser.common.readfortran.FortranFileReader` \
-                  or \
-                  :py:class:`fparser.common.readfortran.FortranStringReader`
+    :type reader: :py:class:`fparser.common.readfortran.FortranFileReader`
+                   or
+                   :py:class:`fparser.common.readfortran.FortranStringReader`
 
     :return: a comment or include object if found, otherwise `None`.
-    :rtype: :py:class:`fparser.two.Fortran2003.Comment` or \
-            :py:class:`fparser.two.Fortran2003.Include_Stmt`
+    :rtype: :py:class:`fparser.two.Fortran2003.Comment` or
+            :py:class:`fparser.two.Fortran2003.Include_Stmt` 
+             or :py:class:`fparser.two.Fortran2003.Directive`
 
     """
     obj = Directive(reader)

@@ -422,6 +422,7 @@ def test_directive_stmts():
         !$omp loop
         do x= 1 , 100
             ! A comment!
+            !!$ Another comment
         end do
     End Program"""
     reader = get_reader(source, isfree=True, ignore_comments=False)
@@ -445,9 +446,10 @@ def test_directive_stmts():
     comments = 0
     for comment in out:
         if comment.items[0] != "":
-            assert comment.items[0] == "! A comment!"
             comments = comments + 1
-    assert comments == 1
+    assert comments == 2
+    assert str(out[2]) == "! A comment!"
+    assert str(out[3]) == "!!$ Another comment"
 
     # Check that passing something that isn't a comment into a Directive
     # __new__ call doesn't create a Directive.
