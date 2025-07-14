@@ -266,6 +266,8 @@ def test_splitquote(input_line, expected_parts, expected_unterm):
         ("'' STILL a', Quote", ["'' STILL a'", ", Quote"], None, "'", False),
         ("no quotes HERE", ["no quotes here"], None, None, True),
         ("' no quotes HERE", ["'", " no quotes here"], None, "'", True),
+        # A continued quote without a closing quote.
+        (" no quotes HERE", [" no quotes HERE"], "'", "'", True),
         # Line ends with a different, opening quotation mark.
         ("'' STILL a', Quote, \"", ["'' STILL a'", ", Quote, ", '"'], '"', "'", False),
         # Line ends with a new quotation that itself contains a quotation mark.
