@@ -131,9 +131,9 @@ def memoize(function):
     :param function: The function to memoize.
     :type function: Callable
 
-    Note: Python 3.9 comes with a thread-safe and more efficient cache as it
-    can be bounded and we are interested in lines that have temporal locality.
-    It's the: @functools.lru_cache(maxsize=8)
+    TODO # 472 Python 3.9 comes with a thread-safe and more efficient cache as
+    it can be bounded and we are interested in lines that have temporal
+    locality. It's the: @functools.lru_cache(maxsize=8)
 
     """
     memo = {}

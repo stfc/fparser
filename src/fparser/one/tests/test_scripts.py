@@ -80,8 +80,9 @@ def test_log(caplog, monkeypatch):
     assert (
         "Skipped bad character in input file. Error returned was " "'utf"
     ) in caplog.text
-    # Output can be utf8 or utf-8 so split test in two.
-    assert "8' codec can't decode byte " in caplog.text
-    # Can't check the actual value as some versions of Python3 return
-    # a different value to the one above.
-    assert "in position 1815: invalid continuation byte." in caplog.text
+    # Check the output
+    assert (
+        "Skipped bad character in input file. Error returned was 'utf-8' "
+        "codec can't decode byte 0xca in position 1815: invalid "
+        "continuation byte." in caplog.text
+    )
