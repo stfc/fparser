@@ -1627,6 +1627,23 @@ class FortranReaderBase:
             # A blank line is represented as an empty comment
             return Comment("", (startlineno, endlineno), self)
 
+    def is_comment_line(self, line: str) -> bool:
+        """
+        Utility that examines the supplied line of code and determines whether this
+        reader instance would identify it as a comment.
+
+        :param line: the line of Fortran to examine.
+
+        :returns: whether or not the supplied line is considered to be a comment.
+
+        """
+        if self._format.is_fixed:
+            return _is_fix_comment(
+                line, self._format.is_strict, self._format.f2py_enabled
+            )
+        new_line, _, had_comment = self.handle_inline_comment(line, 0)
+        return not new_line.strip() and had_comment
+
 
 class FortranFileReader(FortranReaderBase):
     """

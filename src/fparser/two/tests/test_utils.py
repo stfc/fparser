@@ -141,3 +141,15 @@ def test_endstmtbase_match():
         require_stmt_type=True,
     )
     assert result == ("SUBROUTINE", Fortran2003.Name("sub"))
+
+
+def test_base_all_comments():
+    """
+    Check that supplying a reader with text that consists purely of comments does
+    not result in a syntax error from the Base class.
+
+    """
+    reader = get_reader("! just a comment\n! and another")
+    result = utils.Base(reader)
+    assert result is None
+    # TODO repeat check for fixed format
