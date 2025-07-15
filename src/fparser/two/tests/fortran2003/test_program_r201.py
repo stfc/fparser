@@ -262,6 +262,16 @@ def test_missing_prog(f2003_create):
     )
     ast = Program(reader)
     assert "END" in str(ast)
+    reader = get_reader(
+        """\
+      ! This is a program without a program declaration
+      end
+      """,
+        isfree=True,
+        ignore_comments=False,
+    )
+    ast = Program(reader)
+    assert "END" in str(ast)
 
 
 @pytest.mark.xfail(reason="Only the main program is output")

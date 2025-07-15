@@ -315,7 +315,9 @@ class Program(BlockBase):  # R201
         try:
             while True:
                 obj = Program_Unit(reader)
-                content.append(obj)
+                if obj:
+                    # obj could be None if there are only Comments
+                    content.append(obj)
                 add_comments_includes_directives(content, reader)
                 # cause a StopIteration exception if there are no more lines
                 next_line = reader.next()

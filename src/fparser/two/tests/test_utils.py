@@ -143,13 +143,22 @@ def test_endstmtbase_match():
     assert result == ("SUBROUTINE", Fortran2003.Name("sub"))
 
 
-def test_base_all_comments():
+@pytest.mark.parametrize("ignore_comments", [True, False])
+def test_base_all_comments(ignore_comments):
     """
     Check that supplying a reader with text that consists purely of comments does
     not result in a syntax error from the Base class.
 
     """
-    reader = get_reader("! just a comment\n! and another")
+    # Check with free-format
+    reader = get_reader("! just a comment\n! and another",
+                        isfree=True,
+                        ignore_comments=ignore_comments)
     result = utils.Base(reader)
     assert result is None
-    # TODO repeat check for fixed format
+    # Check for fixed format
+    reader = get_reader("c     just a comment\n!     and another",
+                        isfree=False,
+                        ignore_comments=ignore_comments)
+    result = utils.Base(reader)
+    assert result is None

@@ -486,7 +486,10 @@ class Base(ComparableMixin):
         # If we get to here then we've failed to match the current line
         if isinstance(string, FortranReaderBase):
             freader: FortranReaderBase = string
-            if all(freader.is_comment_line(line) for line in freader.source_lines):
+            if not freader.source_lines or all(
+                (line.strip() == "" or freader.is_comment_line(line))
+                for line in freader.source_lines
+            ):
                 # There are no lines in the input or all lines up to this one
                 # are empty, comments or contain only white space. This
                 # is typically accepted by fortran compilers so we
@@ -898,6 +901,8 @@ class BlockBase(Base):
         :rtype: str
         """
         mylist = []
+        if not self.content:
+            return ""
         start = self.content[0]
         end = self.content[-1]
         extra_tab = ""
