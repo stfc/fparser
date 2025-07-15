@@ -151,14 +151,16 @@ def test_base_all_comments(ignore_comments):
 
     """
     # Check with free-format
-    reader = get_reader("! just a comment\n! and another",
-                        isfree=True,
-                        ignore_comments=ignore_comments)
+    reader = get_reader(
+        "! just a comment\n! and another", isfree=True, ignore_comments=ignore_comments
+    )
     result = utils.Base(reader)
     assert result is None
     # Check for fixed format
-    reader = get_reader("c     just a comment\n!     and another",
-                        isfree=False,
-                        ignore_comments=ignore_comments)
+    reader = get_reader(
+        "c     just a comment\n!     and another",
+        isfree=False,
+        ignore_comments=ignore_comments,
+    )
     result = utils.Base(reader)
     assert result is None
