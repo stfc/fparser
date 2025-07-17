@@ -19,6 +19,10 @@ Modifications by (in alphabetical order):
 * P. Vitt, University of Siegen, Germany
 * A. Voysey, UK Met Office
 
+26/06/2025 PR #471 for #470. Drop support for Python 3.7 and 3.8.
+
+25/06/2025 PR #459 for #458. Improvements to the 'make public' example script.
+
 05/06/2025 PR #465 for #463. Pin CI OS to Ubuntu 22.04 and 'black' formatting changes.
 
 28/11/2024 PR #455 for #454. Fixes a few tests to use the tmpdir fixture
