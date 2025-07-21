@@ -21,6 +21,8 @@ Modifications by (in alphabetical order):
 
 21/07/2025 PR #462 for #457. Fix bug with backslash in strings.
 
+21/07/2025 PR #467 for #466. Fix "==" when matching implicit loops in array constructors.
+
 26/06/2025 PR #471 for #470. Drop support for Python 3.7 and 3.8.
 
 25/06/2025 PR #459 for #458. Improvements to the 'make public' example script.
