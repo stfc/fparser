@@ -2945,13 +2945,24 @@ class Ac_Implied_Do(Base):
     use_names = ["Ac_Value_List", "Ac_Implied_Do_Control"]
 
     @staticmethod
-    def match(string):
+    def match(string: str):
+        """
+        Attempts to match the supplied string as an implicit do within an
+        array constructor.
+
+        :param string: the text to match against.
+
+        :returns: a tuple describing the match or None if there is no match.
+        :rtype: Optional[Tuple[Ac_Value_List, Ac_Implied_Do_Control]]
+
+        """
         if string[0] + string[-1] != "()":
-            return
+            return None
         line, repmap = string_replace_map(string[1:-1].strip())
         i = line.rfind("=")
-        if i == -1:
-            return
+        if i == -1 or (i > 0 and line[i - 1] == "="):
+            # No "=" or it is "==" so no match.
+            return None
         j = line[:i].rfind(",")
         assert j != -1
         s1 = repmap(line[:j].rstrip())
