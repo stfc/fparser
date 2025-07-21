@@ -324,7 +324,7 @@ def splitquote(
             pos = end + 1
         else:
             # Didn't find a closing quotation char.
-            return String(line), stopchar
+            return [String(line)], stopchar
 
     while pos < n:
         start = _next_quote(line, start=pos)
