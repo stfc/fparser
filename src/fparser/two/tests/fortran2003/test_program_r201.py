@@ -58,15 +58,20 @@ def test_empty_input(f2003_create):
         assert str(ast) == ""
 
 
-def test_only_comments(f2003_create):
+@pytest.mark.parametrize("ignore_comments", [True, False])
+def test_only_comments(f2003_create, ignore_comments):
     """Test that a file containing only comments can be parsed
-    successfully
+    successfully, irrespective of whether or not we are ignoring
+    comments.
 
     """
     code = "! comment1\n! comment2"
-    reader = get_reader(code, ignore_comments=False)
+    reader = get_reader(code, ignore_comments=ignore_comments)
     ast = Program(reader)
-    assert code in str(ast)
+    if ignore_comments:
+        assert str(ast) == ""
+    else:
+        assert code in str(ast)
 
 
 # Test single program units
