@@ -72,15 +72,15 @@ Defines LineSplitter and helper functions.
 Original Author: Pearu Peterson <pearu@cens.ioc.ee>
 First version created: May 2006
 
------
 """
 
 
 import re
+from typing import List, Tuple, Optional, Union
 
 
 class String(str):
-    """Dummy string class."""
+    """Class used to represent a *quoted* string."""
 
 
 class ParenString(str):
@@ -162,12 +162,11 @@ def string_replace_map(line, lower=False):
        `F2PY_REAL_CONSTANT_<index>_`
 
     :param str line: the line of text in which to perform substitutions.
-    :param bool lower: whether or not the call to splitquote() should return \
+    :param bool lower: whether or not the call to splitquote() should return
         items as lowercase (default is to leave the case unchanged).
 
     :returns: a new line and the replacement map.
-    :rtype: 2-tuple of str and \
-            :py:class:`fparser.common.splitline.StringReplaceDict`
+    :rtype: Tuple[str, :py:class:`fparser.common.splitline.StringReplaceDict`]
 
     """
 
@@ -239,7 +238,48 @@ def string_replace_map(line, lower=False):
     return "".join(items), string_map
 
 
-def splitquote(line, stopchar=None, lower=False, quotechars="\"'"):
+def _next_quote(line: str, quote_char: Optional[str] = None, start: int = 0) -> int:
+    """
+    Find the location of the first quotation char from the specified start position
+    (defaults to the beginning of the string).
+
+    In Fortran, quotation marks within quoted strings are escaped through
+    repetition, i.e. '""' means '"' and "''" means "'". If the `quote_char` argument
+    is supplied then this is taken to mean that we are searching within a quoted
+    string and therefore any repeated quotation marks are interpreted as escaped
+    quotation marks.
+
+    :param line: the line of text to search.
+    :param quote_char: the specific quotation character to search for. If it is not
+        specified then both ' and " are searched for.
+    :param start: the position in the line from which to search.
+
+    :returns: the index of the quotation char in the supplied string or -1 if
+              none is found.
+    """
+    line_len = len(line)
+    i = start
+    if quote_char:
+        target_quote_chars = [quote_char]
+    else:
+        target_quote_chars = ["'", '"']
+
+    while i < line_len:
+        if line[i] in target_quote_chars:
+
+            if quote_char and i < line_len - 1 and line[i + 1] == line[i]:
+                # We're inside a quoted string so this is an escaped quotation
+                # character ('' or "").
+                i += 2
+                continue
+            return i
+        i += 1
+    return -1
+
+
+def splitquote(
+    line: str, stopchar: Optional[str] = None, lower: bool = False
+) -> Tuple[List[Union[String, str]], Optional[str]]:
     """
     Splits the supplied line of text into parts consisting of regions that
     are not contained within quotes and those that are.
@@ -249,94 +289,60 @@ def splitquote(line, stopchar=None, lower=False, quotechars="\"'"):
     current closing quotation character to be specified.
 
     :param str line: the line to split.
-    :param Optional[str] stopchar: the quote character that will terminate an \
-                                   existing quoted string or None otherwise.
-    :param bool lower: whether or not to convert the split parts of the line \
-                       to lowercase.
-    :param str quotechars: the characters that are considered to delimit \
-                           quoted strings.
+    :param stopchar: the quote character that will terminate an
+                     existing quoted string or None otherwise.
+    :param lower: whether or not to convert the non-quoted parts of the line
+                  to lowercase.
 
-    :returns: tuple containing a list of the parts of the line split into \
-              those parts that are not quoted strings and those parts that are \
-              as well as the quote character corresponding with any quoted \
-              string that has not been closed before the end of the line.
-    :rtype: Tuple[List[str], str]
+    :returns: tuple containing a list of the parts of the line split into
+              those parts that are not quoted strings and those parts that are
+              (as instances of String) as well as the quote character
+              corresponding with any quoted string that has not been closed
+              before the end of the line.
 
     """
-    # Will hold the various parts that `line` is split into.
-    items = []
-    # The current position in the line being processed.
-    ipos = 0
-    while 1:
-        # Move on to the next character in the line.
-        try:
-            char = line[ipos]
-            ipos += 1
-        except IndexError:
-            break
-        part = []
-        nofslashes = 0
-        if stopchar is None:
-            # search for string start
-            while 1:
-                if char in quotechars and not nofslashes % 2:
-                    # Found an un-escaped quote character.
-                    stopchar = char
-                    ipos -= 1
-                    # This marks the end of the current part.
-                    break
-                if char == "\\":
-                    nofslashes += 1
-                else:
-                    nofslashes = 0
-                part.append(char)
-                try:
-                    char = line[ipos]
-                    ipos += 1
-                except IndexError:
-                    break
-            if part:
-                # Found a part. Add it to the list of items.
-                item = "".join(part)
-                if lower:
-                    item = item.lower()
-                items.append(item)
-            # Move on to the next character in the line.
-            continue
-        if char == stopchar:
-            # string starts with quotechar
-            part.append(char)
-            try:
-                char = line[ipos]
-                ipos += 1
-            except IndexError:
-                # Have reached the end of the line after encountering an
-                # opening quote character.
-                if part:
-                    item = String("".join(part))
-                    items.append(item)
-                break
-        # else continued string
-        while 1:
-            if char == stopchar and not nofslashes % 2:
-                # We've found the closing quote character.
-                part.append(char)
-                stopchar = None
-                break
-            if char == "\\":
-                nofslashes += 1
-            else:
-                nofslashes = 0
-            part.append(char)
-            try:
-                char = line[ipos]
-                ipos += 1
-            except IndexError:
-                break
-        if part:
-            item = String("".join(part))
-            items.append(item)
-    return items, stopchar
+
+    def _lower(text: str):
+        """
+        :returns: the supplied text lower-cased if the 'lower' argument to
+                  the parent routine is True.
+        """
+        if lower:
+            return text.lower()
+        return text
+
+    segments = []
+    i = 0
+    pos = 0
+    n = len(line)
+    if stopchar:
+        # We start inside an existing quoted region.
+        end = _next_quote(line, quote_char=stopchar)
+        if end != -1:
+            # Has to be 'end+1' to include quotation char.
+            segments.append(String(line[pos : end + 1]))
+            pos = end + 1
+        else:
+            # Didn't find a closing quotation char.
+            return [String(line)], stopchar
+
+    while pos < n:
+        start = _next_quote(line, start=pos)
+        if start == -1:
+            # No opening quotation char found
+            segments.append(_lower(line[pos:]))
+            return segments, None
+        if start != pos:
+            segments.append(_lower(line[pos:start]))
+        end = _next_quote(line, quote_char=line[start], start=start + 1)
+        if end == -1:
+            # Didn't find a closing quotation char.
+            segments.append(String(line[start:]))
+            return segments, line[start]
+        segments.append(String(line[start : end + 1]))
+        pos = end + 1
+
+    return segments, None
 
 
 def splitparen(line, paren_open="([", paren_close=")]"):
