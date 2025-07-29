@@ -141,7 +141,9 @@ import os
 import re
 import sys
 import traceback
+from typing import Optional, Tuple
 from io import StringIO
+
 import fparser.common.sourceinfo
 from fparser.common.splitline import String, string_replace_map, splitquote
 
@@ -1190,9 +1192,9 @@ class FortranReaderBase:
         self,
         line: str,
         lineno: int,
-        quotechar=None,
+        quotechar: Optional[str] = None,
         buffer_comments_to_fifo: bool = True,
-    ):
+    ) -> Tuple[str, str, bool]:
         """
         Any in-line comment is extracted from the line. If
         buffer_comments_to_fifo==True (the default) then the extracted comments are
@@ -1202,12 +1204,10 @@ class FortranReaderBase:
         :param line: line of code from which to remove in-line comment
         :param lineno: line-no. in orig. file
         :param quotechar: String to use as character-string delimiter
-        :type quotechar: {None, str}
         :param buffer_comments_to_fifo: whether or not to put any comments back into
             the fifo buffer for future processing.
 
         :return: line_with_no_comments, quotechar, had_comment
-        :rtype: Tuple[str, str, bool]
 
         """
         had_comment = False
