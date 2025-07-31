@@ -141,7 +141,9 @@ import os
 import re
 import sys
 import traceback
+from typing import Optional, Tuple
 from io import StringIO
+
 import fparser.common.sourceinfo
 from fparser.common.splitline import String, string_replace_map, splitquote
 
@@ -1186,20 +1188,26 @@ class FortranReaderBase:
             return newline
         return line
 
-    def handle_inline_comment(self, line, lineno, quotechar=None):
+    def handle_inline_comment(
+        self,
+        line: str,
+        lineno: int,
+        quotechar: Optional[str] = None,
+        buffer_comments_to_fifo: bool = True,
+    ) -> Tuple[str, str, bool]:
         """
         Any in-line comment is extracted from the line. If
-        keep_inline_comments==True then the extracted comments are put back
-        into the fifo sequence where they will subsequently be processed as
+        buffer_comments_to_fifo==True (the default) then the extracted comments are
+        put back into the fifo sequence where they will subsequently be processed as
         a comment line.
 
-        :param str line: line of code from which to remove in-line comment
-        :param int lineno: line-no. in orig. file
+        :param line: line of code from which to remove in-line comment
+        :param lineno: line-no. in orig. file
         :param quotechar: String to use as character-string delimiter
-        :type quotechar: {None, str}
+        :param buffer_comments_to_fifo: whether or not to put any comments back into
+            the fifo buffer for future processing.
 
         :return: line_with_no_comments, quotechar, had_comment
-        :rtype: 3-tuple of str, str, bool
 
         """
         had_comment = False
@@ -1212,8 +1220,13 @@ class FortranReaderBase:
             # There's no comment on this line
             return line, quotechar, had_comment
 
+        if buffer_comments_to_fifo:
+            put_item = self.fifo_item.append
+        else:
+            # We're not putting any Comments into the FIFO buffer.
+            put_item = lambda x: None
+
         idx = line.find("!")
-        put_item = self.fifo_item.append
         if quotechar is None and idx != -1:
             # first try a quick method:
             newline = line[:idx]
@@ -1245,7 +1258,9 @@ class FortranReaderBase:
                 # go to next iteration:
                 newline = "".join(noncomment_items) + commentline[5:]
                 self.f2py_comment_lines.append(lineno)
-                return self.handle_inline_comment(newline, lineno, quotechar)
+                return self.handle_inline_comment(
+                    newline, lineno, quotechar, buffer_comments_to_fifo
+                )
             put_item(self.comment_item(commentline, lineno, lineno))
             had_comment = True
         return "".join(noncomment_items), newquotechar, had_comment
@@ -1626,6 +1641,25 @@ class FortranReaderBase:
         except IndexError:
             # A blank line is represented as an empty comment
             return Comment("", (startlineno, endlineno), self)
+
+    def is_comment_line(self, line: str) -> bool:
+        """
+        Utility that examines the supplied line of code and determines whether this
+        reader instance would identify it as a comment.
+
+        :param line: the line of Fortran to examine.
+
+        :returns: whether or not the supplied line is considered to be a comment.
+
+        """
+        if self._format.is_fixed:
+            return _is_fix_comment(
+                line, self._format.is_strict, self._format.f2py_enabled
+            )
+        new_line, _, had_comment = self.handle_inline_comment(
+            line, 0, buffer_comments_to_fifo=False
+        )
+        return not new_line.strip() and had_comment
 
 
 class FortranFileReader(FortranReaderBase):
