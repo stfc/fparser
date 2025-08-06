@@ -75,6 +75,7 @@ Test parsing single Fortran lines.
 import pytest
 
 from fparser.common.splitline import (
+    _next_quote,
     splitparen,
     splitquote,
     string_replace_map,
@@ -165,22 +166,130 @@ def test_splitparen():
     #     print i,l[i],EXPECTED[i],l[i]==EXPECTED[i]
 
 
-def test_splitquote():
-    """Tests splitquote function."""
-    split_list, stopchar = splitquote('abc\\\' def"12\\"3""56"dfad\'a d\'')
-    assert split_list == ["abc\\' def", '"12\\"3"', '"56"', "dfad", "'a d'"]
-    assert stopchar is None
-    result, stopchar = splitquote('abc\\\' def"12\\"3""56"dfad\'a d\'')
-    assert result == ["abc\\' def", '"12\\"3"', '"56"', "dfad", "'a d'"]
-    assert stopchar is None
+def test_next_quote():
+    """Test the _next_quote() method."""
+    # By default, both ' and " are considered.
+    assert _next_quote("hello 'andy'") == 6
+    assert _next_quote('hello "andy"') == 6
+    assert _next_quote("hello 'andy'", quote_char="'") == 6
+    assert _next_quote("hello 'andy'", quote_char="'", start=7) == 11
+    assert _next_quote("hello 'andy'", quote_char='"') == -1
 
-    split_list, stopchar = splitquote("a'")
-    assert split_list == ["a", "'"]
-    assert stopchar == "'"
 
-    split_list, stopchar = splitquote("a'b")
-    assert split_list == ["a", "'b"]
-    assert stopchar == "'"
+@pytest.mark.parametrize(
+    "input_line, expected_parts, expected_unterm",
+    [
+        # Simple double quoted string
+        ('PRINT *, "Hello"', ["PRINT *, ", '"Hello"'], None),
+        # Simple single quoted string
+        ("PRINT *, 'Hello'", ["PRINT *, ", "'Hello'"], None),
+        # Multiple quoted strings
+        (
+            'PRINT *, "Hello", VAR, "World!"',
+            ["PRINT *, ", '"Hello"', ", VAR, ", '"World!"'],
+            None,
+        ),
+        # Escaped double quotes inside double quoted string
+        (
+            'WRITE(*,*) "He said ""Hello"""',
+            ["WRITE(*,*) ", '"He said ""Hello"""'],
+            None,
+        ),
+        # Escaped single quotes inside single quoted string
+        ("WRITE(*,*) 'It''s fine'", ["WRITE(*,*) ", "'It''s fine'"], None),
+        # Both types in one line
+        ("PRINT *, \"A\", B, 'C'", ["PRINT *, ", '"A"', ", B, ", "'C'"], None),
+        # Mixed with adjacent text
+        ('X="foo""bar"', ["X=", '"foo""bar"'], None),
+        # No quoted strings
+        ("DO 10 I = 1, N", ["DO 10 I = 1, N"], None),
+        # Quoted string at start
+        ('"abc" is a string', ['"abc"', " is a string"], None),
+        # Quoted string at end
+        ('label = "xyz"', ["label = ", '"xyz"'], None),
+        # Embedded commas
+        ('DATA STR /"A,B,C"/', ["DATA STR /", '"A,B,C"', "/"], None),
+        # Fortran character kind (should treat as unquoted)
+        ("character(len=5, kind=1) :: foo", ["character(len=5, kind=1) :: foo"], None),
+        # Unterminated double-quoted string at end
+        ('PRINT *, "unterminated', ["PRINT *, ", '"unterminated'], '"'),
+        # Unterminated single-quoted string at end
+        ("PRINT *, 'unterminated", ["PRINT *, ", "'unterminated"], "'"),
+        # Unterminated string with leading whitespace
+        (
+            'PRINT *,    "still unterminated',
+            ["PRINT *,    ", '"still unterminated'],
+            '"',
+        ),
+        # Unterminated string only
+        ('"oops', ['"oops'], '"'),
+        # Unterminated with content before and after
+        ('VAR = "unterminated and more', ["VAR = ", '"unterminated and more'], '"'),
+        # Properly terminated with doubled quotes
+        (
+            "PRINT *, 'He said, ''Hello!'''",
+            ["PRINT *, ", "'He said, ''Hello!'''"],
+            None,
+        ),
+        ("'value = 1.0d-3'", ["'value = 1.0d-3'"], None),
+        ("a()", ["a()"], None),
+        # Empty string.
+        (
+            "print *, 'test', '', 'the end'",
+            ["print *, ", "'test'", ", ", "''", ", ", "'the end'"],
+            None,
+        ),
+        # String contains single quote char
+        ("'", ["'"], "'"),
+        ("'\\'", ["'\\'"], None),
+    ],
+)
+def test_splitquote(input_line, expected_parts, expected_unterm):
+    """Tests the splitquote() method."""
+    parts, unterminated = splitquote(input_line)
+    assert parts == expected_parts, (
+        f"For input: {input_line!r} got parts: {parts!r} but expected: "
+        f"{expected_parts!r}"
+    )
+    assert unterminated == expected_unterm, (
+        f"For input: {input_line!r} got unterminated: {unterminated!r} but "
+        f"expected: {expected_unterm!r}"
+    )
+
+
+@pytest.mark.parametrize(
+    "input_line, expected_parts, expected_unterm, stopchar, lower",
+    [
+        ("this is STILL a quote'", ["this is STILL a quote'"], None, "'", True),
+        ("'' STILL a quote'", ["'' STILL a quote'"], None, "'", True),
+        ("'' STILL a', Quote", ["'' STILL a'", ", quote"], None, "'", True),
+        ("'' STILL a', Quote", ["'' STILL a'", ", Quote"], None, "'", False),
+        ("no quotes HERE", ["no quotes here"], None, None, True),
+        ("' no quotes HERE", ["'", " no quotes here"], None, "'", True),
+        # A continued quote without a closing quote.
+        (" no quotes HERE", [" no quotes HERE"], "'", "'", True),
+        # Line ends with a different, opening quotation mark.
+        ("'' STILL a', Quote, \"", ["'' STILL a'", ", Quote, ", '"'], '"', "'", False),
+        # Line ends with a new quotation that itself contains a quotation mark.
+        (
+            " STILL a', Quote, \"old'",
+            [" STILL a'", ", Quote, ", "\"old'"],
+            '"',
+            "'",
+            False,
+        ),
+    ],
+)
+def test_splitquote_with_stopchar(
+    input_line, expected_parts, expected_unterm, stopchar, lower
+):
+    """Tests the splitquote() method when the stopchar argument is provided
+    (i.e. for a continued, quoted line).
+
+    """
+    parts, unterminated = splitquote(input_line, stopchar=stopchar, lower=lower)
+    assert parts == expected_parts
+    assert unterminated == expected_unterm
 
 
 @pytest.mark.parametrize(
@@ -254,6 +363,11 @@ def test_splitquote():
             "'value = 1.0d-3'",
             "'_F2PY_STRING_CONSTANT_1_'",
             {"_F2PY_STRING_CONSTANT_1_": "value = 1.0d-3"},
+        ),
+        (
+            "Met(L:L) == '\\' .and. L <= MaxLen",
+            "Met(F2PY_EXPR_TUPLE_1) == '_F2PY_STRING_CONSTANT_1_' .and. L <= MaxLen",
+            {"_F2PY_STRING_CONSTANT_1_": "\\", "F2PY_EXPR_TUPLE_1": "L:L"},
         ),
     ],
 )

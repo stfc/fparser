@@ -1,7 +1,7 @@
 # -----------------------------------------------------------------------------
 # BSD 3-Clause License
 #
-# Copyright (c) 2019-2023, Science and Technology Facilities Council.
+# Copyright (c) 2019-2025, Science and Technology Facilities Council.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -204,6 +204,17 @@ def test_intrinsic_function_reference_unlimited_args():
         result = Intrinsic_Function_Reference(f"MAX({args})")
         assert isinstance(result, Intrinsic_Function_Reference)
         assert str(result) == f"MAX({args})"
+
+
+@pytest.mark.usefixtures("f2003_create")
+def test_intrinsic_function_reference_all_args():
+    """Check that we match a call to ALL containing an array constructor
+    of logical type.
+
+    """
+    code = "all( (/ var1, var2, (i1==i2) /) )"
+    result = Intrinsic_Function_Reference(code)
+    assert isinstance(result, Intrinsic_Function_Reference)
 
 
 @pytest.mark.usefixtures("f2003_create")
