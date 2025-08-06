@@ -463,6 +463,8 @@ def test_directive_stmts():
         """\
       program foo
 cdir$ This is a directive
+C     This is a comment
+C$    integer omp_get_thread_num
         end program foo""",
         isfree=False,
         ignore_comments=False,
@@ -471,3 +473,42 @@ cdir$ This is a directive
     out = walk(program, Directive)
     assert len(out) == 1
     assert out[0].items[0] == "cdir$ This is a directive"
+
+
+@pytest.mark.parametrize("directive,expected,free", [
+    ("!$dir always", "!$dir always", True),
+    ("!dir$ always",  "!dir$ always", True),
+    ("!gcc$ vector", "!gcc$ vector", True),
+    ("!$omp parallel", "!$omp parallel", True),
+    ("!$ompx parallel", "!$ompx parallel", True),
+    ("c$omp parallel", "c$omp parallel", False),
+    ("c$omx parallel", "c$omx parallel", False),
+    ("!$omx parallel", "!$omx parallel", False),
+    ("*$omp parallel", "*$omp parallel", False),
+    ("c$omx parallel", "c$omx parallel", False),
+    ("*$omx parallel", "*$omx parallel", False),])
+def test_all_directive_formats(directive, expected, free):
+    '''Parameterized test to ensure that all directive formats are
+    correctly recognized.'''
+    # Tests for free-form directives
+    if free:
+        source = """
+        Program my_prog
+            integer :: x
+        """
+        source = source + directive + "\n"
+        source = source + """          do x= 1 , 100
+            end do
+        End Program"""
+    else:
+        source = """\
+      program foo
+"""
+        source = source + directive + "\n"
+        source = source + "        end program foo"
+
+    reader = get_reader(source, isfree=free, ignore_comments=False)
+    program = Program(reader)
+    out = walk(program, Directive)
+    assert len(out) == 1
+    assert out[0].items[0] == expected

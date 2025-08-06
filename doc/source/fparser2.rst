@@ -495,6 +495,16 @@ file was found but would fail if the include file was not found::
   program x
   include 'endprogram.inc'
 
+Compiler/OpenMP Directive support
+---------------------------------
+Most Fortran compilers support directives to enable compiler-specific
+functionality. Fparser will convert these into ``Directive`` nodes where
+possible.
+
+The supported directives are those recognized by flang, ifx, ifort (``!dir$``),
+and gcc (``!gcc$``), as well as OpenMP directives (such as ``!$omp``
+or alternatives).
+
 Preprocessing Directives
 ------------------------
 

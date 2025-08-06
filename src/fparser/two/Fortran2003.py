@@ -124,9 +124,19 @@ class Directive(Base):
     """
     Represents a Directive. Directives are leaves in the tree, containing
     a single item consisting of the directive string.
+
+    Fparser supports the following directive formats:
+
+        1. '!$dir' for generic directives.
+        2. '!dir$' for the flang, ifx or ifort compilers.
+        3. '!gcc$' for the gfortran compiler.
+        4. '!$omp', '!$ompx', 'c$omp', '*$omp', '!$omx', 'c$omx', and '*$omx' for
+        OpenMP directives.
     """
 
     subclass_names = []
+    _directive_formats = ["!$dir", "!dir$", "cdir$", "!$omp", "c$omp", "*$omp",
+                          "!$omx", "c$omx", "*$omx", "!gcc$", "!$ompx"]
 
     @show_result
     def __new__(cls, string: str | FortranReaderBase, parent_cls=None):
@@ -142,11 +152,11 @@ class Directive(Base):
         from fparser.common import readfortran
 
         if isinstance(string, readfortran.Comment):
-            # Directives must start with a $ or be !dir$ or cdir$
-            if not (
-                string.comment[1:].lstrip().startswith("$")
-                or string.comment.startswith("!dir$")
-                or string.comment.startswith("cdir$")
+            # Directives must start with one of the specified directive
+            # formats.
+            if not ( any([
+                string.comment.lower().startswith(prefix) for prefix in
+                Directive._directive_formats])
             ):
                 return
             # We were after a directive and we got a directive. Construct
@@ -264,7 +274,7 @@ class Comment(Base):
 
 
 def match_comment_or_include(reader):
-    """Creates a comment or include object from the current line.
+    """Creates a comment, directive, or include object from the current line.
 
     :param reader: the fortran file reader containing the line
                    of code that we are trying to match
@@ -272,7 +282,8 @@ def match_comment_or_include(reader):
                    or
                    :py:class:`fparser.common.readfortran.FortranStringReader`
 
-    :return: a comment or include object if found, otherwise `None`.
+    :return: a comment, directive, or include object if found, otherwise
+             `None`.
     :rtype: :py:class:`fparser.two.Fortran2003.Comment` or
             :py:class:`fparser.two.Fortran2003.Include_Stmt`
             or :py:class:`fparser.two.Fortran2003.Directive`
