@@ -19,6 +19,9 @@ Modifications by (in alphabetical order):
 * P. Vitt, University of Siegen, Germany
 * A. Voysey, UK Met Office
 
+31/07/2025 PR #474 for #473. Syntax error when parsing a file containing purely comments if
+           ignore_comments=True
+
 21/07/2025 PR #462 for #457. Fix bug with backslash in strings.
 
 21/07/2025 PR #467 for #466. Fix "==" when matching implicit loops in array constructors.

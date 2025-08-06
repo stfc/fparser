@@ -487,20 +487,13 @@ class Base(ComparableMixin):
             raise AssertionError(repr(result))
         # If we get to here then we've failed to match the current line
         if isinstance(string, FortranReaderBase):
-            content = False
-            for index in range(string.linecount):
-                # Check all lines up to this one for content. We
-                # should be able to only check the current line but
-                # but as the line number returned is not always
-                # correct (due to coding errors) we cannot assume the
-                # line pointed to is the line where the error actually
-                # happened.
-                if string.source_lines[index].strip():
-                    content = True
-                    break
-            if not content:
-                # There are no lines in the input or all lines up to
-                # this one are empty or contain only white space. This
+            freader: FortranReaderBase = string
+            if not freader.source_lines or all(
+                (line.strip() == "" or freader.is_comment_line(line))
+                for line in freader.source_lines
+            ):
+                # There are no lines in the input or all lines up to this one
+                # are empty, comments or contain only white space. This
                 # is typically accepted by fortran compilers so we
                 # follow their lead and do not raise an exception.
                 return
@@ -910,6 +903,8 @@ class BlockBase(Base):
         :rtype: str
         """
         mylist = []
+        if not self.content:
+            return ""
         start = self.content[0]
         end = self.content[-1]
         extra_tab = ""
