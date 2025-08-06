@@ -135,8 +135,19 @@ class Directive(Base):
     """
 
     subclass_names = []
-    _directive_formats = ["!$dir", "!dir$", "cdir$", "!$omp", "c$omp", "*$omp",
-                          "!$omx", "c$omx", "*$omx", "!gcc$", "!$ompx"]
+    _directive_formats = [
+        "!$dir",
+        "!dir$",
+        "cdir$",
+        "!$omp",
+        "c$omp",
+        "*$omp",
+        "!$omx",
+        "c$omx",
+        "*$omx",
+        "!gcc$",
+        "!$ompx",
+    ]
 
     @show_result
     def __new__(cls, string: str | FortranReaderBase, parent_cls=None):
@@ -154,9 +165,13 @@ class Directive(Base):
         if isinstance(string, readfortran.Comment):
             # Directives must start with one of the specified directive
             # formats.
-            if not ( any([
-                string.comment.lower().startswith(prefix) for prefix in
-                Directive._directive_formats])
+            if not (
+                any(
+                    [
+                        string.comment.lower().startswith(prefix)
+                        for prefix in Directive._directive_formats
+                    ]
+                )
             ):
                 return
             # We were after a directive and we got a directive. Construct

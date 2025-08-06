@@ -475,21 +475,25 @@ C$    integer omp_get_thread_num
     assert out[0].items[0] == "cdir$ This is a directive"
 
 
-@pytest.mark.parametrize("directive,expected,free", [
-    ("!$dir always", "!$dir always", True),
-    ("!dir$ always",  "!dir$ always", True),
-    ("!gcc$ vector", "!gcc$ vector", True),
-    ("!$omp parallel", "!$omp parallel", True),
-    ("!$ompx parallel", "!$ompx parallel", True),
-    ("c$omp parallel", "c$omp parallel", False),
-    ("c$omx parallel", "c$omx parallel", False),
-    ("!$omx parallel", "!$omx parallel", False),
-    ("*$omp parallel", "*$omp parallel", False),
-    ("c$omx parallel", "c$omx parallel", False),
-    ("*$omx parallel", "*$omx parallel", False),])
+@pytest.mark.parametrize(
+    "directive,expected,free",
+    [
+        ("!$dir always", "!$dir always", True),
+        ("!dir$ always", "!dir$ always", True),
+        ("!gcc$ vector", "!gcc$ vector", True),
+        ("!$omp parallel", "!$omp parallel", True),
+        ("!$ompx parallel", "!$ompx parallel", True),
+        ("c$omp parallel", "c$omp parallel", False),
+        ("c$omx parallel", "c$omx parallel", False),
+        ("!$omx parallel", "!$omx parallel", False),
+        ("*$omp parallel", "*$omp parallel", False),
+        ("c$omx parallel", "c$omx parallel", False),
+        ("*$omx parallel", "*$omx parallel", False),
+    ],
+)
 def test_all_directive_formats(directive, expected, free):
-    '''Parameterized test to ensure that all directive formats are
-    correctly recognized.'''
+    """Parameterized test to ensure that all directive formats are
+    correctly recognized."""
     # Tests for free-form directives
     if free:
         source = """
@@ -497,9 +501,12 @@ def test_all_directive_formats(directive, expected, free):
             integer :: x
         """
         source = source + directive + "\n"
-        source = source + """          do x= 1 , 100
+        source = (
+            source
+            + """          do x= 1 , 100
             end do
         End Program"""
+        )
     else:
         source = """\
       program foo
