@@ -263,6 +263,25 @@ def test_base_handle_multilines(log):
     assert result == expected
 
 
+def test_fortranreaderbase_is_comment_line():
+    """
+    Tests for the is_comment_line() utility method.
+    """
+    reader = FortranStringReader("    ")
+    # Make the reader free-format.
+    reader.set_format(FortranFormat(True, True))
+    assert not reader.is_comment_line("      ")
+    assert reader.is_comment_line("!")
+    assert reader.is_comment_line("!   ")
+    assert not reader.is_comment_line("call a_func()")
+    # Make the reader fixed-format.
+    reader.set_format(FortranFormat(False, True))
+    assert not reader.is_comment_line("      ")
+    assert reader.is_comment_line("!     a comment")
+    assert reader.is_comment_line("c     a comment")
+    assert reader.is_comment_line("c         ")
+
+
 def test_base_handle_quoted_backslashes(log):
     """
     Test that the reader isn't tripped-up when a string contains a backslash.
