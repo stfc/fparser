@@ -1,4 +1,4 @@
-# Copyright (c) 2017-2020 Science and Technology Facilities Council
+# Copyright (c) 2017-2022 Science and Technology Facilities Council
 # All rights reserved.
 #
 # Modifications made as part of the fparser project are distributed
@@ -34,11 +34,24 @@
 """Module containing tests for aspects of fparser2 related to comments"""
 
 import pytest
-from fparser.two.Fortran2003 import Program, Comment, Subroutine_Subprogram
-from fparser.two.utils import walk
-from fparser.api import get_reader
 
+from fparser.api import get_reader
+from fparser.two.Fortran2003 import (
+    Program,
+    Comment,
+    Subroutine_Subprogram,
+    Execution_Part,
+    Specification_Part,
+    Block_Nonlabel_Do_Construct,
+    Main_Program,
+    Write_Stmt,
+    End_Program_Stmt,
+    If_Construct,
+    Allocate_Stmt,
+    Derived_Type_Def,
+    Function_Subprogram)
 from fparser.two.parser import ParserFactory
+from fparser.two.utils import walk, get_child
 
 # this is required to setup the fortran2003 classes
 _ = ParserFactory().create(std="f2003")
@@ -242,24 +255,20 @@ def test_prog_comments():
     #   |--> Comment
     #   |--> Main_Program
     #   .    |--> Program_Stmt
-    #   .    |--> Specification_Part
-    #   .    .    \--> Implicit_Part
-    #   .    .         \--> Comment
+    #   .    |--> Comment
     #        |--> Execution_Part
     #        |    |--> Write_Stmt
-    #        |    \--> Comment
+    #        |    |--> Comment
     #   .    .
     #   .
     #   |--> Comment
-    from fparser.two.Fortran2003 import Main_Program, Write_Stmt, End_Program_Stmt
 
-    walk(obj.children, Comment, debug=True)
     assert type(obj.content[0]) == Comment
     assert str(obj.content[0]) == "! A troublesome comment"
     assert type(obj.content[1]) == Main_Program
     main_prog = obj.content[1]
-    assert type(main_prog.content[1].content[0].content[0]) == Comment
-    assert str(main_prog.content[1].content[0].content[0]) == "! A full comment line"
+    assert type(main_prog.content[1]) == Comment
+    assert str(main_prog.content[1]) == "! A full comment line"
     exec_part = main_prog.content[2]
     assert type(exec_part.content[0]) == Write_Stmt
     # Check that we have the in-line comment as a second statement
@@ -299,7 +308,6 @@ function my_mod()
   ! That was a function
 end function my_mod
 """
-    from fparser.two.Fortran2003 import Function_Subprogram
 
     reader = get_reader(source, isfree=True, ignore_comments=False)
     fn_unit = Function_Subprogram(reader)
@@ -308,17 +316,15 @@ end function my_mod
     #    <class 'fparser.two.Fortran2003.Name'>
     #    <type 'NoneType'>
     #    <type 'NoneType'>
-    # <class 'fparser.two.Fortran2003.Specification_Part'>
-    #   <class 'fparser.two.Fortran2003.Implicit_Part'>
-    #     <class 'fparser.two.Fortran2003.Comment'>
+    #    <class 'fparser.two.Fortran2003.Comment'>
     #       <type 'str'>, "'! This is a function'"
-    comment = fn_unit.content[1].content[0].content[0]
+    comment = fn_unit.content[1]
     assert isinstance(comment, Comment)
     assert "! This is a function" in str(comment)
-    comment = fn_unit.content[1].content[2].content[0]
+    comment = fn_unit.content[2].content[2]
     assert isinstance(comment, Comment)
     assert "! Comment1" in str(comment)
-    exec_part = fn_unit.content[2]
+    exec_part = fn_unit.content[3]
     comment = exec_part.content[1]
     assert isinstance(comment, Comment)
     assert "! Comment2" in str(comment)
@@ -342,16 +348,15 @@ end subroutine my_mod
     reader = get_reader(source, isfree=True, ignore_comments=False)
     fn_unit = Subroutine_Subprogram(reader)
     assert isinstance(fn_unit, Subroutine_Subprogram)
-    walk(fn_unit.children, Comment, debug=True)
-    spec_part = fn_unit.content[1]
-    comment = spec_part.content[0].content[0]
+    comment = fn_unit.content[1]
     assert isinstance(comment, Comment)
     assert "! First comment" in str(comment)
-    comment = spec_part.content[2].content[0]
+    spec_part = fn_unit.children[2]
+    comment = spec_part.children[2]
     assert isinstance(comment, Comment)
-    assert comment.parent is spec_part.content[2]
+    assert comment.parent is spec_part
     assert "! Body comment" in str(comment)
-    exec_part = fn_unit.content[2]
+    exec_part = fn_unit.content[3]
     comment = exec_part.content[1]
     assert isinstance(comment, Comment)
     assert comment.parent is exec_part
@@ -368,7 +373,6 @@ type my_type ! Inline comment1
   ! Ending comment
 end type my_type
 """
-    from fparser.two.Fortran2003 import Derived_Type_Def
 
     reader = get_reader(source, isfree=True, ignore_comments=False)
     dtype = Derived_Type_Def(reader)
@@ -399,8 +403,6 @@ allocate(my_array(size), &
          my_array2(size))
 end if
 """
-    from fparser.two.Fortran2003 import If_Construct, Allocate_Stmt
-    from fparser.two.utils import get_child
 
     reader = get_reader(source, isfree=True, ignore_comments=False)
     ifstmt = If_Construct(reader)
@@ -409,3 +411,28 @@ end if
     assert "a big array" in str(ifstmt)
     cmt = get_child(ifstmt, Comment)
     assert cmt.parent is ifstmt
+
+
+def test_do_loop_coments():
+    """Check that comments around and within do loops appear in the expected
+    places in the tree."""
+    source = """\
+program test
+integer :: arg1
+integer :: iterator
+!comment_out 1
+arg1 = 10
+!comment_out 2
+do iterator = 0,arg1
+    !comment_in
+    print *, iterator
+end do
+!comment_out 3
+end program test"""
+    reader = get_reader(source, isfree=True, ignore_comments=False)
+    obj = Program(reader)
+    comments = walk(obj, Comment)
+    assert isinstance(comments[0].parent, Specification_Part)
+    assert isinstance(comments[1].parent, Execution_Part)
+    assert isinstance(comments[2].parent, Block_Nonlabel_Do_Construct)
+    assert isinstance(comments[3].parent, Execution_Part)
