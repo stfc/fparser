@@ -19,6 +19,9 @@ Modifications by (in alphabetical order):
 * P. Vitt, University of Siegen, Germany
 * A. Voysey, UK Met Office
 
+
+29/08/2025 PR #477 for #476. Add Python 3.9 testing back to support upstream requirements.
+
 31/07/2025 PR #474 for #473. Syntax error when parsing a file containing purely comments if
            ignore_comments=True
 
