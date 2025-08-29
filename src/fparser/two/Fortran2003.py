@@ -73,6 +73,8 @@ import inspect
 import re
 import sys
 
+from typing import Union
+
 from fparser.common.splitline import string_replace_map
 from fparser.two import pattern_tools as pattern
 from fparser.common.readfortran import FortranReaderBase
@@ -136,21 +138,21 @@ class Directive(Base):
 
     subclass_names = []
     _directive_formats = [
-        "!$dir",
-        "!dir$",
-        "cdir$",
-        "!$omp",
-        "c$omp",
-        "*$omp",
-        "!$omx",
-        "c$omx",
-        "*$omx",
-        "!gcc$",
-        "!$ompx",
+        "!$dir",  # Generic directive
+        "!dir$",  # flang, ifx, ifort directives.
+        "cdir$",  # flang, ifx, ifort fixed format directive.
+        "!$omp",  # OpenMP directive
+        "c$omp",  # OpenMP fixed format directive
+        "*$omp",  # OpenMP fixed format directive
+        "!$omx",  # OpenMP fixed format directive
+        "c$omx",  # OpenMP fixed format directive
+        "*$omx",  # OpenMP fixed format directive
+        "!gcc$",  # GCC compiler directive
+        "!$ompx",  # OpenMP extension directive
     ]
 
     @show_result
-    def __new__(cls, string: str | FortranReaderBase, parent_cls=None):
+    def __new__(cls, string: Union[str, FortranReaderBase], parent_cls=None):
         """
         Create a new Directive instance.
 
@@ -164,11 +166,12 @@ class Directive(Base):
 
         if isinstance(string, readfortran.Comment):
             # Directives must start with one of the specified directive
-            # formats.
+            # prefixes.
+            lower = string.comment.lower()
             if not (
                 any(
                     [
-                        string.comment.lower().startswith(prefix)
+                        lower.startswith(prefix)
                         for prefix in Directive._directive_formats
                     ]
                 )
@@ -195,7 +198,6 @@ class Directive(Base):
                 return res
             # We didn't get a directive so put the item back in the FIFO
             reader.put_item(item)
-            return
         # We didn't get a directive
         return
 
@@ -277,17 +279,6 @@ class Comment(Base):
         """
         return str(self.items[0])
 
-    def restore_reader(self, reader):
-        """
-        Undo the read of this comment by putting its content back
-        into the reader (which has a FIFO buffer)
-
-        :param reader: the reader instance to return the comment to
-        :type reader: :py:class:`fparser.readfortran.FortranReaderBase`
-        """
-        reader.put_item(self.item)
-
-
 def match_comment_or_include(reader):
     """Creates a comment, directive, or include object from the current line.
 
@@ -304,7 +295,9 @@ def match_comment_or_include(reader):
             or :py:class:`fparser.two.Fortran2003.Directive`
 
     """
-    obj = Directive(reader)
+    obj = None
+    if(reader.process_directives):
+        obj = Directive(reader)
     obj = Comment(reader) if not obj else obj
     obj = Include_Stmt(reader) if not obj else obj
     return obj

@@ -554,14 +554,17 @@ class FortranReaderBase:
     :param mode: a FortranFormat object as returned by \
                  `sourceinfo.get_source_info()`
     :type mode: :py:class:`fparser.common.sourceinfo.Format`
-    :param bool isstrict: whether we are strictly enforcing fixed format.
-    :param bool ignore_comments: whether or not to discard comments. If
+    :param isstrict: whether we are strictly enforcing fixed format.
+    :param ignore_comments: whether or not to discard comments. If
         comments are not ignored, they will be added as special Comment node
         to the tree, and will therefore also be added to the output Fortran
         source code.
-    :param Optional[bool] include_omp_conditional_lines: whether or not the
+    :param include_omp_conditional_lines: whether or not the
         content of a line with an OMP sentinel is parsed or not. Default is
         False (in which case it is treated as a Comment).
+    :param process_directives: whether or not to process directives as
+        specialised Directive nodes. Default is False (in which case
+        directives are left as comments).
 
     The Fortran source is iterated by `get_single_line`,
     `get_next_line`, `put_single_line` methods.
@@ -569,7 +572,9 @@ class FortranReaderBase:
     """
 
     def __init__(
-        self, source, mode, ignore_comments, include_omp_conditional_lines=False
+            self, source, mode: bool, ignore_comments: bool,
+            include_omp_conditional_lines: bool = False,
+            process_directives: bool = False
     ):
         self.source = source
         self._include_omp_conditional_lines = include_omp_conditional_lines
@@ -579,6 +584,10 @@ class FortranReaderBase:
         # This value for ignore_comments can be overridden by using the
         # ignore_comments optional argument to e.g. get_single_line()
         self._ignore_comments = ignore_comments
+        if self._ignore_comments:
+            self.process_directives = False
+        else:
+            self.process_directives = process_directives
 
         self.filo_line = []  # used for un-consuming lines.
         self.fifo_item = []
