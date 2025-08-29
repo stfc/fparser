@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Modified work Copyright (c) 2017-2024 Science and Technology
+# Modified work Copyright (c) 2017-2025 Science and Technology
 # Facilities Council.
 # Original work Copyright (c) 1999-2008 Pearu Peterson
 
@@ -1503,7 +1503,17 @@ class Char_Selector(Base):  # R424
     use_names = ["Type_Param_Value", "Scalar_Int_Initialization_Expr"]
 
     @staticmethod
-    def match(string):
+    def match(string: str):
+        """
+        Attempts to match the supplied text as a char-selector.
+
+        :param string: the text to attempt to match.
+
+        :returns: the matched Char_Selector object or None.
+        :rtype: Union[None, Tuple[Optional[Type_Param_Value],
+                                  Scalar_Int_Initialization_Expr]]
+
+        """
         if string[0] + string[-1] != "()":
             return
         line, repmap = string_replace_map(string[1:-1].strip())
@@ -1524,7 +1534,8 @@ class Char_Selector(Base):  # R424
             v = repmap(v)
             line = repmap(line)
             return Type_Param_Value(v), Scalar_Int_Initialization_Expr(line)
-        elif line[:4].upper() == "KIND" and line[4:].lstrip().startswith("="):
+
+        if line[:4].upper() == "KIND" and line[4:].lstrip().startswith("="):
             line = line[4:].lstrip()
             line = line[1:].lstrip()
             i = line.find(",")
@@ -1539,17 +1550,16 @@ class Char_Selector(Base):  # R424
                 return
             v = v[1:].lstrip()
             return Type_Param_Value(v), Scalar_Int_Initialization_Expr(line)
-        else:
-            i = line.find(",")
-            if i == -1:
-                return
-            v = line[:i].rstrip()
-            line = line[i + 1 :].lstrip()
-            if line[:4].upper() == "KIND" and line[4:].lstrip().startswith("="):
-                line = line[4:].lstrip()
-                line = line[1:].lstrip()
-            return Type_Param_Value(v), Scalar_Int_Initialization_Expr(line)
-        return None
+
+        i = line.find(",")
+        if i == -1:
+            return
+        v = line[:i].rstrip()
+        line = line[i + 1 :].lstrip()
+        if line[:4].upper() == "KIND" and line[4:].lstrip().startswith("="):
+            line = line[4:].lstrip()
+            line = line[1:].lstrip()
+        return Type_Param_Value(v), Scalar_Int_Initialization_Expr(line)
 
     def tostr(self):
         if self.items[0] is None:
@@ -4682,24 +4692,22 @@ class Implicit_Stmt(StmtBase):  # R549
     use_names = ["Implicit_Spec_List"]
 
     @staticmethod
-    def match(string):
+    def match(string: str):
+        """
+        Attempts to match the supplied string with an IMPLICIT statement.
+
+        :param string: the string to attempt to match.
+
+        :returns: the Implicit_Spec_List resulting from the match or None.
+        :rtype: Union[None, Tuple[str], Tuple[Implicit_Spec_List]]
+
+        """
         if string[:8].upper() != "IMPLICIT":
             return
         line = string[8:].lstrip()
         if len(line) == 4 and line.upper() == "NONE":
             return ("NONE",)
         return (Implicit_Spec_List(line),)
-        for w, cls in [
-            (pattern.abs_implicit_none, None),
-            ("IMPLICIT", Implicit_Spec_List),
-        ]:
-            try:
-                obj = WORDClsBase.match(w, cls, string)
-            except NoMatchError:
-                obj = None
-            if obj is not None:
-                return obj
-        return None
 
     def tostr(self):
         return "IMPLICIT %s" % (self.items[0])
