@@ -296,7 +296,7 @@ def match_comment_or_include(reader):
 
     """
     obj = None
-    if(reader.process_directives):
+    if reader.process_directives:
         obj = Directive(reader)
     obj = Comment(reader) if not obj else obj
     obj = Include_Stmt(reader) if not obj else obj

@@ -572,9 +572,12 @@ class FortranReaderBase:
     """
 
     def __init__(
-            self, source, mode: bool, ignore_comments: bool,
-            include_omp_conditional_lines: bool = False,
-            process_directives: bool = False
+        self,
+        source,
+        mode: bool,
+        ignore_comments: bool,
+        include_omp_conditional_lines: bool = False,
+        process_directives: bool = False,
     ):
         self.source = source
         self._include_omp_conditional_lines = include_omp_conditional_lines
