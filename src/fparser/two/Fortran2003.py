@@ -279,6 +279,7 @@ class Comment(Base):
         """
         return str(self.items[0])
 
+
 def match_comment_or_include(reader):
     """Creates a comment, directive, or include object from the current line.
 
