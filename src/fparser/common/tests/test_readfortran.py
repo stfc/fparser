@@ -1730,3 +1730,22 @@ def test_conditional_include_omp_conditional_liness_free_format_multiple():
     line = reader.next()
     # 8 spaces in input_text, plus two for replacing the !$
     assert line.line == "bla          bla"
+
+
+def test_process_directives_option_read_fortran():
+    """Test handling of the process_directives option."""
+
+    input_text = "!$omp target\n! comment"
+    reader = FortranStringReader(input_text)
+    # Default is no comments no directives
+    # Make sure to enforce free format
+    reader.set_format(FortranFormat(True, True))
+    with pytest.raises(StopIteration):
+        comment = reader.next()
+
+    reader = FortranStringReader(input_text, process_directives=True)
+    # Default is no comments no directives
+    # Make sure to enforce free format
+    reader.set_format(FortranFormat(True, True))
+    direc = reader.next()
+    assert direc.line == "!$omp target"

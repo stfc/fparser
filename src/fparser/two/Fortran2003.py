@@ -297,6 +297,7 @@ def match_comment_or_include(reader):
 
     """
     obj = None
+    # Whether or not to specialise Directives is a run-time option.
     if reader.process_directives:
         obj = Directive(reader)
     obj = Comment(reader) if not obj else obj
