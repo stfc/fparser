@@ -500,13 +500,17 @@ Compiler/OpenMP Directive support
 Most Fortran compilers support directives to enable compiler-specific
 functionality. Fparser has an option to support converting these into
 ``Directive`` nodes where possible. This option is ``process_directives``,
-and by default it is set to ``False``. For directives to be processed, the
-``ignore_comments`` must be also be ``False``, otherwise Fparser will ignore
-this option.
+and by default it is set to ``False``. If its set to true, it forces
+``ignore_comments`` to be ``False``.
 
 The supported directives are those recognized by flang, ifx, ifort (``!dir$``),
 and gcc (``!gcc$``), as well as OpenMP directives (such as ``!$omp``
 or alternatives).
+
+For example::
+
+  reader = FortranFileReader("compute_mod.f90", process_directives=True)
+
 
 Preprocessing Directives
 ------------------------
