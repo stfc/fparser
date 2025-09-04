@@ -706,7 +706,11 @@ class BlockBase(Base):
                 start_name = obj.get_start_name()
 
         # Directives, Comments and Include statements are always valid sub-classes
-        classes = subclasses + [di.Directive, di.Comment, di.Include_Stmt]
+        comments = [di.Comment, di.Include_Stmt]
+        # Only add directives if enabled.
+        if reader.process_directives:
+            comments.insert(0, di.Directive)
+        classes = subclasses + comments
         # Preprocessor directives are always valid sub-classes
         cpp_classes = [
             getattr(di.C99Preprocessor, cls_name)

@@ -86,29 +86,34 @@ def get_reader(
     include_dirs=None,
     source_only=None,
     ignore_comments=True,
+    process_directives: bool = False,
 ):
     """
-    Returns Fortran reader instance.
+     Returns Fortran reader instance.
 
-    If ``source`` is a C filename then the functions searches for comment
-    lines starting with ``/*f2py`` and reads following lines as PYF file
-    content until a line ``*/`` is found.
+     If ``source`` is a C filename then the functions searches for comment
+     lines starting with ``/*f2py`` and reads following lines as PYF file
+     content until a line ``*/`` is found.
 
-    :param str source: Specify a string or filename containing Fortran code.
-    :param bool isfree: True if Fortran is free format
-    :param bool isstrict: True if we are to strictly enforce free/fixed format
-    :param list include_dirs: Specify a list of include directories. The
-                              default list (when include_dirs=None) contains
-                              the current working directory and the directory
-                              of ``source``.
-    :param list source_only: Specify a list of Fortran file names that are
-                             searched when the ``USE`` statement is
-                             encountered.
-    :param bool ignore_comments: Whether or not to ignore (and discard)
-                                 comments when parsing the source.
+     :param str source: Specify a string or filename containing Fortran code.
+     :param bool isfree: True if Fortran is free format
+     :param bool isstrict: True if we are to strictly enforce free/fixed format
+     :param list include_dirs: Specify a list of include directories. The
+                               default list (when include_dirs=None) contains
+                               the current working directory and the directory
+                               of ``source``.
+     :param list source_only: Specify a list of Fortran file names that are
+                              searched when the ``USE`` statement is
+                              encountered.
+     :param bool ignore_comments: Whether or not to ignore (and discard)
+                                  comments when parsing the source.
+    :param process_directives: whether or not to process directives as
+         specialised Directive nodes. Default is False (in which case
+         directives are left as comments). This option overrides the
+         ignore_comments input.
 
-    :returns: a reader instance
-    :rtype: :py:class:`fparser.common.readfortran.FortranReader`
+     :returns: a reader instance
+     :rtype: :py:class:`fparser.common.readfortran.FortranReader`
     """
     import os
     import re
@@ -138,6 +143,7 @@ def get_reader(
             include_dirs=include_dirs,
             source_only=source_only,
             ignore_comments=ignore_comments,
+            process_directives=process_directives,
         )
     elif isinstance(source, str):
         reader = FortranStringReader(
@@ -145,6 +151,7 @@ def get_reader(
             include_dirs=include_dirs,
             source_only=source_only,
             ignore_comments=ignore_comments,
+            process_directives=process_directives,
         )
     else:
         raise TypeError("Expected string or filename input but got %s" % (type(input)))

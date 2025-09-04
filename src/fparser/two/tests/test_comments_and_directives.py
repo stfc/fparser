@@ -426,7 +426,9 @@ def test_directive_stmts():
             !!$ Another comment
         end do
     End Program"""
-    reader = get_reader(source, isfree=True, ignore_comments=False)
+    reader = get_reader(
+        source, isfree=True, ignore_comments=False, process_directives=True
+    )
     program = Program(reader)
     out = walk(program, Directive)
     assert len(out) == 4
@@ -468,6 +470,7 @@ C$    integer omp_get_thread_num
         end program foo""",
         isfree=False,
         ignore_comments=False,
+        process_directives=True,
     )
     program = Program(reader)
     out = walk(program, Directive)
@@ -514,7 +517,9 @@ def test_all_directive_formats(directive, expected, free):
         source = source + directive + "\n"
         source = source + "        end program foo"
 
-    reader = get_reader(source, isfree=free, ignore_comments=False)
+    reader = get_reader(
+        source, isfree=free, ignore_comments=False, process_directives=True
+    )
     program = Program(reader)
     out = walk(program, Directive)
     assert len(out) == 1
