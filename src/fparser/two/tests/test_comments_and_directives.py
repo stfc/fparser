@@ -525,6 +525,7 @@ def test_all_directive_formats(directive, expected, free):
     assert len(out) == 1
     assert out[0].items[0] == expected
 
+    # Test that we correctly get directives without ignore_comments=False.
     reader = get_reader(source, isfree=free, process_directives=True)
     program = Program(reader)
     out = walk(program, Directive)
