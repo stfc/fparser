@@ -1737,15 +1737,15 @@ def test_process_directives_option_read_fortran():
 
     input_text = "!$omp target\n! comment"
     reader = FortranStringReader(input_text)
-    # Default is no comments no directives
-    # Make sure to enforce free format
-    reader.set_format(FortranFormat(True, True))
-    with pytest.raises(StopIteration):
-        comment = reader.next()
+    assert not reader.process_directives
+    assert reader._ignore_comments
 
     reader = FortranStringReader(input_text, process_directives=True)
-    # Default is no comments no directives
-    # Make sure to enforce free format
-    reader.set_format(FortranFormat(True, True))
-    direc = reader.next()
-    assert direc.line == "!$omp target"
+    assert reader.process_directives
+    assert not reader._ignore_comments
+
+    reader = FortranStringReader(
+        input_text, ignore_comments=False, process_directives=True
+    )
+    assert reader.process_directives
+    assert not reader._ignore_comments

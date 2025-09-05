@@ -524,3 +524,9 @@ def test_all_directive_formats(directive, expected, free):
     out = walk(program, Directive)
     assert len(out) == 1
     assert out[0].items[0] == expected
+
+    reader = get_reader(source, isfree=free, process_directives=True)
+    program = Program(reader)
+    out = walk(program, Directive)
+    assert len(out) == 1
+    assert out[0].items[0] == expected
