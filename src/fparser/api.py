@@ -86,6 +86,7 @@ def get_reader(
     include_dirs=None,
     source_only=None,
     ignore_comments=True,
+    process_directives: bool = False,
 ):
     """
     Returns Fortran reader instance.
@@ -106,6 +107,10 @@ def get_reader(
                              encountered.
     :param bool ignore_comments: Whether or not to ignore (and discard)
                                  comments when parsing the source.
+    :param process_directives: whether or not to process directives as
+         specialised Directive nodes. Default is False (in which case
+         directives are left as comments). This option overrides the
+         ignore_comments input.
 
     :returns: a reader instance
     :rtype: :py:class:`fparser.common.readfortran.FortranReader`
@@ -138,6 +143,7 @@ def get_reader(
             include_dirs=include_dirs,
             source_only=source_only,
             ignore_comments=ignore_comments,
+            process_directives=process_directives,
         )
     elif isinstance(source, str):
         reader = FortranStringReader(
@@ -145,6 +151,7 @@ def get_reader(
             include_dirs=include_dirs,
             source_only=source_only,
             ignore_comments=ignore_comments,
+            process_directives=process_directives,
         )
     else:
         raise TypeError("Expected string or filename input but got %s" % (type(input)))
