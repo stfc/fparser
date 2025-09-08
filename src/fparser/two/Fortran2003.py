@@ -137,6 +137,7 @@ class Directive(Base):
     """
 
     subclass_names = []
+    # TODO #483 - Add OpenACC directive support.
     _directive_formats = [
         "!$dir",  # Generic directive
         "!dir$",  # flang, ifx, ifort directives.

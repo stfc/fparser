@@ -1733,7 +1733,10 @@ def test_conditional_include_omp_conditional_liness_free_format_multiple():
 
 
 def test_process_directives_option_read_fortran():
-    """Test handling of the process_directives option."""
+    """Test handling of the process_directives option.
+
+    Note that the funcionality tests for this option are in 
+    fparser/two/tests/test_comments_and_directives.py"""
 
     input_text = "!$omp target\n! comment"
     reader = FortranStringReader(input_text)
