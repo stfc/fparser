@@ -34,7 +34,7 @@
 """Module containing tests for aspects of fparser2 related to comments"""
 
 import pytest
-from fparser.two.Fortran2003 import Program, Comment, Subroutine_Subprogram
+from fparser.two.Fortran2003 import Program, Comment, Directive, Subroutine_Subprogram
 from fparser.two.utils import walk
 from fparser.api import get_reader
 
@@ -409,3 +409,125 @@ end if
     assert "a big array" in str(ifstmt)
     cmt = get_child(ifstmt, Comment)
     assert cmt.parent is ifstmt
+
+
+def test_directive_stmts():
+    """Test that directives are created instead of comments when
+    appropriate."""
+    source = """
+    Program my_prog
+        integer :: x !$dir inline
+
+        !dir$ compiler directive
+        !$omp target
+        !$omp loop
+        do x= 1 , 100
+            ! A comment!
+            !!$ Another comment
+        end do
+    End Program"""
+    reader = get_reader(
+        source, isfree=True, ignore_comments=False, process_directives=True
+    )
+    program = Program(reader)
+    out = walk(program, Directive)
+    assert len(out) == 4
+    assert out[0].items[0] == "!$dir inline"
+    assert out[1].items[0] == "!dir$ compiler directive"
+    assert out[2].items[0] == "!$omp target"
+    assert out[3].items[0] == "!$omp loop"
+
+    assert out[3].tostr() == "!$omp loop"
+
+    # Check the restore_reader works correctly for directive.
+    old = reader.get_item()
+    assert old == None
+    out[2].restore_reader(reader)
+    old = reader.get_item()
+    assert old is not None
+
+    out = walk(program, Comment)
+    comments = 0
+    for comment in out:
+        if comment.items[0] != "":
+            comments = comments + 1
+    assert comments == 2
+    assert str(out[2]) == "! A comment!"
+    assert str(out[3]) == "!!$ Another comment"
+
+    # Check that passing something that isn't a comment into a Directive
+    # __new__ call doesn't create a Directive.
+    out = Directive(program)
+    assert out is None
+
+    # Fixed form test that directives are handled.
+    reader = get_reader(
+        """\
+      program foo
+cdir$ This is a directive
+C     This is a comment
+C$    integer omp_get_thread_num
+        end program foo""",
+        isfree=False,
+        ignore_comments=False,
+        process_directives=True,
+    )
+    program = Program(reader)
+    out = walk(program, Directive)
+    assert len(out) == 1
+    assert out[0].items[0] == "cdir$ This is a directive"
+
+
+@pytest.mark.parametrize(
+    "directive,expected,free",
+    [
+        ("!$dir always", "!$dir always", True),
+        ("!dir$ always", "!dir$ always", True),
+        ("!gcc$ vector", "!gcc$ vector", True),
+        ("!$omp parallel", "!$omp parallel", True),
+        ("!$ompx parallel", "!$ompx parallel", True),
+        ("c$omp parallel", "c$omp parallel", False),
+        ("c$omx parallel", "c$omx parallel", False),
+        ("!$omx parallel", "!$omx parallel", False),
+        ("*$omp parallel", "*$omp parallel", False),
+        ("c$omx parallel", "c$omx parallel", False),
+        ("*$omx parallel", "*$omx parallel", False),
+    ],
+)
+def test_all_directive_formats(directive, expected, free):
+    """Parameterized test to ensure that all directive formats are
+    correctly recognized."""
+    # Tests for free-form directives
+    if free:
+        source = """
+        Program my_prog
+            integer :: x
+        """
+        source = source + directive + "\n"
+        source = (
+            source
+            + """          do x= 1 , 100
+            end do
+        End Program"""
+        )
+    else:
+        source = """\
+      program foo
+"""
+        source = source + directive + "\n"
+        source = source + "        end program foo"
+
+    reader = get_reader(
+        source, isfree=free, ignore_comments=False, process_directives=True
+    )
+    program = Program(reader)
+    out = walk(program, Directive)
+    assert len(out) == 1
+    assert out[0].items[0] == expected
+
+    # Test that we correctly get directives without ignore_comments=False.
+    reader = get_reader(source, isfree=free, process_directives=True)
+    program = Program(reader)
+    out = walk(program, Directive)
+    assert len(out) == 1
+    assert out[0].items[0] == expected

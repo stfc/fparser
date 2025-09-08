@@ -213,6 +213,9 @@ __ https://github.com/stfc/fparser/blob/master/src/fparser/common/readfortran.py
 To read Fortran code from a file, use the `FortranFileReader` class.
 The `FortranFileReader` class is an iterator over Fortran code lines
 and is derived from the `FortranReaderBase` class.
+
+.. autoclass:: fparser.common.readfortran.FortranReaderBase
+
 It automatically handles line continuations and comments, as
 well as detecting whether a Fortran file is in free or fixed format.
 
