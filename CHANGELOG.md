@@ -4,6 +4,7 @@ Original code by Pearu Peterson.
 
 Modifications by (in alphabetical order):
 
+* A. B. G. Chalk, Science & Technology Facilities Council, UK
 * P. Elson, UK Met Office
 * R. W. Ford, Science & Technology Facilities Council, UK
 * M. Hambley, UK Met Office
@@ -19,6 +20,7 @@ Modifications by (in alphabetical order):
 * P. Vitt, University of Siegen, Germany
 * A. Voysey, UK Met Office
 
+08/09/2025 PR #469 for #468. Added (optional) Directive node separated from comments.
 
 29/08/2025 PR #477 for #476. Add Python 3.9 testing back to support upstream requirements.
 
