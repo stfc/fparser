@@ -129,27 +129,20 @@ class Directive(Base):
 
     Fparser supports the following directive formats:
 
-        1. '!$dir' for generic directives.
-        2. '!dir$' for the flang, ifx or ifort compilers.
+        1. '!$', 'c$' or '*$' followed by any alphabetical character for
+           generic directives.
+        2. '!dir$' or 'cdir$' for the flang, ifx or ifort compilers.
         3. '!gcc$' for the gfortran compiler.
-        4. '!$omp', '!$ompx', 'c$omp', '*$omp', '!$omx', 'c$omx', and '*$omx' for
-        OpenMP directives.
     """
 
     subclass_names = []
-    # TODO #483 - Add OpenACC directive support.
     _directive_formats = [
-        "!$dir",  # Generic directive
-        "!dir$",  # flang, ifx, ifort directives.
-        "cdir$",  # flang, ifx, ifort fixed format directive.
-        "!$omp",  # OpenMP directive
-        "c$omp",  # OpenMP fixed format directive
-        "*$omp",  # OpenMP fixed format directive
-        "!$omx",  # OpenMP fixed format directive
-        "c$omx",  # OpenMP fixed format directive
-        "*$omx",  # OpenMP fixed format directive
-        "!gcc$",  # GCC compiler directive
-        "!$ompx",  # OpenMP extension directive
+        r"\!\$[a-z]",  # Generic directive
+        r"c\$[a-z]",  # Generic directive
+        r"\*\$[a-z]",  # Generic directive
+        r"\!dir\$",  # flang, ifx, ifort directives.
+        r"cdir\$",  # flang, ifx, ifort fixed format directive.
+        r"\!gcc\$",  # GCC compiler directive
     ]
 
     @show_result
@@ -172,7 +165,7 @@ class Directive(Base):
             if not (
                 any(
                     [
-                        lower.startswith(prefix)
+                        re.match(prefix, lower) is not None
                         for prefix in Directive._directive_formats
                     ]
                 )
