@@ -542,7 +542,9 @@ def test_all_directive_formats(directive, expected, free):
 
     # Test that we get comments with ignore_comments only?
     # For free form source we get an empty comment somewhere before the program.
-    reader = get_reader(source, isfree=free, ignore_comments=False, process_directives=False)
+    reader = get_reader(
+        source, isfree=free, ignore_comments=False, process_directives=False
+    )
     program = Program(reader)
     out = walk(program, Comment)
     if free:
