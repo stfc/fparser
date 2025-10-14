@@ -1,4 +1,6 @@
 # News #
+  * 29/09/2025 Version 0.2.1 released (bug fixes for string handling and
+    loops in array constructors, support for a new, Directive node).
   * 26/11/2024 Version 0.2.0 released (support for statements behind OMP sentinels, non-standard
     STOP and bug fix for type-guard statements).
   * 31/01/2024 Version 0.1.4 released (resolves issues with WHERE statements and intrinsics).
