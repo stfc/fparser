@@ -236,7 +236,7 @@ def test_prog_comments():
     )
 
     obj = cls(reader)
-    assert type(obj) == Program
+    assert type(obj) is Program
     # Check that the AST has the expected structure:
     # Program
     #   |--> Comment
@@ -254,21 +254,21 @@ def test_prog_comments():
     from fparser.two.Fortran2003 import Main_Program, Write_Stmt, End_Program_Stmt
 
     walk(obj.children, Comment, debug=True)
-    assert type(obj.content[0]) == Comment
+    assert type(obj.content[0]) is Comment
     assert str(obj.content[0]) == "! A troublesome comment"
-    assert type(obj.content[1]) == Main_Program
+    assert type(obj.content[1]) is Main_Program
     main_prog = obj.content[1]
-    assert type(main_prog.content[1].content[0].content[0]) == Comment
+    assert type(main_prog.content[1].content[0].content[0]) is Comment
     assert str(main_prog.content[1].content[0].content[0]) == "! A full comment line"
     exec_part = main_prog.content[2]
-    assert type(exec_part.content[0]) == Write_Stmt
+    assert type(exec_part.content[0]) is Write_Stmt
     # Check that we have the in-line comment as a second statement
     assert len(exec_part.content) == 2
-    assert type(exec_part.content[1]) == Comment
-    assert type(main_prog.content[3]) == End_Program_Stmt
+    assert type(exec_part.content[1]) is Comment
+    assert type(main_prog.content[3]) is End_Program_Stmt
     assert "! An in-line comment" in str(obj)
     # Check that we still have the ending comment
-    assert type(obj.content[-1]) == Comment
+    assert type(obj.content[-1]) is Comment
     assert str(obj).endswith("! A really problematic comment")
 
 
@@ -283,7 +283,7 @@ def test_module_comments():
     # Test when the reader is explicitly set to free-form mode
     reader = get_reader(source, isfree=True, ignore_comments=False)
     prog_unit = Program(reader)
-    assert type(prog_unit.content[0]) == Comment
+    assert type(prog_unit.content[0]) is Comment
     assert str(prog_unit.content[0]) == "! This is a module"
 
 
@@ -441,7 +441,7 @@ def test_directive_stmts():
 
     # Check the restore_reader works correctly for directive.
     old = reader.get_item()
-    assert old == None
+    assert old is None
     out[2].restore_reader(reader)
     old = reader.get_item()
     assert old is not None
@@ -481,17 +481,23 @@ C$    integer omp_get_thread_num
 @pytest.mark.parametrize(
     "directive,expected,free",
     [
-        ("!$dir always", "!$dir always", True),
-        ("!dir$ always", "!dir$ always", True),
-        ("!gcc$ vector", "!gcc$ vector", True),
-        ("!$omp parallel", "!$omp parallel", True),
-        ("!$ompx parallel", "!$ompx parallel", True),
-        ("c$omp parallel", "c$omp parallel", False),
-        ("c$omx parallel", "c$omx parallel", False),
-        ("!$omx parallel", "!$omx parallel", False),
-        ("*$omp parallel", "*$omp parallel", False),
-        ("c$omx parallel", "c$omx parallel", False),
-        ("*$omx parallel", "*$omx parallel", False),
+        ("!$dir always", ("!$dir always",), True),
+        ("!dir$ always", ("!dir$ always",), True),
+        ("!gcc$ vector", ("!gcc$ vector",), True),
+        ("!$omp parallel", ("!$omp parallel",), True),
+        ("!$ompx parallel", ("!$ompx parallel",), True),
+        ("c$omp parallel", ("c$omp parallel",), False),
+        ("c$omx parallel", ("c$omx parallel",), False),
+        ("!$omx parallel", ("!$omx parallel",), False),
+        ("*$omp parallel", ("*$omp parallel",), False),
+        ("c$omx parallel", ("c$omx parallel",), False),
+        ("*$omx parallel", ("*$omx parallel",), False),
+        ("!$omp parallel&\n!$omp&do", ("!$omp parallel&", "!$omp&do"), True),
+        (
+            "c$omp parallel do\nc$omp+shared(a,b,c)",
+            ("c$omp parallel do", "c$omp+shared(a,b,c)"),
+            False,
+        ),
     ],
 )
 def test_all_directive_formats(directive, expected, free):
@@ -522,12 +528,31 @@ def test_all_directive_formats(directive, expected, free):
     )
     program = Program(reader)
     out = walk(program, Directive)
-    assert len(out) == 1
-    assert out[0].items[0] == expected
+    assert len(out) == len(expected)
+    for i, direc in enumerate(out):
+        assert direc.items[0] == expected[i]
 
     # Test that we correctly get directives without ignore_comments=False.
     reader = get_reader(source, isfree=free, process_directives=True)
     program = Program(reader)
     out = walk(program, Directive)
-    assert len(out) == 1
-    assert out[0].items[0] == expected
+    assert len(out) == len(expected)
+    for i, direc in enumerate(out):
+        assert direc.items[0] == expected[i]
+
+    # Test that we get comments with ignore_comments only?
+    # For free form source we get an empty comment somewhere before the program.
+    reader = get_reader(source, isfree=free, ignore_comments=False, process_directives=False)
+    program = Program(reader)
+    out = walk(program, Comment)
+    if free:
+        n_expected = len(expected) + 1
+    else:
+        n_expected = len(expected)
+    assert len(out) == n_expected
+    if free:
+        for i, direc in enumerate(out[1:]):
+            assert direc.items[0] == expected[i]
+    else:
+        for i, direc in enumerate(out):
+            assert direc.items[0] == expected[i]
