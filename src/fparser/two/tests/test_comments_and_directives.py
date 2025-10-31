@@ -501,7 +501,7 @@ C$    integer omp_get_thread_num
             ("c$omp parallel do", "c$omp+shared(a,b,c)"),
             False,
         ),
-        ("!!omp parallel", (), True),
+        ("!!$omp parallel", (), True),
     ],
 )
 def test_all_directive_formats(directive, expected, free):
@@ -566,7 +566,7 @@ def test_all_directive_formats(directive, expected, free):
             ("c$omp parallel do", "c$omp+shared(a,b,c)"),
             False,
         ),
-        ("!!omp parallel", ("!!omp parallel",), True),
+        ("!!$omp parallel", ("!!$omp parallel",), True),
     ],
 )
 def test_directives_as_comments(directive, expected, free):
