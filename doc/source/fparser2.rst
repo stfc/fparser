@@ -504,8 +504,9 @@ and by default it is set to ``False``. If its set to true, it forces
 ``ignore_comments`` to be ``False``.
 
 The supported directives are those recognized by flang, ifx, ifort (``!dir$``),
-and gcc (``!gcc$``), as well as OpenMP directives (such as ``!$omp``
-or alternatives).
+and gcc (``!gcc$``), as well as support for any generic directive. A generic
+directive is any comment that begins ``!$``, ``c$`` or ``*$`` followed by an
+alphabetical character.
 
 For example::
 

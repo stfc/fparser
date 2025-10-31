@@ -20,6 +20,11 @@ Modifications by (in alphabetical order):
 * P. Vitt, University of Siegen, Germany
 * A. Voysey, UK Met Office
 
+31/10/2025 PR #486 for #483. Recognize any comment that begins ``!$``, ``c$`` or ``*$`` followed by
+           a character as a Directive node.
+
+## Release 0.2.1 (29/09/2025) ##
+
 08/09/2025 PR #469 for #468. Added (optional) Directive node separated from comments.
 
 29/08/2025 PR #477 for #476. Add Python 3.9 testing back to support upstream requirements.
