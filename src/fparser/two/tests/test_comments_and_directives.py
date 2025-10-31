@@ -492,6 +492,8 @@ C$    integer omp_get_thread_num
         ("*$omp parallel", ("*$omp parallel",), False),
         ("c$omx parallel", ("c$omx parallel",), False),
         ("*$omx parallel", ("*$omx parallel",), False),
+        ("!$DIR ALWAYS", ("!$DIR ALWAYS",), True),
+        ("c$OMX PARALLEL", ("c$OMX PARALLEL",), False),
         ("!$omp parallel&\n!$omp&do", ("!$omp parallel&", "!$omp&do"), True),
         (
             "c$omp parallel do\nc$omp+shared(a,b,c)",
@@ -503,10 +505,9 @@ C$    integer omp_get_thread_num
 def test_all_directive_formats(directive, expected, free):
     """Parameterized test to ensure that all directive formats are
     correctly recognized."""
-    # Tests for free-form directives
+    # Generate the source code
     if free:
-        source = """
-        Program my_prog
+        source = """Program my_prog
             integer :: x
         """
         source = source + directive + "\n"
@@ -540,21 +541,60 @@ def test_all_directive_formats(directive, expected, free):
     for i, direc in enumerate(out):
         assert direc.items[0] == expected[i]
 
-    # Test that we get comments with ignore_comments only?
-    # For free form source we get an empty comment somewhere before the program.
+
+@pytest.mark.parametrize(
+    "directive,expected,free",
+    [
+        ("!$dir always", ("!$dir always",), True),
+        ("!dir$ always", ("!dir$ always",), True),
+        ("!gcc$ vector", ("!gcc$ vector",), True),
+        ("!$omp parallel", ("!$omp parallel",), True),
+        ("!$ompx parallel", ("!$ompx parallel",), True),
+        ("c$omp parallel", ("c$omp parallel",), False),
+        ("c$omx parallel", ("c$omx parallel",), False),
+        ("!$omx parallel", ("!$omx parallel",), False),
+        ("*$omp parallel", ("*$omp parallel",), False),
+        ("c$omx parallel", ("c$omx parallel",), False),
+        ("*$omx parallel", ("*$omx parallel",), False),
+        ("!$DIR ALWAYS", ("!$DIR ALWAYS",), True),
+        ("c$OMX PARALLEL", ("c$OMX PARALLEL",), False),
+        ("!$omp parallel&\n!$omp&do", ("!$omp parallel&", "!$omp&do"), True),
+        (
+            "c$omp parallel do\nc$omp+shared(a,b,c)",
+            ("c$omp parallel do", "c$omp+shared(a,b,c)"),
+            False,
+        ),
+    ],
+)
+def test_directives_as_comments(directive, expected, free):
+    """Parameterized test to ensure all directives produce comments when
+    process_directives is disabled."""
+    # Generate the source code
+    if free:
+        source = """Program my_prog
+            integer :: x
+        """
+        source = source + directive + "\n"
+        source = (
+            source
+            + """          do x= 1 , 100
+            end do
+        End Program"""
+        )
+    else:
+        source = """\
+      program foo
+"""
+        source = source + directive + "\n"
+        source = source + "        end program foo"
+    # Test that we get the expected comments with comments only
     reader = get_reader(
         source, isfree=free, ignore_comments=False, process_directives=False
     )
     program = Program(reader)
     out = walk(program, Comment)
-    if free:
-        n_expected = len(expected) + 1
-    else:
-        n_expected = len(expected)
-    assert len(out) == n_expected
-    if free:
-        for i, direc in enumerate(out[1:]):
-            assert direc.items[0] == expected[i]
-    else:
-        for i, direc in enumerate(out):
-            assert direc.items[0] == expected[i]
+    # Check that we have the correct number of comments.
+    assert len(out) == len(expected)
+    # Check that the comments contain the correct strings.
+    for i, direc in enumerate(out):
+        assert direc.items[0] == expected[i]
