@@ -484,6 +484,7 @@ C$    integer omp_get_thread_num
         ("!$dir always", ("!$dir always",), True),
         ("!dir$ always", ("!dir$ always",), True),
         ("!gcc$ vector", ("!gcc$ vector",), True),
+        ("!$acc loop", ("!$acc loop",), True),
         ("!$omp parallel", ("!$omp parallel",), True),
         ("!$ompx parallel", ("!$ompx parallel",), True),
         ("c$omp parallel", ("c$omp parallel",), False),
@@ -500,6 +501,7 @@ C$    integer omp_get_thread_num
             ("c$omp parallel do", "c$omp+shared(a,b,c)"),
             False,
         ),
+        ("!!omp parallel", (), True),
     ],
 )
 def test_all_directive_formats(directive, expected, free):
@@ -564,6 +566,7 @@ def test_all_directive_formats(directive, expected, free):
             ("c$omp parallel do", "c$omp+shared(a,b,c)"),
             False,
         ),
+        ("!!omp parallel", ("!!omp parallel",), True),
     ],
 )
 def test_directives_as_comments(directive, expected, free):
