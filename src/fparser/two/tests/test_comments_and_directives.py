@@ -601,3 +601,22 @@ def test_directives_as_comments(directive, expected, free):
     # Check that the comments contain the correct strings.
     for i, direc in enumerate(out):
         assert direc.items[0] == expected[i]
+
+
+def test_inline_directive_is_comment():
+    """Inline comments on statements should be comments even if containing
+    directive markers, but on declarations they should be directives."""
+    source = """Program my_prog
+    integer :: x !$dir directive
+
+    x = 1 !$dir comment
+    end program
+    """
+    reader = get_reader(
+        source, ignore_comments=False, process_directives=True
+    )
+    program = Program(reader)
+    out = walk(program, Directive)
+    assert len(out) == 1
+    assert out[0].items[0] == "!$dir directive"
+
