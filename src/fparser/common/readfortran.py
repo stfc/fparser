@@ -437,10 +437,10 @@ class Comment:
     :param reader: The reader object being used to read the input \
     source.
     :type reader: :py:class:`fparser.common.readfortran.FortranReaderBase`
-
+    :param inline: whether this was an inline comment.
     """
 
-    def __init__(self, comment, linenospan, reader):
+    def __init__(self, comment, linenospan, reader, inline: bool = False):
         self.comment = comment
         self.span = linenospan
         self.reader = reader
@@ -449,6 +449,7 @@ class Comment:
         # tests as a reader can return an instance of either class and
         # we might want to check the contents in a consistent way.
         self.line = comment
+        self.inline = inline
 
     def __repr__(self):
         return self.__class__.__name__ + "(%r,%s)" % (self.comment, self.span)
@@ -1010,9 +1011,15 @@ class FortranReaderBase:
             prefix, lines, suffix, (startlineno, endlineno), self, errmessage
         )
 
-    def comment_item(self, comment, startlineno, endlineno):
-        """Construct Comment item."""
-        return Comment(comment, (startlineno, endlineno), self)
+    def comment_item(
+        self, comment, startlineno, endlineno, inline_comment: bool = False
+    ):
+        """Construct Comment item.
+
+        :param inline_comment: whether the comment is an inline comment.
+                               Defaults to False.
+        """
+        return Comment(comment, (startlineno, endlineno), self, inline_comment)
 
     def cpp_directive_item(self, line, startlineno, endlineno):
         """
@@ -1245,7 +1252,14 @@ class FortranReaderBase:
             newline = line[:idx]
             if '"' not in newline and "'" not in newline:
                 if self.format.is_f77 or not line[idx:].startswith("!f2py"):
-                    put_item(self.comment_item(line[idx:], lineno, lineno))
+                    # Its an inline comment if there is a non whitespace
+                    # character before the comment.
+                    is_inline = not (line.lstrip() == line[idx:])
+                    put_item(
+                        self.comment_item(
+                            line[idx:], lineno, lineno, inline_comment=is_inline
+                        )
+                    )
                     return newline, quotechar, True
 
         # We must allow for quotes...

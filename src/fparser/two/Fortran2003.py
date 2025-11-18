@@ -159,6 +159,9 @@ class Directive(Base):
         from fparser.common import readfortran
 
         if isinstance(string, readfortran.Comment):
+            # Inline comments cannot be directives.
+            if string.inline:
+                return
             # Directives must start with one of the specified directive
             # prefixes.
             lower = string.comment.lower()
