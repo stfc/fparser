@@ -45,7 +45,7 @@ from fparser.two.utils import NoMatchError, InternalError
 
 
 @pytest.fixture(autouse=True)
-def use_f2003():
+def use_f2003(f2003_create):
     """
     A pytest fixture that just sets things up so that the f2003_create
     fixture is used automatically for every test in this file.
