@@ -20,6 +20,8 @@ Modifications by (in alphabetical order):
 * P. Vitt, University of Siegen, Germany
 * A. Voysey, UK Met Office
 
+25/11/2025 PR #488 for #483. Do not recognize inline comments as Directives.
+
 31/10/2025 PR #486 for #483. Recognize any comment that begins ``!$``, ``c$`` or ``*$`` followed by
            a character as a Directive node.
 
