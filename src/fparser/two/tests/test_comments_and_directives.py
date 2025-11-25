@@ -431,13 +431,12 @@ def test_directive_stmts():
     )
     program = Program(reader)
     out = walk(program, Directive)
-    assert len(out) == 4
-    assert out[0].items[0] == "!$dir inline"
-    assert out[1].items[0] == "!dir$ compiler directive"
-    assert out[2].items[0] == "!$omp target"
-    assert out[3].items[0] == "!$omp loop"
+    assert len(out) == 3
+    assert out[0].items[0] == "!dir$ compiler directive"
+    assert out[1].items[0] == "!$omp target"
+    assert out[2].items[0] == "!$omp loop"
 
-    assert out[3].tostr() == "!$omp loop"
+    assert out[2].tostr() == "!$omp loop"
 
     # Check the restore_reader works correctly for directive.
     old = reader.get_item()
@@ -451,9 +450,10 @@ def test_directive_stmts():
     for comment in out:
         if comment.items[0] != "":
             comments = comments + 1
-    assert comments == 2
-    assert str(out[2]) == "! A comment!"
-    assert str(out[3]) == "!!$ Another comment"
+    assert comments == 3
+    assert str(out[1]) == "!$dir inline"
+    assert str(out[3]) == "! A comment!"
+    assert str(out[4]) == "!!$ Another comment"
 
     # Check that passing something that isn't a comment into a Directive
     # __new__ call doesn't create a Directive.
@@ -601,3 +601,18 @@ def test_directives_as_comments(directive, expected, free):
     # Check that the comments contain the correct strings.
     for i, direc in enumerate(out):
         assert direc.items[0] == expected[i]
+
+
+def test_inline_directive_is_comment():
+    """Inline comments on statements should be comments even if containing
+    directive markers."""
+    source = """Program my_prog
+    integer :: x !$dir directive
+
+    x = 1 !$dir comment
+    end program
+    """
+    reader = get_reader(source, ignore_comments=False, process_directives=True)
+    program = Program(reader)
+    out = walk(program, Directive)
+    assert len(out) == 0
