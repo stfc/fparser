@@ -1345,6 +1345,7 @@ class Use(Statement):
         renames = [split_comma(item, comma="=>") for item in self.items if "=>" in item]
         norenames = [item for item in self.items if "=>" not in item]
         all_mod_provides = dict(module.a.module_provides)
+        all_mod_provides.update(module.a.module_interface)
         all_mod_provides.update(module.a.use_provides)
         if self.isonly:
             # populate use_provides with items/renames only.
