@@ -12,6 +12,7 @@ Modifications by (in alphabetical order):
 * P. Hill, University of York, UK
 * I. Kavcic, UK Met Office
 * A. Morvan, Bull S. A. S., France
+* N. M. Nobre, Science & Technology Facilities Council, UK
 * A. R. Porter, Science & Technology Facilities Council, UK
 * B. Reuter, ECMWF, UK
 * S. Siso, Science & Technology Facilities Council, UK
@@ -19,6 +20,10 @@ Modifications by (in alphabetical order):
 * J. Tiira, University of Helsinki, Finland
 * P. Vitt, University of Siegen, Germany
 * A. Voysey, UK Met Office
+
+15/12/2025 PR #487. Adds interfaces to the set of things a module provides.
+           Fixes fparser1 errors such as "fparser.common.utils.AnalyzeError:
+           entity name 'dummy_code' is not in module 'dummy_mod'"
 
 25/11/2025 PR #488 for #483. Do not recognize inline comments as Directives.
 
