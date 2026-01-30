@@ -44,6 +44,10 @@ create_dependencies:
 	(cd test_files/create_dependencies; \
 	 ../../create_dependencies.py *.f90 | diff correct_dependencies -)
 
+module_graph:
+	./module_graph.py test_files/create_dependencies/*.f90
+	diff mod_deps.dot test_files/create_dependencies/correct_graph.dot
+
 fparser2_f2008:
 	python ./fparser2_f2008.py
 
