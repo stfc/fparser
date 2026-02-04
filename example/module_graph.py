@@ -34,14 +34,6 @@
 # ------------------------------------------------------------------------------
 # Author: A. R. Porter, STFC Daresbury Laboratory
 
-import sys
-from typing import Optional
-
-from fparser.common.readfortran import FortranFileReader
-from fparser.two.Fortran2003 import Module, Module_Stmt, Use_Stmt
-from fparser.two.parser import ParserFactory
-from fparser.two.utils import walk
-
 """
 A bare-bones example that uses fparser to get the modules and USE
 statements from the provided source files and then constructs a
@@ -52,12 +44,30 @@ or fancier visualisation other tools are available, e.g.
 Graphia - https://github.com/graphia-app/graphia
 """
 
+import sys
+from typing import Optional
 
-def build_graph(files: list[str],
-                exclude: Optional[list[str]] = None) -> str:
+from fparser.common.readfortran import FortranFileReader
+from fparser.two.Fortran2003 import (
+    Access_Stmt,
+    Module,
+    Specification_Part,
+    Use_Stmt,
+)
+from fparser.two.parser import ParserFactory
+from fparser.two.utils import walk
+
+
+def build_graph(
+    files: list[str],
+    exclude: Optional[list[str]] = None,
+    prune_private_imports: bool = False,
+) -> str:
     """
     :param files: the Fortran source files to process.
     :param exclude: optional list of module names to ignore.
+    :param prune_private_imports: if True then don't include modules
+        imported into modules which have default PRIVATE accessibility.
 
     :returns: text containing the dot graph.
 
@@ -67,6 +77,8 @@ def build_graph(files: list[str],
 
     # dict to hold the list of modules USEd by each module.
     deps: dict[str, list[str]] = {}
+    # dict to hold whether a given module as a default PRIVATE accessibility
+    has_private: dict[str, bool] = {}
 
     parser = ParserFactory().create(std="f2008")
 
@@ -89,8 +101,15 @@ def build_graph(files: list[str],
             if mod_name in exclusions:
                 continue
 
-            print(f"Examining module '{mod_name}' from file '{filename}'",
-                  file=sys.stdout)
+            print(
+                f"Examining module '{mod_name}' from file '{filename}'", file=sys.stdout
+            )
+
+            has_private[mod_name] = False
+            if isinstance(fmod.children[1], Specification_Part):
+                access_stmts = walk(fmod.children[1], Access_Stmt)
+                if access_stmts and (access_stmts[0].string == "PRIVATE"):
+                    has_private[mod_name] = True
 
             # Look at all the use statements within this module.
             deps[mod_name] = []
@@ -106,7 +125,12 @@ def build_graph(files: list[str],
     for mod_name in deps:
         for import_name in deps[mod_name]:
             # Add the edges to the graph
-            lines.append(f"{mod_name} -> {import_name};")
+            if prune_private_imports and has_private.get(import_name, False):
+                # If the module being USEd contains a PRIVATE accessibility
+                # then we assume it doesn't bring much to the party and
+                # ignore it.
+                continue
+            lines.append(f"{import_name} -> {mod_name};")
 
     # Close the graph and return it
     output = "\n".join(["digraph module_dependencies {"] + lines + ["}"])
@@ -115,9 +139,11 @@ def build_graph(files: list[str],
 
 if __name__ == "__main__":
     # The default list of modules to exclude is useful for NEMO.
-    text = build_graph(sys.argv[1:],
-                       exclude=["mpi", "timing", "lib_mpp",
-                                "ieee_arithmetic"])
+    text = build_graph(
+        sys.argv[1:],
+        exclude=["mpi", "timing", "lib_mpp", "ieee_arithmetic", "netcdf"],
+        prune_private_imports=True,
+    )
     with open("mod_deps.dot", mode="w", encoding="utf-8") as gfile:
         gfile.write(text)
     print("Graph written to mod_deps.dot\n")

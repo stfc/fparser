@@ -38,7 +38,7 @@
 
 .PHONY: test create_dependency fparser2_f2008 make_public split_file
 
-test:  create_dependencies fparser2_f2008 make_public split_file
+test:  create_dependencies fparser2_f2008 make_public split_file module_graph
 
 create_dependencies:
 	(cd test_files/create_dependencies; \
