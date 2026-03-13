@@ -976,13 +976,24 @@ Python versions and the coverage reports are uploaded automatically to CodeCov
 (https://codecov.io/gh/stfc/fparser). The configuration for this is in the
 `.github/workflows/unit-tests.yml` file.
 
-In addition, an Action is also used check that all of the code conforms
-to Black (https://black.readthedocs.io) formatting. It is up to the developer
-to ensure that this passes (e.g. by running `black` locally and committing
-the results). Note that it is technically possibly to have the Action
-actually make the changes and commit them but this was found to break
+Black Formatting
+++++++++++++++++
+
+A second job within the GitHub Action is used to check that all of the
+code conforms to Black (https://black.readthedocs.io) formatting. It
+is up to the developer to ensure that this passes (e.g. by running
+`black` locally and committing the results).
+
+The formatting choices made by Black are influenced by the version of Python
+being used. Therefore it is recommended that a developer use the version of
+Python that is specfied for the `Black` job within the yml configuration
+file mentioned above. (This will normally be the most recent, stable version
+of Python.)
+
+Note that while it is technically possibly to have the Action
+actually make the changes and commit them, this was found to break
 the Github review process since the automated commit is not permitted to
-trigger further Actions and this then leaves GitHub thinking that the
+trigger further Actions. This then leaves GitHub thinking that the
 various checks have not run.
 
 Automatic Packaging

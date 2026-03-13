@@ -21,6 +21,8 @@ Modifications by (in alphabetical order):
 * P. Vitt, University of Siegen, Germany
 * A. Voysey, UK Met Office
 
+13/03/2026 PR #495 for #494. Fix CI issues with the black formatting check.
+
 13/03/2026 PR #491 for #490. Fix syntax warning and add build artifact
            to gitignore.
 
