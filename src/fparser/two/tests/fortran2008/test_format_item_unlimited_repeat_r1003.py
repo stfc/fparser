@@ -48,64 +48,60 @@ format repeat specifier ``*`` before a parenthesised format-item-list.
 """
 
 from fparser.two.Fortran2008 import Format_Item
-from fparser.two.parser import ParserFactory
 from fparser.common.readfortran import FortranStringReader
 
 
-def test_unlimited_repeat_basic():
+def test_unlimited_repeat_basic(f2008_create):
     """Test basic unlimited format repeat: *(I5)."""
     obj = Format_Item("*(I5)")
     assert isinstance(obj, Format_Item)
     assert str(obj) == "*(I5)"
 
 
-def test_unlimited_repeat_multiple_items():
+def test_unlimited_repeat_multiple_items(f2008_create):
     """Test unlimited format repeat with multiple items: *(1X,A12)."""
     obj = Format_Item("*(1X,A12)")
     assert isinstance(obj, Format_Item)
     assert str(obj) == "*(1X, A12)"
 
 
-def test_unlimited_repeat_pe_descriptor():
+def test_unlimited_repeat_pe_descriptor(f2008_create):
     """Test unlimited format repeat with PE descriptor: *(1X,1PE12.5)."""
     obj = Format_Item("*(1X,1PE12.5)")
     assert isinstance(obj, Format_Item)
     assert str(obj) == "*(1X, 1P, E12.5)"
 
 
-def test_f2003_match():
+def test_f2003_match(f2008_create):
     """Test that F2003 format items still match via the F2008 class."""
     obj = Format_Item("3(I5)")
     assert isinstance(obj, Format_Item)
     assert str(obj) == "3(I5)"
 
 
-def test_format_stmt_unlimited_repeat():
+def test_format_stmt_unlimited_repeat(f2008_parser):
     """Test unlimited format repeat in a full FORMAT statement."""
-    f2008 = ParserFactory().create(std="f2008")
 
     reader = FortranStringReader("subroutine t()\n  1 format(*(I5))\nend subroutine")
-    tree = f2008(reader)
+    tree = f2008_parser(reader)
     assert tree is not None
 
 
-def test_format_stmt_mixed_items():
+def test_format_stmt_mixed_items(f2008_parser):
     """Test FORMAT with regular items followed by unlimited repeat."""
-    f2008 = ParserFactory().create(std="f2008")
 
     reader = FortranStringReader(
         "subroutine t()\n  1 format('!',A12,*(1X,A12))\nend subroutine"
     )
-    tree = f2008(reader)
+    tree = f2008_parser(reader)
     assert tree is not None
 
 
-def test_format_stmt_pe_descriptor():
+def test_format_stmt_pe_descriptor(f2008_parser):
     """Test FORMAT with unlimited repeat and PE edit descriptor."""
-    f2008 = ParserFactory().create(std="f2008")
 
     reader = FortranStringReader(
         "subroutine t()\n  2 format(*(1X,1PE12.5))\nend subroutine"
     )
-    tree = f2008(reader)
+    tree = f2008_parser(reader)
     assert tree is not None
