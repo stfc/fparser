@@ -36,7 +36,10 @@
 Module containing Fortran 2008 Format_Item rule R1003
 """
 
+from typing import Optional, Tuple, Union
+
 from fparser.two.Fortran2003 import (
+    Digit_String,
     Format_Item as Format_Item_2003,
     Format_Item_List,
 )
@@ -70,20 +73,25 @@ class Format_Item(Format_Item_2003):  # R1003
     use_names = Format_Item_2003.use_names[:]
 
     @staticmethod
-    def match(string):
+    def match(
+        string: str,
+    ) -> Optional[
+        Tuple[Union[str, Digit_String], Union[Format_Item_2003, Format_Item_List]]
+    ]:
         """Attempts to match the supplied text with this rule.
 
         Calls the Fortran 2003 match first. If that fails, checks
         for the Fortran 2008 unlimited format repeat: ``*(format-item-list)``.
 
-        :param str string: Fortran code to check for a match.
+        :param string: Fortran code to check for a match.
 
-        :returns: None if there is no match, a tuple of size 2 \
-            containing a repeat specifier (``"*"`` or an R instance) \
+        :returns: None if there is no match, a tuple of size 2
+            containing a repeat specifier (``"*"`` or a Repeat instance)
             and the matched descriptor or format-item-list.
-        :rtype: Optional[Tuple]
 
         """
+        if not string:
+            return None
         # Fortran 2003 matches all but unlimited repeat, so try it first.
         # The F2003 match raises NoMatchError rather than returning None
         # when it cannot parse the string (e.g. Data_Edit_Desc fails).
@@ -94,8 +102,6 @@ class Format_Item(Format_Item_2003):  # R1003
         if result:
             return result
         # Try to match unlimited format repeat: *(format-item-list)
-        if not string:
-            return None
         strip_string = string.strip()
         if not strip_string:
             return None

@@ -47,8 +47,11 @@ format repeat specifier ``*`` before a parenthesised format-item-list.
 
 """
 
-from fparser.two.Fortran2008 import Format_Item
+import pytest
+
 from fparser.common.readfortran import FortranStringReader
+from fparser.two.Fortran2008 import Format_Item
+from fparser.two.utils import NoMatchError
 
 
 def test_unlimited_repeat_basic(f2008_create):
@@ -77,6 +80,18 @@ def test_f2003_match(f2008_create):
     obj = Format_Item("3(I5)")
     assert isinstance(obj, Format_Item)
     assert str(obj) == "3(I5)"
+
+
+def test_format_stmt_no_match():
+    """Test various cases that fail to match."""
+    with pytest.raises(NoMatchError):
+        _ = Format_Item("")
+    with pytest.raises(NoMatchError):
+        _ = Format_Item("  ")
+    with pytest.raises(NoMatchError):
+        _ = Format_Item("*(")
+    with pytest.raises(NoMatchError):
+        _ = Format_Item("*(1X")
 
 
 def test_format_stmt_unlimited_repeat(f2008_parser):
