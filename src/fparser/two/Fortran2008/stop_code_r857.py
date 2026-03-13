@@ -35,6 +35,7 @@
 """
 Module containing Fortran2008 Error_Stop_Stmt rule R857
 """
+
 from fparser.two.utils import Base
 
 

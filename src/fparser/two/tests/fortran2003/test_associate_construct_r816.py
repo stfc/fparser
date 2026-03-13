@@ -111,28 +111,20 @@ def test_associate_construct(fake_symbol_table, code, expected_string):
 def test_end_block_missing_name(f2003_create, fake_symbol_table):
     """Check that a named associate block has a name at the end"""
     with pytest.raises(FortranSyntaxError) as exc_info:
-        Associate_Construct(
-            get_reader(
-                """\
+        Associate_Construct(get_reader("""\
                 name:associate (xc => ax%b(i,j)%c)
                     xc%dv = xc%dv + product(xc%ev(1:n))
                 end associate
-                """
-            )
-        )
+                """))
     assert exc_info.value.args[0].endswith("Expecting name 'name' but none given")
 
 
 def test_end_block_wrong_name(f2003_create, fake_symbol_table):
     """Check that a named associate block has the correct name at the end"""
     with pytest.raises(FortranSyntaxError) as exc_info:
-        Associate_Construct(
-            get_reader(
-                """\
+        Associate_Construct(get_reader("""\
                 name:associate (xc => ax%b(i,j)%c)
                     xc%dv = xc%dv + product(xc%ev(1:n))
                 end associate wrong
-                """
-            )
-        )
+                """))
     assert exc_info.value.args[0].endswith("Expecting name 'name', got 'wrong'")

@@ -37,6 +37,7 @@
 submodule-stmt is SUBMODULE ( parent-identifier ) submodule-name
 
 """
+
 import pytest
 from fparser.common import splitline
 from fparser.two.utils import NoMatchError

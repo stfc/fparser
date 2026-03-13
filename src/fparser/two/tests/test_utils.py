@@ -41,7 +41,6 @@ import pytest
 from fparser.api import get_reader
 from fparser.two import Fortran2003, utils
 
-
 # test BlockBase
 
 

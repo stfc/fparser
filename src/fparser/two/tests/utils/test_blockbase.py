@@ -105,17 +105,14 @@ def test_strict_order_invalid_code(f2003_create, strict_order):
     expected.
     """
     subclasses = [F2003.Specification_Part, F2003.Execution_Part]
-    reader = get_reader(
-        """
+    reader = get_reader("""
         program main
             i = 2
             integer :: i
         end program main
-        """
-    )
+        """)
 
-    expected = remove_indentation(
-        """([
+    expected = remove_indentation("""([
       Program_Stmt('PROGRAM', Name('main')),
       Execution_Part(
           Assignment_Stmt(Name('i'), '=',
@@ -129,8 +126,7 @@ def test_strict_order_invalid_code(f2003_create, strict_order):
                   (Entity_Decl(Name('i'), None, None, None),)))),
       End_Program_Stmt('PROGRAM', Name('main'))
      ],)
-    """
-    )
+    """)
 
     result = BlockBase.match(
         F2003.Program_Stmt,
@@ -149,19 +145,16 @@ def test_strict_order_invalid_code(f2003_create, strict_order):
 def test_strict_order_valid_code(f2003_create):
     """Tests that the strict_order keyword allows repeated types."""
     subclasses = [F2003.Specification_Part, F2003.Execution_Part]
-    reader = get_reader(
-        """
+    reader = get_reader("""
         program main
             integer :: i
             real    :: rho
             i = 2
             rho = i * 3.14
         end program main
-        """
-    )
+        """)
 
-    expected = remove_indentation(
-        """([
+    expected = remove_indentation("""([
       Program_Stmt('PROGRAM', Name('main')),
       Specification_Part(
           Type_Declaration_Stmt(
@@ -181,8 +174,7 @@ def test_strict_order_valid_code(f2003_create):
               Real_Literal_Constant('3.14', None)))),
       End_Program_Stmt('PROGRAM', Name('main'))
      ],)
-    """
-    )
+    """)
     result = BlockBase.match(
         F2003.Program_Stmt,
         subclasses,
@@ -232,13 +224,11 @@ def test_label_do_nomatch(f2003_create):
     statement.
     """
     subclasses = [F2003.Assignment_Stmt, F2003.Continue_Stmt]
-    reader = get_reader(
-        """
+    reader = get_reader("""
         do 100 i-10
           j = 10
         100 continue
-        """
-    )
+        """)
     result = BlockBase.match(
         F2003.Label_Do_Stmt,
         subclasses,
@@ -282,8 +272,7 @@ def test_syntax_error_nested_symbol_table():
     declaration to trigger a syntax error.
 
     """
-    reader = get_reader(
-        """
+    reader = get_reader("""
 module my_mod
 contains
 FUNCTION dot_v_mod_2d( )
@@ -292,8 +281,7 @@ FUNCTION dot_v_mod_2d( )
   dot_v_mod_2d = 0.0_wp
 END FUNCTION dot_v_mod_2d
 end module my_mod
-"""
-    )
+""")
     result = F2003.Module.match(reader)
     # There should be no match and, as a result, there should be no
     # symbol-table entries.

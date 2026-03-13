@@ -70,30 +70,22 @@ def test_select_type_construct():
 def test_select_type_construct_wrong_name(f2003_create, fake_symbol_table):
     """Check named 'select type' construct has correct start/end names"""
     with pytest.raises(FortranSyntaxError) as exc_info:
-        Select_Type_Construct(
-            get_reader(
-                """\
+        Select_Type_Construct(get_reader("""\
             name: select type (n)
             type is (point)
                 a = 1
-            end select wrong"""
-            )
-        )
+            end select wrong"""))
     assert exc_info.value.args[0].endswith("Expecting name 'name', got 'wrong'")
 
 
 def test_select_type_construct_missing_start_name(f2003_create, fake_symbol_table):
     """Check named 'select type' construct has correct start/end names"""
     with pytest.raises(FortranSyntaxError) as exc_info:
-        Select_Type_Construct(
-            get_reader(
-                """\
+        Select_Type_Construct(get_reader("""\
             select type(n)
             type is (point)
                 a = 1
-            end select name"""
-            )
-        )
+            end select name"""))
     assert exc_info.value.args[0].endswith(
         "Name 'name' has no corresponding starting name"
     )
@@ -102,28 +94,20 @@ def test_select_type_construct_missing_start_name(f2003_create, fake_symbol_tabl
 def test_select_type_construct_missing_end_name(f2003_create, fake_symbol_table):
     """Check named 'select type' construct has correct start/end names"""
     with pytest.raises(FortranSyntaxError) as exc_info:
-        Select_Type_Construct(
-            get_reader(
-                """\
+        Select_Type_Construct(get_reader("""\
             name: select type(n)
             type is (point)
                 a = 1
-            end select"""
-            )
-        )
+            end select"""))
     assert exc_info.value.args[0].endswith("Expecting name 'name' but none given")
 
 
 def test_select_type_construct_select_type_wrong_name(f2003_create, fake_symbol_table):
     """Check named 'select type' construct has correct start/end names"""
     with pytest.raises(FortranSyntaxError) as exc_info:
-        Select_Type_Construct(
-            get_reader(
-                """\
+        Select_Type_Construct(get_reader("""\
             name: select type(n)
             type is (point) wrong
                 a = 1
-            end select name"""
-            )
-        )
+            end select name"""))
     assert exc_info.value.args[0].endswith("Expecting name 'name', got 'wrong'")

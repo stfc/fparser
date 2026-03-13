@@ -238,12 +238,10 @@ def test_to_be_moved(f2003_create):
     here for the moment until the reason for the error is fixed.
 
     """
-    reader = get_reader(
-        """\
+    reader = get_reader("""\
       subroutine test()
         integer( x) y
       end subroutine
-      """
-    )
+      """)
     ast = Program(reader)
     assert ("SUBROUTINE test\n" "  integer( x) y\n" "END SUBROUTINE") in str(ast)

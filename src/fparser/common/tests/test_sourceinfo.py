@@ -51,7 +51,6 @@ from fparser.common.sourceinfo import (
     get_source_info,
 )
 
-
 ##############################################################################
 
 

@@ -109,10 +109,8 @@ def assert_raises(exc, fcls, string):
 
 def test_specification_part():
     """Tests for parsing specification-part (R204)."""
-    reader = get_reader(
-        """\
-    integer a"""
-    )
+    reader = get_reader("""\
+    integer a""")
     tcls = Specification_Part
     obj = tcls(reader)
     assert isinstance(obj, tcls), repr(obj)
@@ -130,16 +128,12 @@ def test_specification_part():
     assert obj.content[0].items[2].parent is obj.content[0]
     assert obj.content[0].items[2].items[0].parent is obj.content[0].items[2]
 
-    obj = tcls(
-        get_reader(
-            """\
+    obj = tcls(get_reader("""\
 type a
 end type a
 type b
 end type b
-"""
-        )
-    )
+"""))
     assert isinstance(obj, tcls), repr(obj)
     assert "TYPE :: a\nEND TYPE a\nTYPE :: b\nEND TYPE b" in str(obj)
 
@@ -709,13 +703,9 @@ def test_private_components_stmt():
 def test_type_bound_procedure_part():
     """Tests for type-bound procedure (R448)."""
     tcls = Type_Bound_Procedure_Part
-    obj = tcls(
-        get_reader(
-            """\
+    obj = tcls(get_reader("""\
 contains
-procedure, pass :: length => point_length"""
-        )
-    )
+procedure, pass :: length => point_length"""))
     assert isinstance(obj, tcls), repr(obj)
     assert "CONTAINS\nPROCEDURE, PASS :: length => point_length" in str(obj)
 
@@ -855,16 +845,12 @@ def test_component_spec_list():  # R458-list
 
 def test_enum_def():  # R460
     tcls = Enum_Def
-    obj = tcls(
-        get_reader(
-            """\
+    obj = tcls(get_reader("""\
 enum, bind(c)
 enumerator :: red = 4, blue = 9
 enumerator yellow
 end enum
-    """
-        )
-    )
+    """))
     assert isinstance(obj, tcls), repr(obj)
     assert (
         str(obj) == "ENUM, BIND(C)\n  ENUMERATOR :: red = 4, blue = 9\n"
@@ -1931,9 +1917,7 @@ POINTER_OBJECT => POINTER_FUNCTION(ARG_1, ARG_2)
 EVERY_OTHER => VECTOR(1 : N : 2)
 WINDOW2(0 :, 0 :) => MAT2D(ML : MU, NL : NU)
 P => BESSEL
-STRUCT % COMPONENT => BESSEL""".split(
-        "\n"
-    ):
+STRUCT % COMPONENT => BESSEL""".split("\n"):
         obj = tcls(stmt)
         assert isinstance(obj, tcls), repr(obj)
         assert str(obj) == stmt
@@ -1969,16 +1953,12 @@ def test_where_construct_stmt():  # R745
 @pytest.mark.usefixtures("fake_symbol_table")
 def test_forall_construct():  # R752
     tcls = Forall_Construct
-    obj = tcls(
-        get_reader(
-            """\
+    obj = tcls(get_reader("""\
     forall (i = 1:10, j = 1:10, b(i, j) /= 0.0)
       a(i, j) = real (i + j - 2)
       b(i, j) = a(i, j) + b(i, j) * real (i * j)
     end forall
-    """
-        )
-    )
+    """))
     assert isinstance(obj, tcls), repr(obj)
     assert (
         str(obj) == "FORALL(i = 1 : 10, j = 1 : 10, b(i, j) /= 0.0)\n"
@@ -1986,15 +1966,11 @@ def test_forall_construct():  # R752
         "b(i, j) * REAL(i * j)\nEND FORALL"
     )
 
-    obj = tcls(
-        get_reader(
-            """\
+    obj = tcls(get_reader("""\
     n: forall (x = 1:5:2, j = 1:4)
       a(x, j) = j
     end forall n
-    """
-        )
-    )
+    """))
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == "n:FORALL(x = 1 : 5 : 2, j = 1 : 4)\n  a(x, j) = j\nEND FORALL n"
 
@@ -2019,9 +1995,7 @@ def test_if_nonblock_do():
     """Tests that conditional nonblock DO construct is parsed correctly."""
     tcls = If_Construct
 
-    obj = tcls(
-        get_reader(
-            """\
+    obj = tcls(get_reader("""\
 if (expr) then
    do  20  i = 1, 3
      a = 1
@@ -2031,9 +2005,7 @@ if (expr) then
          a = 3
 20 rotm(i,j) = r2(j,i)
 endif
-"""
-        )
-    )
+"""))
     assert isinstance(obj, tcls), repr(obj)
     assert len(obj.content) == 3, repr(obj)
     obj = obj.content[1]
@@ -2043,15 +2015,11 @@ endif
         "DO 20 k = 1, 3\n      a = 3\n20 rotm(i, j) = r2(j, i)"
     )
 
-    obj = tcls(
-        get_reader(
-            """\
+    obj = tcls(get_reader("""\
 if (expr) then
     do  50  i = n, m, -1
   50 call foo(a)
-endif"""
-        )
-    )
+endif"""))
     assert isinstance(obj, tcls), repr(obj)
     assert len(obj.content) == 3, repr(obj)
     obj = obj.content[1]
@@ -2681,39 +2649,27 @@ def test_main_program0():
     case matches with the Main_Program0 class.
 
     """
-    obj0 = Fortran2003.Main_Program0(
-        get_reader(
-            """\
+    obj0 = Fortran2003.Main_Program0(get_reader("""\
 end
-    """
-        )
-    )
+    """))
     assert isinstance(obj0, Fortran2003.Main_Program0), repr(obj0)
     assert str(obj0) == "END"
 
-    obj0 = Fortran2003.Main_Program0(
-        get_reader(
-            """\
+    obj0 = Fortran2003.Main_Program0(get_reader("""\
 contains
   function foo()
   end
 end
-    """
-        )
-    )
+    """))
     assert isinstance(obj0, Fortran2003.Main_Program0), repr(obj0)
     assert str(obj0) == "CONTAINS\nFUNCTION foo()\nEND\nEND"
 
     # Check that the expected symbol table is created and populated
-    obj0 = Fortran2003.Main_Program0(
-        get_reader(
-            """\
+    obj0 = Fortran2003.Main_Program0(get_reader("""\
 integer :: i
 i = 9
 end
-    """
-        )
-    )
+    """))
     assert isinstance(obj0, Fortran2003.Main_Program0), repr(obj0)
     assert str(obj0) == "INTEGER :: i\n  i = 9\nEND"
     table = SYMBOL_TABLES.lookup("fparser2:main_program")
@@ -2731,29 +2687,21 @@ def test_invalid_main_program0():
 
 def test_module():  # R1104
     tcls = Module
-    obj = tcls(
-        get_reader(
-            """\
+    obj = tcls(get_reader("""\
 module m
 end
-    """
-        )
-    )
+    """))
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == "MODULE m\nEND"
 
-    obj = tcls(
-        get_reader(
-            """\
+    obj = tcls(get_reader("""\
 module m
 type a
 end type
 type b
 end type b
 end
-    """
-        )
-    )
+    """))
     assert isinstance(obj, tcls), repr(obj)
     assert (
         str(obj) == "MODULE m\n  TYPE :: a\n  END TYPE\n  TYPE :: b\n  END TYPE b"
@@ -2802,27 +2750,19 @@ def test_module_nature():
 @pytest.mark.xfail(reason="Match fails with multiple spaces, see issue #197")
 def test_block_data():  # R1116
     tcls = Block_Data
-    obj = tcls(
-        get_reader(
-            """\
+    obj = tcls(get_reader("""\
 block data a
 real b
 end block data
-    """
-        )
-    )
+    """))
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == "BLOCK DATA a\n  REAL :: b\nEND BLOCK DATA"
 
     tcls = Block_Data
-    obj = tcls(
-        get_reader(
-            """\
+    obj = tcls(get_reader("""\
 block     data a
 end block     data a
-    """
-        )
-    )
+    """))
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == "BLOCK DATA a\nEND BLOCK DATA a"
 
@@ -2834,26 +2774,18 @@ end block     data a
 
 def test_interface_block():  # R1201
     tcls = Interface_Block
-    obj = tcls(
-        get_reader(
-            """\
+    obj = tcls(get_reader("""\
 interface
-end interface"""
-        )
-    )
+end interface"""))
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == "INTERFACE\nEND INTERFACE"
 
-    obj = tcls(
-        get_reader(
-            """\
+    obj = tcls(get_reader("""\
 abstract interface
 procedure a
 module procedure b,c
 end interface
-"""
-        )
-    )
+"""))
     assert isinstance(obj, tcls), repr(obj)
     assert (
         str(obj) == "ABSTRACT INTERFACE\n  MODULE PROCEDURE a\n  MODULE PROCEDURE b, "
@@ -2863,14 +2795,10 @@ end interface
 
 def test_interface_specification():  # R1202
     tcls = Interface_Specification
-    obj = tcls(
-        get_reader(
-            """\
+    obj = tcls(get_reader("""\
     function foo()
     end
-    """
-        )
-    )
+    """))
     assert isinstance(obj, Function_Body), repr(obj)
     assert str(obj) == "FUNCTION foo()\nEND"
 
@@ -2907,26 +2835,18 @@ def test_end_interface_stmt():  # R1204
 
 def test_interface_body():  # R1205
     tcls = Interface_Body
-    obj = tcls(
-        get_reader(
-            """\
+    obj = tcls(get_reader("""\
 subroutine foo
 end subroutine foo
-"""
-        )
-    )
+"""))
     assert isinstance(obj, Subroutine_Body), repr(obj)
     assert str(obj) == "SUBROUTINE foo\nEND SUBROUTINE foo"
 
-    obj = tcls(
-        get_reader(
-            """\
+    obj = tcls(get_reader("""\
 function foo(a) result(c)
   real a, c
 end
-"""
-        )
-    )
+"""))
     assert isinstance(obj, Function_Body), repr(obj)
     assert str(obj) == "FUNCTION foo(a) RESULT(c)\n  REAL :: a, c\nEND"
 
@@ -3156,11 +3076,9 @@ def test_alt_return_spec():  # R1222
 
 
 def test_function_subprogram():  # R1223
-    reader = get_reader(
-        """\
+    reader = get_reader("""\
     function foo()
-    end function foo"""
-    )
+    end function foo""")
     tcls = Function_Subprogram
     obj = tcls(reader)
     assert isinstance(obj, tcls), repr(obj)
@@ -3170,12 +3088,10 @@ def test_function_subprogram():  # R1223
         " End_Function_Stmt('FUNCTION', Name('foo')))"
     )
 
-    reader = get_reader(
-        """\
+    reader = get_reader("""\
     pure real function foo(a) result(b) bind(c)
     integer a
-    end function foo"""
-    )
+    end function foo""")
     tcls = Function_Subprogram
     obj = tcls(reader)
     assert isinstance(obj, tcls), repr(obj)
@@ -3314,11 +3230,9 @@ def test_end_function_stmt():  # R1230
 
 
 def test_subroutine_subprogram():  # R1231
-    reader = get_reader(
-        """\
+    reader = get_reader("""\
     subroutine foo
-    end subroutine foo"""
-    )
+    end subroutine foo""")
     tcls = Subroutine_Subprogram
     obj = tcls(reader)
     assert isinstance(obj, tcls), repr(obj)
@@ -3329,12 +3243,10 @@ def test_subroutine_subprogram():  # R1231
         "Name('foo')))"
     )
 
-    reader = get_reader(
-        """\
+    reader = get_reader("""\
     subroutine foo
     integer a
-    end subroutine foo"""
-    )
+    end subroutine foo""")
     tcls = Subroutine_Subprogram
     obj = tcls(reader)
     assert isinstance(obj, tcls), repr(obj)

@@ -35,6 +35,7 @@
 """
 Module containing Fortran2008 Loop_Control rule R818
 """
+
 from fparser.two.Fortran2003 import Loop_Control as Loop_Control_2003, Forall_Header
 
 
@@ -54,10 +55,10 @@ class Loop_Control(Loop_Control_2003):  # R818
     class. Something like the suggestion below. However, this would
     result in a different fparser tree, see issue #416.
 
-    F2003: While_Loop_Cntl: scalar-logical-expression, delim
-    F2003: Counter_Loop_Cntl: var, lower, upper, [step], delim
-    F2008: Concurrent_Loop_Cntl: conc_expr, delim
-    F2018: Concurrent_Loop_Cntl: conc_expr, local_x, delim
+    F2003 - While_Loop_Cntl: scalar-logical-expression, delim
+    F2003 - Counter_Loop_Cntl: var, lower, upper, [step], delim
+    F2008 - Concurrent_Loop_Cntl: conc_expr, delim
+    F2018 - Concurrent_Loop_Cntl: conc_expr, local_x, delim
 
     """
 

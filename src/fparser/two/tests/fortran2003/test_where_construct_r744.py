@@ -48,18 +48,14 @@ from fparser.two.utils import FortranSyntaxError
 def test_where_construct():
     """Tests for the WHERE construct, R744."""
     tcls = Where_Construct
-    obj = tcls(
-        get_reader(
-            """\
+    obj = tcls(get_reader("""\
     where (pressure <= 1.0)
     pressure = pressure + inc_pressure
     temp = temp - 5.0
     elsewhere
     raining = .true.
     end where
-"""
-        )
-    )
+"""))
     assert isinstance(obj, tcls), repr(obj)
     assert (
         str(obj) == "WHERE (pressure <= 1.0)\n  "
@@ -68,58 +64,42 @@ def test_where_construct():
         "ELSEWHERE\n  raining = .TRUE.\nEND WHERE"
     )
 
-    obj = tcls(
-        get_reader(
-            """\
+    obj = tcls(get_reader("""\
     where (cond1)
     else    where (cond2)
     end where
-"""
-        )
-    )
+"""))
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == "WHERE (cond1)\nELSEWHERE(cond2)\nEND WHERE"
 
-    obj = tcls(
-        get_reader(
-            """\
+    obj = tcls(get_reader("""\
     n:where (cond1)
     elsewhere (cond2) n
     else   where n
     end where n
-"""
-        )
-    )
+"""))
     assert isinstance(obj, tcls), repr(obj)
     assert (
         str(obj) == "n:WHERE (cond1)\nELSEWHERE(cond2) n\n" "ELSEWHERE n\nEND WHERE n"
     )
 
-    obj = tcls(
-        get_reader(
-            """\
+    obj = tcls(get_reader("""\
     n:where (cond1)
     else where (cond2) n
     else where n
     end where n
-"""
-        )
-    )
+"""))
     assert isinstance(obj, tcls), repr(obj)
     assert (
         str(obj) == "n:WHERE (cond1)\nELSEWHERE(cond2) n\nELSEWHERE n\n" "END WHERE n"
     )
 
-    obj = tcls(
-        get_reader(
-            """\
+    obj = tcls(get_reader("""\
     n:where (me(:)=="hello")
     else where (me(:)=="goodbye") n
     else where n
     end where n
-"""
-        )
-    )
+"""))
     assert (
         str(obj) == 'n:WHERE (me(:) == "hello")\nELSEWHERE(me(:) == "goodbye") n\n'
         "ELSEWHERE n\n"
@@ -141,28 +121,20 @@ def test_where_tofortran_non_ascii():
 def test_where_construct_wrong_name(f2003_create, fake_symbol_table):
     """Check named 'where' construct has correct start/end name"""
     with pytest.raises(FortranSyntaxError) as exc_info:
-        Where_Construct(
-            get_reader(
-                """\
+        Where_Construct(get_reader("""\
             name: where (expr)
                 a = 1
-            end where wrong"""
-            )
-        )
+            end where wrong"""))
     assert exc_info.value.args[0].endswith("Expecting name 'name', got 'wrong'")
 
 
 def test_where_construct_missing_start_name(f2003_create, fake_symbol_table):
     """Check named 'where' construct has correct start/end name"""
     with pytest.raises(FortranSyntaxError) as exc_info:
-        Where_Construct(
-            get_reader(
-                """\
+        Where_Construct(get_reader("""\
             where (expr)
                 a = 1
-            end where name"""
-            )
-        )
+            end where name"""))
     assert exc_info.value.args[0].endswith(
         "Name 'name' has no corresponding starting name"
     )
@@ -171,60 +143,44 @@ def test_where_construct_missing_start_name(f2003_create, fake_symbol_table):
 def test_where_construct_missing_end_name(f2003_create, fake_symbol_table):
     """Check named 'where' construct has correct start/end name"""
     with pytest.raises(FortranSyntaxError) as exc_info:
-        Where_Construct(
-            get_reader(
-                """\
+        Where_Construct(get_reader("""\
             name: where (expr)
                 a = 1
-            end where"""
-            )
-        )
+            end where"""))
     assert exc_info.value.args[0].endswith("Expecting name 'name' but none given")
 
 
 def test_where_construct_else_wrong_end_name(f2003_create, fake_symbol_table):
     """Check named 'where' construct has correct start/end name"""
     with pytest.raises(FortranSyntaxError) as exc_info:
-        Where_Construct(
-            get_reader(
-                """\
+        Where_Construct(get_reader("""\
             name: where (expr)
                 a = 1
             elsewhere
                 a = 2
-            end where wrong"""
-            )
-        )
+            end where wrong"""))
     assert exc_info.value.args[0].endswith("Expecting name 'name', got 'wrong'")
 
 
 def test_where_construct_else_wrong_name(f2003_create, fake_symbol_table):
     """Check named 'where' construct has correct start/end name"""
     with pytest.raises(FortranSyntaxError) as exc_info:
-        Where_Construct(
-            get_reader(
-                """\
+        Where_Construct(get_reader("""\
             name: where (expr)
                 a = 1
             elsewhere wrong
                 a = 2
-            end where name"""
-            )
-        )
+            end where name"""))
     assert exc_info.value.args[0].endswith("Expecting name 'name', got 'wrong'")
 
 
 def test_where_construct_else_where_wrong_name(f2003_create, fake_symbol_table):
     """Check named 'where' construct has correct start/end name"""
     with pytest.raises(FortranSyntaxError) as exc_info:
-        Where_Construct(
-            get_reader(
-                """\
+        Where_Construct(get_reader("""\
             name: where (expr)
                 a = 1
             elsewhere (other_expr) wrong
                 a = 2
-            end where name"""
-            )
-        )
+            end where name"""))
     assert exc_info.value.args[0].endswith("Expecting name 'name', got 'wrong'")
