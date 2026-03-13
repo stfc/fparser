@@ -39,7 +39,6 @@ from fparser.api import get_reader
 from fparser.two import Fortran2003
 from fparser.two.utils import walk
 
-
 TEST_CODE = (
     "program hello\n"
     "  implicit none\n"

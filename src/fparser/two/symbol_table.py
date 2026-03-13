@@ -38,6 +38,7 @@ the single, global SYMBOL_TABLES instance. The latter is a container
 for all of the top-level scoping units encountered during parsing.
 
 """
+
 from collections import namedtuple
 
 

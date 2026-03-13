@@ -35,6 +35,7 @@
 """
 Module containing Fortran2008 Declaration_Construct constraint C1112
 """
+
 from fparser.two.Fortran2003 import Declaration_Construct
 
 

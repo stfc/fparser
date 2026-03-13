@@ -56,12 +56,10 @@ from fparser.two.utils import NoMatchError
 
 def test_submodule(f2008_create):
     """Test the parsing of a minimal submodule."""
-    reader = get_reader(
-        """\
+    reader = get_reader("""\
       submodule (foobar) bar
       end
-      """
-    )
+      """)
     ast = Submodule(reader)
     assert "SUBMODULE (foobar) bar\n" "END" in str(ast)
     # A new symbol table should have been created
@@ -74,13 +72,11 @@ def test_submodule_sp(f2008_create):
     part.
 
     """
-    reader = get_reader(
-        """\
+    reader = get_reader("""\
       submodule (foobar) bar
         use empty
       end
-      """
-    )
+      """)
     ast = Submodule(reader)
     assert "SUBMODULE (foobar) bar\n" "  USE empty\n" "END" in str(ast)
 
@@ -90,15 +86,13 @@ def test_submodule_msp(f2008_create):
     part.
 
     """
-    reader = get_reader(
-        """\
+    reader = get_reader("""\
       submodule (foobar) bar
       contains
         subroutine info()
         end subroutine info
       end
-      """
-    )
+      """)
     ast = Submodule(reader)
     assert (
         "SUBMODULE (foobar) bar\n"
@@ -118,16 +112,14 @@ def test_submodule_both(f2008_create):
     and a module subprogram part.
 
     """
-    reader = get_reader(
-        """\
+    reader = get_reader("""\
       submodule (foobar) bar
       use empty
       contains
         subroutine info()
         end subroutine info
       end
-      """
-    )
+      """)
     ast = Submodule(reader)
     assert (
         "SUBMODULE (foobar) bar\n"
@@ -148,13 +140,11 @@ def test_submodule_format_error1(f2008_create):
     implicit part of the specification.
 
     """
-    reader = get_reader(
-        """\
+    reader = get_reader("""\
       submodule (foobar) bar
       1 format(a)
       end
-      """
-    )
+      """)
     with pytest.raises(NoMatchError) as excinfo:
         dummy_ = Submodule(reader)
     assert "at line 2\n" ">>>      1 format(a)\n" in str(excinfo.value)
@@ -166,14 +156,12 @@ def test_submodule_format_error2(f2008_create):
     declaration part of the specification.
 
     """
-    reader = get_reader(
-        """\
+    reader = get_reader("""\
       submodule (foobar) bar
       contains
       1 format(a)
       end
-      """
-    )
+      """)
     with pytest.raises(NoMatchError) as excinfo:
         dummy_ = Submodule(reader)
     assert "at line 3\n" ">>>      1 format(a)\n" in str(excinfo.value)
@@ -188,13 +176,11 @@ def test_submodule_entry_error1(f2008_create):
     implicit part of the specification.
 
     """
-    reader = get_reader(
-        """\
+    reader = get_reader("""\
       submodule (foobar) bar
       entry here
       end
-      """
-    )
+      """)
     with pytest.raises(NoMatchError) as excinfo:
         dummy_ = Submodule(reader)
     assert "at line 2\n" ">>>      entry here\n" in str(excinfo.value)
@@ -206,14 +192,12 @@ def test_submodule_entry_error2(f2008_create):
     declaration part of the specification.
 
     """
-    reader = get_reader(
-        """\
+    reader = get_reader("""\
       submodule (foobar) bar
       contains
       entry here
       end
-      """
-    )
+      """)
     with pytest.raises(NoMatchError) as excinfo:
         dummy_ = Submodule(reader)
     assert "at line 3\n" ">>>      entry here\n" in str(excinfo.value)
@@ -228,14 +212,12 @@ def test_submodule_stmt_func_error(f2008_create):
     validly occur is in the declaration part of the specification.
 
     """
-    reader = get_reader(
-        """\
+    reader = get_reader("""\
       submodule (foobar) bar
       contains
       statefunc(x) = x*2
       end
-      """
-    )
+      """)
     with pytest.raises(NoMatchError) as excinfo:
         dummy_ = Submodule(reader)
     assert "at line 3\n" ">>>      statefunc(x) = x*2\n" in str(excinfo.value)
@@ -249,12 +231,10 @@ def test_submodule_samename(f2008_create):
     end statements: C1114.
 
     """
-    reader = get_reader(
-        """\
+    reader = get_reader("""\
       submodule (foobar) bar
       end submodule bar
-      """
-    )
+      """)
     ast = Submodule(reader)
     assert "SUBMODULE (foobar) bar\n" "END SUBMODULE bar" in str(ast)
 
@@ -264,11 +244,9 @@ def test_submodule_differentname(f2008_create):
     different name to that of the submodule statement : C1114.
 
     """
-    reader = get_reader(
-        """\
+    reader = get_reader("""\
       submodule (foobar) bar
       end submodule error
-      """
-    )
+      """)
     with pytest.raises(SystemExit):
         dummy_ = Submodule(reader)

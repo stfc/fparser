@@ -40,6 +40,7 @@ is actively used in user codes there are cases where users might like to
 keep the directives in the Fortran parse tree and output it again.
 
 """
+
 # Author: Balthasar Reuter <balthasar.reuter@ecmwf.int>
 # Based on previous work by Martin Schlipf (https://github.com/martin-schlipf)
 # First version created: Jan 2020

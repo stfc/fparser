@@ -36,6 +36,7 @@
 loop-control rule.
 
 """
+
 import pytest
 from fparser.two.Fortran2003 import Loop_Control
 from fparser.two.utils import NoMatchError

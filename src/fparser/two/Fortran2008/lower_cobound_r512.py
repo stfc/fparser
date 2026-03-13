@@ -35,6 +35,7 @@
 """
 Module containing Fortran2008 Lower_Cobound rule R512
 """
+
 from fparser.two.utils import Base
 
 

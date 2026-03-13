@@ -147,7 +147,6 @@ from io import StringIO
 import fparser.common.sourceinfo
 from fparser.common.splitline import String, string_replace_map, splitquote
 
-
 __all__ = [
     "FortranFileReader",
     "FortranStringReader",

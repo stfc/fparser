@@ -51,8 +51,7 @@ def test_intrinsic_in_submodule():
     assume that is bringing the shadowed symbol into scope).
 
     """
-    reader = get_reader(
-        """\
+    reader = get_reader("""\
       submodule (foobar) bar
 
         contains
@@ -61,7 +60,6 @@ def test_intrinsic_in_submodule():
           a = dot_product(1,2,3)
         end subroutine my_sub
       end
-      """
-    )
+      """)
     ast = Fortran2008.Submodule(reader)
     assert not walk(ast, Fortran2003.Intrinsic_Function_Reference)

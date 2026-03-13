@@ -64,6 +64,7 @@
 # DAMAGE.
 
 """Base classes and exception handling for Fortran parser."""
+
 # Original author: Pearu Peterson <pearu@cens.ioc.ee>
 # First version created: Oct 2006
 

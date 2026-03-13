@@ -63,16 +63,12 @@ END PROGRAM a_prog
     assert "block gets executed" not in gen
 
     # Check that the default behaviour is to ignore comments
-    tree = Program(
-        get_reader(
-            """\
+    tree = Program(get_reader("""\
 PROGRAM a_prog
 ! A full line comment
 PRINT *, "Hello" ! This block gets executed
 END PROGRAM a_prog
-    """
-        )
-    )
+    """))
     gen = str(tree)
     assert "full line comment" not in gen
     assert "block gets executed" not in gen
@@ -513,12 +509,9 @@ def test_all_directive_formats(directive, expected, free):
             integer :: x
         """
         source = source + directive + "\n"
-        source = (
-            source
-            + """          do x= 1 , 100
+        source = source + """          do x= 1 , 100
             end do
         End Program"""
-        )
     else:
         source = """\
       program foo
@@ -578,12 +571,9 @@ def test_directives_as_comments(directive, expected, free):
             integer :: x
         """
         source = source + directive + "\n"
-        source = (
-            source
-            + """          do x= 1 , 100
+        source = source + """          do x= 1 , 100
             end do
         End Program"""
-        )
     else:
         source = """\
       program foo

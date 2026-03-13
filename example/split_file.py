@@ -42,7 +42,6 @@ to be created already exists, the script will abort.
 Usage:  split_file.py  file.f90
 """
 
-
 import os
 import subprocess
 import sys
@@ -107,8 +106,7 @@ def create_makefile(main_name, all_objs, all_filenames):
         clean_actions = "\trm -f $(OBJS) *.mod"
 
     with open(makefile, mode="w", encoding="utf-8") as f_out:
-        f_out.write(
-            f"""
+        f_out.write(f"""
 F90 ?= {f90}
 # We have to enforce this setting, since using ?= will not
 # change the value of CPP, which will then be using `cc -E`, which
@@ -142,8 +140,7 @@ OBJS={' '.join(all_objs)}
 # =======
 clean:
 {clean_actions}
-"""
-        )
+""")
 
 
 # -----------------------------------------------------------------------------

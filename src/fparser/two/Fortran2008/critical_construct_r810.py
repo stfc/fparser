@@ -35,6 +35,7 @@
 """
 Module containing Fortran2008 Critical_Construct rule R810
 """
+
 from fparser.two.Fortran2003 import Execution_Part_Construct
 from fparser.two.Fortran2008.critical_stmt_r811 import Critical_Stmt
 from fparser.two.Fortran2008.end_critical_stmt_r812 import End_Critical_Stmt

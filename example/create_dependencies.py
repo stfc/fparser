@@ -45,7 +45,6 @@ directory will be tested, so external dependencies will not be listed.
 Usage:  create_dependencies.py  file1.f90 file2.F90 ...
 """
 
-
 import os
 import sys
 

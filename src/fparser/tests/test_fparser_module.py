@@ -36,6 +36,7 @@
 Test the setup performed for the fparser module.
 
 """
+
 import os
 import fparser
 

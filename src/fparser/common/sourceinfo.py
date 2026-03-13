@@ -69,9 +69,9 @@ fixed format. It also tries to differentiate between strict and "pyf" although
 I'm not sure what that is.
 
 """
+
 import os
 import re
-
 
 ##############################################################################
 
