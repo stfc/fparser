@@ -54,9 +54,11 @@ jobs:
   black:
 
     runs-on: ubuntu-latest
-    python-version: 3.9
     steps:
     - uses: actions/checkout@v3
+    - uses: actions/setup-python@v4
+      with:
+        python-version: 3.9
     - uses: psf/black@stable
       with:
         src: "./src ./example"
