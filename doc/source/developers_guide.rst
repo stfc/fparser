@@ -143,8 +143,8 @@ by the `Program_Unit` class. In general, the name of the class
 corresponding to a given rule can be obtained by replacing '-' with
 '_' and capitalising each word.
 
-The Fortran2003 classes exist in the Fortran2003.py file and the
-Fortran2008 classes exist in the Fortran2008.py file (see
+The Fortran2003 classes exist in the ``Fortran2003.py`` file and the
+Fortran2008 classes exist in the ``Fortran2008`` directory (see
 :ref:`Fortran2008` section for Fortran2008-specific implementation
 details).
 
@@ -320,9 +320,9 @@ The reason for this is that such classes can be written in a generic,
 boiler-plate way so it is simpler if these are generated rather than
 them having to be hand written.
 
-At the end of the Fortran2003.py and Fortran2008.py files there is
-code that is executed when the file is imported. This code generates
-the required classes described above in the local file.
+At the end of the ``Fortran2003.py`` and ``Fortran2008/__init__.py``
+files there is code that is executed when the file is imported. This
+code generates the required classes described above in the local file.
 
 .. note::
 
@@ -354,8 +354,8 @@ imported.
 .. note::
 
    At the moment the same code-generation code is replicated in both
-   the Fortran2003.py and Fortran2008.py files. It would be better to
-   import this code from a separate file if it is possible to do so.
+   the ``Fortran2003.py`` and ``Fortran2008/__init__.py`` files. It would be
+   better to import this code from a separate file if it is possible to do so.
 
 .. _base-classes:
 

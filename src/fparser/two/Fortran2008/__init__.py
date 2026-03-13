@@ -67,6 +67,7 @@ from fparser.two.Fortran2008.allocate_stmt_r626 import Allocate_Stmt
 from fparser.two.Fortran2008.loop_control_r818 import Loop_Control
 from fparser.two.Fortran2008.if_stmt_r837 import If_Stmt
 from fparser.two.Fortran2008.error_stop_stmt_r856 import Error_Stop_Stmt
+from fparser.two.Fortran2008.format_item_r1003 import Format_Item
 from fparser.two.Fortran2008.stop_code_r857 import Stop_Code
 from fparser.two.Fortran2008.specification_part_c1112 import Specification_Part_C1112
 from fparser.two.Fortran2008.implicit_part_c1112 import Implicit_Part_C1112
