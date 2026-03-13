@@ -46,6 +46,7 @@ Extends the Fortran 2003 rule R1003 with the additional unlimited
 format repeat specifier ``*`` before a parenthesised format-item-list.
 
 """
+
 from fparser.two.Fortran2008 import Format_Item
 from fparser.two.parser import ParserFactory
 from fparser.common.readfortran import FortranStringReader
@@ -83,9 +84,7 @@ def test_format_stmt_unlimited_repeat():
     """Test unlimited format repeat in a full FORMAT statement."""
     f2008 = ParserFactory().create(std="f2008")
 
-    reader = FortranStringReader(
-        "subroutine t()\n  1 format(*(I5))\nend subroutine"
-    )
+    reader = FortranStringReader("subroutine t()\n  1 format(*(I5))\nend subroutine")
     tree = f2008(reader)
     assert tree is not None
 

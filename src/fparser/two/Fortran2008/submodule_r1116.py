@@ -35,6 +35,7 @@
 """
 Module containing Fortran2008 Submodule rule R1116
 """
+
 from fparser.two.Fortran2003 import Module_Subprogram_Part
 from fparser.two.Fortran2008.end_submodule_stmt_r1119 import End_Submodule_Stmt
 from fparser.two.Fortran2008.specification_part_c1112 import Specification_Part_C1112

@@ -69,31 +69,23 @@ def test_error1():
 
 def test_functional1(f2008_parser):
     """Test error-stop-stmt is matched in a subroutine."""
-    tree = f2008_parser(
-        get_reader(
-            """\
+    tree = f2008_parser(get_reader("""\
 subroutine my_abort
 error stop
 end subroutine my_abort
-    """
-        )
-    )
+    """))
     assert walk(tree, Error_Stop_Stmt)
     assert "ERROR STOP" in str(tree)
 
 
 def test_functional2(f2008_parser):
     """Test error-stop-stmt is matched in a if-stmt."""
-    tree = f2008_parser(
-        get_reader(
-            """\
+    tree = f2008_parser(get_reader("""\
 subroutine my_abort(err_code)
 implicit none
 integer, intent(in) :: err_code
 if (err_code /= 0) error stop err_code
 end subroutine my_abort
-    """
-        )
-    )
+    """))
     assert walk(tree, Error_Stop_Stmt)
     assert "ERROR STOP err_code" in str(tree)

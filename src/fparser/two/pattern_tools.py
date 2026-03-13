@@ -74,6 +74,7 @@ Author: Pearu Peterson <pearu@cens.ioc.ee>
 Created: Oct 2006
 
 """
+
 import re
 
 dollar_ok = True

@@ -35,6 +35,7 @@
 """
 Module containing Fortran2008 Deferred_Coshape_Spec rule R510
 """
+
 from fparser.two.utils import SeparatorBase
 
 

@@ -74,7 +74,6 @@ First version created: May 2006
 
 """
 
-
 import re
 from typing import List, Tuple, Optional, Union
 

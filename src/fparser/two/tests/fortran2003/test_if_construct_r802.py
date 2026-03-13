@@ -48,33 +48,23 @@ from fparser.two.utils import FortranSyntaxError
 def test_if_construct():
     """Basic tests for the if construct."""
     tcls = If_Construct
-    obj = tcls(
-        get_reader(
-            """\
+    obj = tcls(get_reader("""\
 if (expr) then
   a = 1
 end if
-    """
-        )
-    )
+    """))
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == "IF (expr) THEN\n  a = 1\nEND IF"
 
-    obj = tcls(
-        get_reader(
-            """\
+    obj = tcls(get_reader("""\
 name: if (expr) then
   a = 1
 end if name
-    """
-        )
-    )
+    """))
 
     assert str(obj) == "name:IF (expr) THEN\n  a = 1\nEND IF name"
 
-    obj = tcls(
-        get_reader(
-            """\
+    obj = tcls(get_reader("""\
 if (expr) then
   a = 1
   if (expr2) then
@@ -82,45 +72,33 @@ if (expr) then
   endif
   a = 3
 end if
-    """
-        )
-    )
+    """))
     assert isinstance(obj, tcls), repr(obj)
     assert (
         str(obj) == "IF (expr) THEN\n  a = 1\n  IF (expr2) THEN\n    a = 2\n"
         "  END IF\n  a = 3\nEND IF"
     )
 
-    obj = tcls(
-        get_reader(
-            """\
+    obj = tcls(get_reader("""\
 if (expr) then
   a = 1
 else if (expr2) then
   a = 2
 end if
-    """
-        )
-    )
+    """))
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == "IF (expr) THEN\n  a = 1\nELSE IF (expr2) THEN\n  a = 2\nEND IF"
 
-    obj = tcls(
-        get_reader(
-            """\
+    obj = tcls(get_reader("""\
 if (expr) then
   a = 1
 else
   a = 2
 end if
-    """
-        )
-    )
+    """))
     assert str(obj) == "IF (expr) THEN\n  a = 1\nELSE\n  a = 2\nEND IF"
 
-    obj = tcls(
-        get_reader(
-            """\
+    obj = tcls(get_reader("""\
 if (expr) then
   a = 1
 else if (expr2) then
@@ -128,49 +106,37 @@ else if (expr2) then
 else
   a = 3
 end if
-    """
-        )
-    )
+    """))
     assert (
         str(obj) == "IF (expr) THEN\n  a = 1\nELSE IF (expr2) THEN\n  a = 2\n"
         "ELSE\n  a = 3\nEND IF"
     )
 
-    obj = tcls(
-        get_reader(
-            """\
+    obj = tcls(get_reader("""\
 named: if (expr) then
   a = 1
 else named
   a = 2
 end if named
-    """
-        )
-    )
+    """))
     assert (
         str(obj) == "named:IF (expr) THEN\n  a = 1\nELSE named\n  a = 2\nEND IF named"
     )
 
-    obj = tcls(
-        get_reader(
-            """\
+    obj = tcls(get_reader("""\
 named: if (expr) then
   a = 1
   named2: if (expr2) then
     a = 2
   end if named2
 end if named
-"""
-        )
-    )
+"""))
     assert (
         str(obj) == "named:IF (expr) THEN\n  a = 1\n  named2:IF (expr2) THEN\n"
         "    a = 2\n  END IF named2\nEND IF named"
     )
 
-    obj = tcls(
-        get_reader(
-            """\
+    obj = tcls(get_reader("""\
 if (expr) then
   a = 1
 else if (expr2) then
@@ -178,18 +144,14 @@ else if (expr2) then
 else if (expr3) then
   a = 3
 end if
-    """
-        )
-    )
+    """))
     assert isinstance(obj, tcls), repr(obj)
     assert (
         str(obj) == "IF (expr) THEN\n  a = 1\nELSE IF (expr2) THEN\n  a = 2\n"
         "ELSE IF (expr3) THEN\n  a = 3\nEND IF"
     )
 
-    obj = tcls(
-        get_reader(
-            """\
+    obj = tcls(get_reader("""\
         if (dxmx .gt. 0d0) then
           diff = 0
           do  80  k = 1, n
@@ -204,9 +166,7 @@ end if
             do  82  k = 1, n
    82       xnew(k) = xin(k) + betx*(xnew(k)-xin(k))
           endif
-        endif"""
-        )
-    )
+        endif"""))
     assert isinstance(obj, tcls)
 
 
@@ -224,28 +184,20 @@ def test_ifconstruct_tofortran_non_ascii():
 def test_if_construct_wrong_name(f2003_create, fake_symbol_table):
     """Check named 'if' constructs have correct start/end names"""
     with pytest.raises(FortranSyntaxError) as exc_info:
-        If_Construct(
-            get_reader(
-                """\
+        If_Construct(get_reader("""\
             name: if (expr) then
                 a = 1
-            end if wrong"""
-            )
-        )
+            end if wrong"""))
     assert exc_info.value.args[0].endswith("Expecting name 'name', got 'wrong'")
 
 
 def test_if_construct_missing_start_name(f2003_create, fake_symbol_table):
     """Check named 'if' constructs have correct start/end names"""
     with pytest.raises(FortranSyntaxError) as exc_info:
-        If_Construct(
-            get_reader(
-                """\
+        If_Construct(get_reader("""\
             if (expr) then
                 a = 1
-            end if name"""
-            )
-        )
+            end if name"""))
     assert exc_info.value.args[0].endswith(
         "Name 'name' has no corresponding starting name"
     )
@@ -254,60 +206,44 @@ def test_if_construct_missing_start_name(f2003_create, fake_symbol_table):
 def test_if_construct_missing_end_name(f2003_create, fake_symbol_table):
     """Check named 'if' constructs have correct start/end names"""
     with pytest.raises(FortranSyntaxError) as exc_info:
-        If_Construct(
-            get_reader(
-                """\
+        If_Construct(get_reader("""\
             name: if (expr) then
                 a = 1
-            end if"""
-            )
-        )
+            end if"""))
     assert exc_info.value.args[0].endswith("Expecting name 'name' but none given")
 
 
 def test_if_construct_else_wrong_end_name(f2003_create, fake_symbol_table):
     """Check named 'if' constructs have correct start/end names"""
     with pytest.raises(FortranSyntaxError) as exc_info:
-        If_Construct(
-            get_reader(
-                """\
+        If_Construct(get_reader("""\
             name: if (expr) then
                 a = 1
             else
                 a = 2
-            end if wrong"""
-            )
-        )
+            end if wrong"""))
     assert exc_info.value.args[0].endswith("Expecting name 'name', got 'wrong'")
 
 
 def test_if_construct_else_wrong_name(f2003_create, fake_symbol_table):
     """Check named 'if' constructs have correct start/end names"""
     with pytest.raises(FortranSyntaxError) as exc_info:
-        If_Construct(
-            get_reader(
-                """\
+        If_Construct(get_reader("""\
             name: if (expr) then
                 a = 1
             else wrong
                 a = 2
-            end if name"""
-            )
-        )
+            end if name"""))
     assert exc_info.value.args[0].endswith("Expecting name 'name', got 'wrong'")
 
 
 def test_if_construct_else_if_wrong_name(f2003_create, fake_symbol_table):
     """Check named 'if' constructs have correct start/end names"""
     with pytest.raises(FortranSyntaxError) as exc_info:
-        If_Construct(
-            get_reader(
-                """\
+        If_Construct(get_reader("""\
             name: if (expr) then
                 a = 1
             else if (other_expr) then wrong
                 a = 2
-            end if name"""
-            )
-        )
+            end if name"""))
     assert exc_info.value.args[0].endswith("Expecting name 'name', got 'wrong'")

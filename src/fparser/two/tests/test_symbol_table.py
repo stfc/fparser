@@ -221,15 +221,11 @@ def test_root_property():
 
 def test_module_use(f2003_parser):
     """Check that a USE of a module is captured in the symbol table."""
-    _ = f2003_parser(
-        get_reader(
-            """\
+    _ = f2003_parser(get_reader("""\
 PROGRAM a_prog
   use some_mod
 END PROGRAM a_prog
-    """
-        )
-    )
+    """))
     tables = SYMBOL_TABLES
     table = tables.lookup("a_prog")
     assert isinstance(table, SymbolTable)
@@ -240,16 +236,12 @@ END PROGRAM a_prog
 def test_module_use_with_only(f2003_parser):
     """Check that USE statements with an ONLY: clause are correctly captured
     in the symbol table."""
-    _ = f2003_parser(
-        get_reader(
-            """\
+    _ = f2003_parser(get_reader("""\
 PROGRAM a_prog
   use some_mod, only:
   use mod2, only: this_one, that_one
 END PROGRAM a_prog
-    """
-        )
-    )
+    """))
     tables = SYMBOL_TABLES
     table = tables.lookup("a_prog")
     assert isinstance(table, SymbolTable)
@@ -269,18 +261,14 @@ END PROGRAM a_prog
 def test_module_use_with_rename(f2003_parser):
     """Check that USE statements with renamed imported symbols are correctly
     captured in the symbol table and do not clash."""
-    _ = f2003_parser(
-        get_reader(
-            """\
+    _ = f2003_parser(get_reader("""\
 PROGRAM a_prog
   use mod2, only: this_one => that_one
   use mod3, local => other
   integer :: that_one
   logical :: other
 END PROGRAM a_prog
-    """
-        )
-    )
+    """))
     tables = SYMBOL_TABLES
     table = tables.lookup("a_prog")
     assert isinstance(table, SymbolTable)
@@ -299,9 +287,7 @@ END PROGRAM a_prog
 
 def test_wildcard_module_search(f2003_parser):
     """Test the wildcard_imports method of the SymbolTable."""
-    _ = f2003_parser(
-        get_reader(
-            """\
+    _ = f2003_parser(get_reader("""\
 module my_mod
   use other_mod, only: b
   use medium_mod
@@ -314,9 +300,7 @@ contains
     use pointless_mod, only:
   end subroutine sub
 end module my_mod
-    """
-        )
-    )
+    """))
     # Module symbol table should have two modules listed with wildcard imports.
     mod_table = SYMBOL_TABLES.lookup("my_mod")
     assert mod_table.wildcard_imports == ["medium_mod", "some_mod"]
@@ -324,9 +308,7 @@ end module my_mod
     sub_table = mod_table.children[0]
     assert sub_table.wildcard_imports == ["big_mod", "medium_mod", "some_mod"]
     # Repeat for a program containing a subroutine containing a function.
-    _ = f2003_parser(
-        get_reader(
-            """\
+    _ = f2003_parser(get_reader("""\
 program my_prog
   use pointless_mod, only: dee
   use medium_mod
@@ -348,9 +330,7 @@ contains
     end function my_fn
   end subroutine sub
 end program my_prog
-    """
-        )
-    )
+    """))
     prog_table = SYMBOL_TABLES.lookup("my_prog")
     assert prog_table.wildcard_imports == ["medium_mod", "no_really_mod"]
     sub_table = prog_table.children[0]
@@ -367,16 +347,12 @@ end program my_prog
 def test_module_definition(f2003_parser):
     """Check that a SymbolTable is created for a module and populated with
     the symbols it defines."""
-    _ = f2003_parser(
-        get_reader(
-            """\
+    _ = f2003_parser(get_reader("""\
 module my_mod
   use some_mod
   real :: a
 end module my_mod
-    """
-        )
-    )
+    """))
     tables = SYMBOL_TABLES
     assert list(tables._symbol_tables.keys()) == ["my_mod"]
     table = tables.lookup("my_mod")
@@ -392,9 +368,7 @@ end module my_mod
 def test_routine_in_module(f2003_parser):
     """Check that we get two, nested symbol tables when a module contains
     a subroutine."""
-    _ = f2003_parser(
-        get_reader(
-            """\
+    _ = f2003_parser(get_reader("""\
 module my_mod
   use some_mod
   real :: a
@@ -402,9 +376,7 @@ contains
   subroutine my_sub()
   end subroutine my_sub
 end module my_mod
-    """
-        )
-    )
+    """))
     tables = SYMBOL_TABLES
     assert list(tables._symbol_tables.keys()) == ["my_mod"]
     table = tables.lookup("my_mod")
@@ -421,9 +393,7 @@ end module my_mod
 def test_routine_in_prog(f2003_parser):
     """Check that we get two, nested symbol tables when a program contains
     a subroutine."""
-    _ = f2003_parser(
-        get_reader(
-            """\
+    _ = f2003_parser(get_reader("""\
 program my_prog
   use some_mod
   real :: a
@@ -432,9 +402,7 @@ contains
     real :: b
   end subroutine my_sub
 end program my_prog
-    """
-        )
-    )
+    """))
     tables = SYMBOL_TABLES
     assert list(tables._symbol_tables.keys()) == ["my_prog"]
     table = SYMBOL_TABLES.lookup("my_prog")

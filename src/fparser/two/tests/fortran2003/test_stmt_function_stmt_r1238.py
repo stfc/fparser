@@ -36,6 +36,7 @@
 Stmt_Function_Stmt class.
 
 """
+
 import pytest
 
 from fparser.two.Fortran2003 import Stmt_Function_Stmt

@@ -162,15 +162,11 @@ def test_other(string, cls):
 
 def test_other_functional(f2008_parser):
     """Test previous subclasses are still matched correctly in a subroutine."""
-    tree = f2008_parser(
-        get_reader(
-            """\
+    tree = f2008_parser(get_reader("""\
 subroutine my_abort
 stop
 end subroutine my_abort
-    """
-        )
-    )
+    """))
     assert walk(tree, Stop_Stmt)
     assert "STOP" in str(tree)
 

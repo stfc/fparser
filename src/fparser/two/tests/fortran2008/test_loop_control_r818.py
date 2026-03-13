@@ -42,6 +42,7 @@ loop-control is [ , ] do-variable = scalar-int-expr , scalar-int-expr
 Extends the Fortran2003 rule R830 with the additional CONCURRENT clause.
 
 """
+
 import pytest
 from fparser.two.Fortran2008 import Loop_Control
 from fparser.two.utils import NoMatchError

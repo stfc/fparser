@@ -39,6 +39,7 @@ type-guard-stmt is TYPE IS ( type-spec ) [ select-construct-name ]
                 or CLASS DEFAULT [ select-construct-name ]
 
 """
+
 import pytest
 
 from fparser.two.Fortran2003 import Type_Guard_Stmt

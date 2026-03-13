@@ -282,9 +282,7 @@ def test_intrinsic_inside_intrinsic():
 def test_locally_shadowed_intrinsic(f2003_parser):
     """Check that a locally-defined symbol that shadows (overwrites) a
     Fortran intrinsic is correctly identified."""
-    tree = f2003_parser(
-        get_reader(
-            """\
+    tree = f2003_parser(get_reader("""\
 module my_mod
   use some_mod
   real :: dot_product(2,2)
@@ -294,9 +292,7 @@ contains
     result = dot_product(1,1)
   end subroutine my_sub
 end module my_mod
-    """
-        )
-    )
+    """))
     tables = SYMBOL_TABLES
     # We should not have an intrinsic-function reference in the parse tree
     assert not walk(tree, Intrinsic_Function_Reference)
@@ -308,9 +304,7 @@ end module my_mod
 def test_shadowed_intrinsic_named_import(f2003_parser):
     """Check that an imported symbol that shadows (overwrites) a
     Fortran intrinsic is correctly identified."""
-    tree = f2003_parser(
-        get_reader(
-            """\
+    tree = f2003_parser(get_reader("""\
 module my_mod
   use some_mod, only: dot_product
 contains
@@ -319,9 +313,7 @@ contains
     result = dot_product(1,1)
   end subroutine my_sub
 end module my_mod
-    """
-        )
-    )
+    """))
     tables = SYMBOL_TABLES
     # We should not have an intrinsic-function reference in the parse tree
     assert not walk(tree, Intrinsic_Function_Reference)
@@ -337,9 +329,7 @@ def test_shadowed_intrinsic_import(f2003_parser, use_stmts):
     number of 'arguments'.
 
     """
-    tree = f2003_parser(
-        get_reader(
-            f"""\
+    tree = f2003_parser(get_reader(f"""\
 module my_mod
   {use_stmts[0]}\n
 contains
@@ -365,9 +355,7 @@ contains
     end function tricky
   end subroutine my_sub
 end module my_mod
-    """
-        )
-    )
+    """))
     # We should not have an intrinsic-function reference in the parse tree
     assert not walk(tree, Intrinsic_Function_Reference)
 
@@ -377,9 +365,7 @@ def test_shadowed_intrinsic_error(f2003_parser):
     Fortran intrinsic is not identified as an intrinsic if it has the wrong
     types of argument. At the moment we are unable to check the types of
     arguments (TODO #201) and so this test x-fails."""
-    tree = f2003_parser(
-        get_reader(
-            """\
+    tree = f2003_parser(get_reader("""\
 module my_mod
   use some_mod
 contains
@@ -388,9 +374,7 @@ contains
     result = dot_product(1,1)
   end subroutine my_sub
 end module my_mod
-    """
-        )
-    )
+    """))
     # We should not have an intrinsic-function reference in the parse tree
     if walk(tree, Intrinsic_Function_Reference):
         pytest.xfail("TODO #201: incorrect match of Intrinsic_Function_Reference")
