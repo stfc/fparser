@@ -54,6 +54,7 @@ jobs:
   black:
 
     runs-on: ubuntu-latest
+    python-version: 3.9
     steps:
     - uses: actions/checkout@v3
     - uses: psf/black@stable
