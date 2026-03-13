@@ -21,6 +21,9 @@ Modifications by (in alphabetical order):
 * P. Vitt, University of Siegen, Germany
 * A. Voysey, UK Met Office
 
+13/03/2026 PR #491 for #490. Fix syntax warning and add build artifact
+           to gitignore.
+
 15/12/2025 PR #487. Adds interfaces to the set of things a module provides.
            Fixes fparser1 errors such as "fparser.common.utils.AnalyzeError:
            entity name 'dummy_code' is not in module 'dummy_mod'"
