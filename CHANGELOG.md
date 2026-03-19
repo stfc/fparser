@@ -14,12 +14,15 @@ Modifications by (in alphabetical order):
 * A. Morvan, Bull S. A. S., France
 * N. M. Nobre, Science & Technology Facilities Council, UK
 * A. R. Porter, Science & Technology Facilities Council, UK
+* F. Perini, Wisconsin Engine Research Consultants, US
 * B. Reuter, ECMWF, UK
 * S. Siso, Science & Technology Facilities Council, UK
 * M. Schreiber, Universite Grenoble Alpes, France
 * J. Tiira, University of Helsinki, Finland
 * P. Vitt, University of Siegen, Germany
 * A. Voysey, UK Met Office
+
+19/03/2026 PR #496. Add support for F2008 unlimited-format-item.
 
 13/03/2026 PR #495 for #494. Fix CI issues with the black formatting check.
 
