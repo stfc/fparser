@@ -1,4 +1,8 @@
 # News #
+  * 01/04/2025 Version 0.2.2 released (adds support for more types of directive and
+    support for the Fortran2008 unlimited-repeat format specifier).
+  * Good to know: fparser with Python 3.14 is approximately a factor of two faster than
+    it is with older Python versions.
   * 29/09/2025 Version 0.2.1 released (bug fixes for string handling and
     loops in array constructors, support for a new, Directive node).
   * 26/11/2024 Version 0.2.0 released (support for statements behind OMP sentinels, non-standard
