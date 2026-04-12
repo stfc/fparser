@@ -57,6 +57,7 @@ CPP_CLASS_NAMES = [
     "Cpp_Macro_Stmt",
     "Cpp_Undef_Stmt",
     "Cpp_Line_Stmt",
+    "Cpp_Linemarker_Stmt",
     "Cpp_Error_Stmt",
     "Cpp_Warning_Stmt",
     "Cpp_Null_Stmt",
@@ -644,6 +645,51 @@ class Cpp_Line_Stmt(WORDClsBase):  # 6.10.4 Line control
     def tostr(self):
         """
         :return: this line-stmt as a string.
+        :rtype: str
+        """
+        return "{0} {1}".format(*self.items)
+
+
+class Cpp_Linemarker_Stmt(WORDClsBase):  # Linemarker
+    """
+    Linemarker
+
+    linemarker-stmt is # digit-sequence [ "s-char-sequence" ] [digit ...]
+    """
+
+    subclass_names = []
+    use_names = ["<digit-string>", "Cpp_Pp_Tokens"]
+
+    _pattern = pattern.Pattern("<linemarker>",
+                               r"^\s*#",
+                               value="#")
+
+    @staticmethod
+    def match(string):
+        """Implements the matching for a linemarker.
+        The right hand side of the directive is not matched any further
+        but simply kept as a string.
+
+        :param str string: the string to match with as a line statement.
+
+        :return: a tuple of size 1 with the right hand side as a string, \
+                  or `None` if there is no match.
+        :rtype: (`str`) or `NoneType`
+
+        """
+        if not string:
+            return None
+        return WORDClsBase.match(
+            Cpp_Linemarker_Stmt._pattern,
+            Cpp_Pp_Tokens,
+            string,
+            colons=False,
+            require_cls=True,
+        )
+
+    def tostr(self):
+        """
+        :return: this linemarker as a string.
         :rtype: str
         """
         return "{0} {1}".format(*self.items)
