@@ -453,15 +453,28 @@ def test_incorrect_line_stmt(line):
 
 
 @pytest.mark.usefixtures("f2003_create")
-@pytest.mark.parametrize("line_ref",
-                         [('# 123 "file"', '# 123 "file"'),
-                          ('  #     123 "file"  ', '# 123 "file"'),
-                          ('# 123 "file" 1 3', '# 123 "file" 1 3')])
-def test_linemarker_statement(line_ref):
+@pytest.mark.parametrize(
+    "line_ref",
+    [
+        ('# 123 "file"', '# 123 "file"'),
+        ('  #     123 "file"  ', '# 123 "file"'),
+        ('# 123 "file" 1 3', '# 123 "file" 1 3'),
+    ],
+)
+def test_linemarker(line_ref):
     """Test that #line is recognized"""
     line, ref = line_ref
     result = Cpp_Linemarker_Stmt(line)
     assert str(result) == ref
+
+
+@pytest.mark.usefixtures("f2003_create")
+@pytest.mark.parametrize("line", ["# abc", '# "bla"', "# 123 'wrong_quotes'"])
+def test_incorrect_linemarker(line):
+    """Test that incorrectly formed #line statements raise exception"""
+    with pytest.raises(NoMatchError) as excinfo:
+        _ = Cpp_Linemarker_Stmt(line)
+    assert "Cpp_Linemarker_Stmt: '{0}'".format(line) in str(excinfo.value)
 
 
 @pytest.mark.usefixtures("f2003_create")

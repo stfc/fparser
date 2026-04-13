@@ -32,7 +32,11 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""C99 Preprocessor Syntax Rules."""
+"""C99 Preprocessor Syntax Rules. It also supports linemarker statements
+(which are technically not preprocessor directives, but are very close
+in their syntax, i.e. starting with `#`)
+
+"""
 
 # Author: Balthasar Reuter <balthasar.reuter@ecmwf.int>
 # Based on previous work by Martin Schlipf (https://github.com/martin-schlipf)
@@ -658,11 +662,11 @@ class Cpp_Linemarker_Stmt(WORDClsBase):  # Linemarker
     """
 
     subclass_names = []
-    use_names = ["<digit-string>", "Cpp_Pp_Tokens"]
+    use_names = ["Cpp_Pp_Tokens"]
 
-    _pattern = pattern.Pattern("<linemarker>",
-                               r"^\s*#",
-                               value="#")
+    # The match method will check that it is a valid linemarker, i.e.
+    # it has a line number, and file name in double quotes.
+    _pattern = pattern.Pattern("<linemarker>", r"^\s*#", value="#")
 
     @staticmethod
     def match(string):
@@ -679,6 +683,14 @@ class Cpp_Linemarker_Stmt(WORDClsBase):  # Linemarker
         """
         if not string:
             return None
+
+        # We can't fully rely on WORDClsBase, since it can't easily
+        # test if there is a line number following (it returns
+        # `value` for a match, but can't insert the matched line number
+        # in this value).
+        if not re.match(r"^\s*#\s+[0-9]+\s+\".*\"", string):
+            return
+
         return WORDClsBase.match(
             Cpp_Linemarker_Stmt._pattern,
             Cpp_Pp_Tokens,
