@@ -1819,7 +1819,12 @@ class WORDClsBase(Base):
             if my_match is None:
                 return None
             line = string[len(my_match.group()) :]
-            pattern_value = keyword.value
+            # If no constant return value is defined,
+            # return the matched string
+            if keyword.value:
+                pattern_value = keyword.value
+            else:
+                pattern_value = my_match.group()
 
         if not line:
             if require_cls:

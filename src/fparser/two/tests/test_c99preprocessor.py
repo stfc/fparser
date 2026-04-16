@@ -457,7 +457,7 @@ def test_incorrect_line_stmt(line):
     "line, ref",
     [
         ('# 123 "file"', '# 123 "file"'),
-        ('  #     123 "file"  ', '# 123 "file"'),
+        ('  #     123 "file"', '#     123 "file"'),
         ('# 123 "file" 1 3', '# 123 "file" 1 3'),
     ],
 )

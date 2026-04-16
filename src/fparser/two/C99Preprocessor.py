@@ -666,7 +666,7 @@ class Cpp_Linemarker_Stmt(WORDClsBase):  # Linemarker
 
     # The match method will check that it is a valid linemarker, i.e.
     # it has a line number, and file name in double quotes.
-    _pattern = pattern.Pattern("<linemarker>", r"^\s*#", value="#")
+    _pattern = pattern.Pattern("<linemarker>", r"^\s*#\s+\d+\s+\".*\".*$")
 
     @staticmethod
     def match(string):
@@ -684,27 +684,23 @@ class Cpp_Linemarker_Stmt(WORDClsBase):  # Linemarker
         if not string:
             return None
 
-        # We can't fully rely on WORDClsBase, since it can't easily
-        # test if there is a line number following (it returns
-        # `value` for a match, but can't insert the matched line number
-        # in this value).
-        if not re.match(r"^\s*#\s+[0-9]+\s+\".*\"", string):
-            return
-
         return WORDClsBase.match(
             Cpp_Linemarker_Stmt._pattern,
             Cpp_Pp_Tokens,
             string,
             colons=False,
-            require_cls=True,
+            require_cls=False,
         )
 
     def tostr(self):
         """
+        Returns the line marker as string. Note that fparser accepts
+        spaces before the `#`, but it should remove the spaces, hence
+        we lstrip the result
         :return: this linemarker as a string.
         :rtype: str
         """
-        return "{0} {1}".format(*self.items)
+        return self.items[0].lstrip()
 
 
 class Cpp_Error_Stmt(WORDClsBase):  # 6.10.5 Error directive
