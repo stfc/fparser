@@ -658,7 +658,7 @@ class Cpp_Linemarker_Stmt(WORDClsBase):  # Linemarker
     """
     Linemarker
 
-    linemarker-stmt is # digit-sequence [ "s-char-sequence" ] [digit ...]
+    linemarker-stmt is # digit-sequence "s-char-sequence" [digit ...]
     """
 
     subclass_names = []
