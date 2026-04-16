@@ -454,16 +454,15 @@ def test_incorrect_line_stmt(line):
 
 @pytest.mark.usefixtures("f2003_create")
 @pytest.mark.parametrize(
-    "line_ref",
+    "line, ref",
     [
         ('# 123 "file"', '# 123 "file"'),
         ('  #     123 "file"  ', '# 123 "file"'),
         ('# 123 "file" 1 3', '# 123 "file" 1 3'),
     ],
 )
-def test_linemarker(line_ref):
+def test_linemarker(line, ref):
     """Test that #line is recognized"""
-    line, ref = line_ref
     result = Cpp_Linemarker_Stmt(line)
     assert str(result) == ref
 
