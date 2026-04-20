@@ -325,6 +325,7 @@ class DynamicImport:
             Else_If_Stmt,
             Else_Stmt,
             End_If_Stmt,
+            Label_Do_Stmt,
             Masked_Elsewhere_Stmt,
             Elsewhere_Stmt,
             End_Where_Stmt,
@@ -749,6 +750,21 @@ class BlockBase(Base):
                     # starting from the i+1'th...
                     i += 1
                     continue
+
+                from fparser.two.Fortran2003 import Continue_Stmt, End_Do, End_Do_Stmt, Label_Do_Stmt
+                if (startcls and
+                    isinstance(content[start_idx], Label_Do_Stmt) and
+                    hasattr(obj, "get_end_label") and
+                    content[start_idx].get_start_label() == obj.get_end_label()
+                    and endcls is End_Do and
+                    not isinstance(obj, (End_Do_Stmt, Continue_Stmt))):
+                    if table_name:
+                        SYMBOL_TABLES.exit_scope()
+                    obj.restore_reader(reader)
+                    for obj in reversed(content):
+                        obj.restore_reader(reader)
+                    return None
+
 
                 # We got a match for this class
                 had_match = True
