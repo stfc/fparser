@@ -341,7 +341,9 @@ class DynamicImport:
             End_Do_Stmt,
             Label_Do_Stmt,
         )
-        from fparser.two.Fortran2008.label_do_stmt_r816 import Label_Do_Stmt as Label_Do_Stmt_2008
+        from fparser.two.Fortran2008.label_do_stmt_r816 import (
+            Label_Do_Stmt as Label_Do_Stmt_2008,
+        )
 
         from fparser.two import C99Preprocessor
 
