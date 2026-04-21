@@ -22,6 +22,10 @@ Modifications by (in alphabetical order):
 * P. Vitt, University of Siegen, Germany
 * A. Voysey, UK Met Office
 
+21/04/2026 PR #XXX. Widen Proc_Decl (R1214) for Fortran 2008 to accept an
+           initial-proc-target (R1217) on the right-hand side of ``=>``,
+           not only null-init. See J3/10-007r1 §12.4.3.6.
+
 19/03/2026 PR #496. Add support for F2008 unlimited-format-item.
 
 13/03/2026 PR #495 for #494. Fix CI issues with the black formatting check.

@@ -87,6 +87,7 @@ from fparser.two.Fortran2008.end_block_stmt_r809 import End_Block_Stmt
 from fparser.two.Fortran2008.critical_construct_r810 import Critical_Construct
 from fparser.two.Fortran2008.critical_stmt_r811 import Critical_Stmt
 from fparser.two.Fortran2008.end_critical_stmt_r812 import End_Critical_Stmt
+from fparser.two.Fortran2008.proc_decl_r1214 import Proc_Decl
 from fparser.two.Fortran2008.procedure_stmt_r1206 import Procedure_Stmt
 
 from fparser.two.Fortran2008.action_term_do_construct_r824 import (
