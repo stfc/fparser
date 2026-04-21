@@ -341,6 +341,7 @@ class DynamicImport:
             End_Do_Stmt,
             Label_Do_Stmt,
         )
+        from fparser.two.Fortran2008.label_do_stmt_r816 import Label_Do_Stmt as Label_Do_Stmt_2008
 
         from fparser.two import C99Preprocessor
 
@@ -365,6 +366,7 @@ class DynamicImport:
         DynamicImport.End_Do = End_Do
         DynamicImport.End_Do_Stmt = End_Do_Stmt
         DynamicImport.Label_Do_Stmt = Label_Do_Stmt
+        DynamicImport.Label_Do_Stmt_2008 = Label_Do_Stmt_2008
 
 
 di = DynamicImport()
@@ -777,7 +779,7 @@ class BlockBase(Base):
                 # in case of non-blocked loops (since the parser won't look
                 # ahead till the end of the file).
                 if (
-                    startcls is di.Label_Do_Stmt
+                    startcls in (di.Label_Do_Stmt, di.Label_Do_Stmt_2008)
                     and endcls is di.End_Do
                     and hasattr(obj, "get_end_label")
                     and (content[start_idx].get_start_label() == obj.get_end_label())
