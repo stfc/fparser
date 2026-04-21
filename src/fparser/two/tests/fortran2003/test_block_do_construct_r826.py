@@ -38,7 +38,7 @@
 import pytest
 from fparser.api import get_reader
 from fparser.common.readfortran import FortranStringReader
-from fparser.two.utils import FortranSyntaxError
+from fparser.two.utils import FortranSyntaxError, NoMatchError
 from fparser.two.Fortran2003 import (
     Block_Label_Do_Construct,
     Block_Nonlabel_Do_Construct,
@@ -245,3 +245,26 @@ def test_do_construct_missing_end_name(f2003_create, fake_symbol_table):
                 a = 1
             end do"""))
     assert exc_info.value.args[0].endswith("Expecting name 'name' but none given")
+
+
+@pytest.mark.usefixtures("f2003_create")
+def test_block_abort_early():
+    """Tests that a parsing a blocked do loop will abort early if it detects
+    a non-blocked loop (which avoids an exponential scaling). This is done
+    by trying to parse a non-blocked loop as Block_Label_Do_Construct,
+    and analysing the returned error message. If the parsing does not abort
+    early, the error location will be line 4 (and an empty line, indicating
+    the end of file was reached).
+    If on the other hand the abort happens early, the assignment in line
+    2 will be returned as the error, indicating that the exponential
+    behaviour is avoided.
+    """
+
+    with pytest.raises(NoMatchError) as err:
+        Block_Label_Do_Construct(get_reader("""\
+          do 12
+ 12          a = 1
+          call test()
+        """))
+    assert "at line 2" in str(err.value)
+    assert "12          a = 1" in str(err.value)
