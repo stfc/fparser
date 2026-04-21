@@ -783,8 +783,6 @@ class BlockBase(Base):
                     and (content[start_idx].get_start_label() == obj.get_end_label())
                     and not isinstance(obj, (di.End_Do_Stmt, di.Continue_Stmt))
                 ):
-                    if table_name:
-                        SYMBOL_TABLES.exit_scope()
                     # We need to put the just read statement back:
                     obj.restore_reader(reader)
                     # ... and then also restore all previously read content
