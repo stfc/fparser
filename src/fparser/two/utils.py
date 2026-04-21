@@ -361,7 +361,7 @@ class DynamicImport:
         DynamicImport.add_comments_includes_directives = (
             add_comments_includes_directives
         )
-        DynamicImport.Continue_Stmt = Continue_Stmt,
+        DynamicImport.Continue_Stmt = Continue_Stmt
         DynamicImport.End_Do = End_Do
         DynamicImport.End_Do_Stmt = End_Do_Stmt
         DynamicImport.Label_Do_Stmt = Label_Do_Stmt
@@ -776,11 +776,13 @@ class BlockBase(Base):
                 # non-blocked loop). This breaks the exponential behaviour
                 # in case of non-blocked loops (since the parser won't look
                 # ahead till the end of the file).
-                if (startcls is di.Label_Do_Stmt and endcls is di.End_Do and
-                        hasattr(obj, "get_end_label") and
-                        (content[start_idx].get_start_label() ==
-                            obj.get_end_label()) and
-                        not isinstance(obj, (di.End_Do_Stmt, di.Continue_Stmt))):
+                if (
+                    startcls is di.Label_Do_Stmt
+                    and endcls is di.End_Do
+                    and hasattr(obj, "get_end_label")
+                    and (content[start_idx].get_start_label() == obj.get_end_label())
+                    and not isinstance(obj, (di.End_Do_Stmt, di.Continue_Stmt))
+                ):
                     if table_name:
                         SYMBOL_TABLES.exit_scope()
                     # We need to put the just read statement back:
