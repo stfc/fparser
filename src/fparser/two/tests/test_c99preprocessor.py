@@ -577,8 +577,8 @@ def test_cpp_in_fortran(cpp_class, cpp_directive):
     """
     code = f"""
     program test
-    integer a
     {cpp_directive}
+    integer a
     a = 2
     end program
     """
