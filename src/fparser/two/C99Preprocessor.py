@@ -679,7 +679,7 @@ class Cpp_Linemarker_Stmt(WORDClsBase):  # Linemarker
 
     @staticmethod
     def match(
-        string: Union[str, FortranReaderBase]
+        string: Union[str, FortranReaderBase],
     ) -> Optional[tuple[str, "Cpp_Linemarker_Stmt"]]:
         """Implements the matching for a linemarker.
         The optional flag (digits) allowed after the file name are not matched
