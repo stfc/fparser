@@ -44,6 +44,7 @@ in their syntax, i.e. starting with `#`)
 
 import re
 import sys
+from typing import Optional, Union
 
 from fparser.common.readfortran import FortranReaderBase, CppDirective
 from fparser.two import pattern_tools as pattern
@@ -656,7 +657,12 @@ class Cpp_Line_Stmt(WORDClsBase):  # 6.10.4 Line control
 
 class Cpp_Linemarker_Stmt(WORDClsBase):  # Linemarker
     """
-    Linemarker
+    This class represents a Linemarker. A linemarker indicates the
+    line number and file name the following line is coming from (e.g.
+    if a file has been inlined, this will allow the compiler to correctly
+    indicate the original source line). While linemarkers are technically
+    not preprocessor directives, their syntax is very similar, so they are
+    handled here.
 
     linemarker-stmt is # digit-sequence "s-char-sequence" [digit ...]
     """
@@ -665,20 +671,25 @@ class Cpp_Linemarker_Stmt(WORDClsBase):  # Linemarker
     use_names = ["Cpp_Pp_Tokens"]
 
     # The match method will check that it is a valid linemarker, i.e.
-    # it has a line number, and file name in double quotes.
-    _pattern = pattern.Pattern("<linemarker>", r"^\s*#\s+\d+\s+\".*\".*$")
+    # it has a line number, and file name in double quotes. Setting value
+    # to None means that the pattern matching will return the matched
+    # string (i.e. `# linenumber "filename"`), any following flags will
+    # be stored as items of type Cpp_Pp_Tokens.
+    _pattern = pattern.Pattern("<linemarker>", r"^\s*#\s+\d+\s+\".*\".*$",
+                               value=None)
 
     @staticmethod
-    def match(string):
+    def match(
+        string: Union[str, FortranReaderBase]
+    ) -> Optional[tuple[str, "Cpp_Linemarker_Stmt"]]:
         """Implements the matching for a linemarker.
-        The right hand side of the directive is not matched any further
-        but simply kept as a string.
+        The optional flag (digits) allowed after the file name are not matched
+        any further but simply kept as a string.
 
-        :param str string: the string to match with as a line statement.
+        :param string: the string to match with as a line statement.
 
-        :return: a tuple of size 1 with the right hand side as a string, \
-                  or `None` if there is no match.
-        :rtype: (`str`) or `NoneType`
+        :return: an instance of Cpp_Linemarker_Stmt or `None` if there is no
+            match.
 
         """
         if not string:
@@ -692,13 +703,13 @@ class Cpp_Linemarker_Stmt(WORDClsBase):  # Linemarker
             require_cls=False,
         )
 
-    def tostr(self):
+    def tostr(self) -> str:
         """
         Returns the line marker as string. Note that fparser accepts
         spaces before the `#`, but it should remove the spaces, hence
         we lstrip the result
+
         :return: this linemarker as a string.
-        :rtype: str
         """
         return self.items[0].lstrip()
 

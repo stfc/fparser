@@ -1793,7 +1793,7 @@ class WORDClsBase(Base):
             2-tuple containing a string matching the 'WORD' and an \
             instance of 'cls' (or None if an instance of cls is not \
             required and not provided).
-        :rtype: Optional[Tupe[Str, Optional[Cls]]]
+        :rtype: Optional[Tuple[Str, Optional[Cls]]]
 
         """
         if isinstance(keyword, (tuple, list)):
@@ -1819,8 +1819,14 @@ class WORDClsBase(Base):
             if my_match is None:
                 return None
             line = string[len(my_match.group()) :]
-            # If no constant return value is defined,
-            # return the matched string
+            # Most patterns set a return value to be used, in order to remove
+            # white space (e.g. the pattern might be "^\s*(#\s*undef)\b",
+            # but the return value is `#undef`, meaning all optional white
+            # space will be removed. But in case of linemarkers, we need
+            # to match a non-constant expression (`# linenumber "filename"`).
+            # In this case, value is set to None, and we return the matched
+            # original string (i.e. the actual line number and filename
+            # specified)
             if keyword.value:
                 pattern_value = keyword.value
             else:
