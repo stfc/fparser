@@ -90,6 +90,11 @@ def test_proc_decl_invalid(text):
         _ = Proc_Decl(text)
 
 
+def test_proc_decl_match_empty_string():
+    """An empty string returns None from match() rather than raising."""
+    assert Proc_Decl.match("") is None
+
+
 def test_proc_pointer_component_f2008():
     """End-to-end: a derived-type component with a procedure pointer
     initialised to a module procedure parses under std='f2008'."""
