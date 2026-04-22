@@ -63,7 +63,8 @@ from fparser.two.C99Preprocessor import (
     Cpp_Null_Stmt,
     Cpp_Pp_Tokens,
 )
-from fparser.two.utils import NoMatchError
+from fparser.two.Fortran2003 import Program
+from fparser.two.utils import NoMatchError, walk
 from fparser.api import get_reader
 
 
@@ -550,3 +551,42 @@ def test_incorrect_null_stmt(line):
     with pytest.raises(NoMatchError) as excinfo:
         _ = Cpp_Null_Stmt(line)
     assert "Cpp_Null_Stmt: '{0}'".format(line) in str(excinfo.value)
+
+
+@pytest.mark.usefixtures("f2003_create")
+@pytest.mark.parametrize(
+    "cpp_class, cpp_directive",
+    [
+        (Cpp_If_Stmt, "#if CONST"),
+        (Cpp_Elif_Stmt, "#elif CONST"),
+        (Cpp_Endif_Stmt, "#endif"),
+        (Cpp_Include_Stmt, '#include "test.inc"'),
+        (Cpp_Macro_Stmt, "#define a b"),
+        (Cpp_Undef_Stmt, "#undef a"),
+        (Cpp_Line_Stmt, "#line 123"),
+        (Cpp_Linemarker_Stmt, '# 123 "test.f90"'),
+        (Cpp_Error_Stmt, "#error 123"),
+        (Cpp_Warning_Stmt, "#warning 123"),
+        (Cpp_Null_Stmt, "#"),
+    ],
+)
+def test_cpp_in_fortran(cpp_class, cpp_directive):
+    """
+    Verify that all cpp directives are correctly parsed as part of
+    a real program.
+    """
+    code = f"""
+    program test
+    integer a
+    {cpp_directive}
+    a = 2
+    end program
+    """
+    reader = get_reader(code)
+
+    obj = Program(reader)
+    all_cpp_nodes = walk(obj, cpp_class)
+
+    # There must be exactly one cpp node
+    assert len(all_cpp_nodes) == 1
+    assert str(all_cpp_nodes[0]) == cpp_directive
