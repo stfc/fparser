@@ -22,6 +22,11 @@ Modifications by (in alphabetical order):
 * P. Vitt, University of Siegen, Germany
 * A. Voysey, UK Met Office
 
+
+27/04/2026 PR #504 for #503. Improve preprocessor directives parsing.
+
+## Release 0.2.2 (19/03/2026) ##
+
 19/03/2026 PR #496. Add support for F2008 unlimited-format-item.
 
 13/03/2026 PR #495 for #494. Fix CI issues with the black formatting check.
