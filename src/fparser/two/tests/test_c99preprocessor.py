@@ -368,7 +368,8 @@ def test_macro_stmt_with_whitespace(line, ref):
         "#def",
         "#defnie",
         "#definex",
-        "#define 2a" "#define fail(...,test) test",
+        "#define 2a"
+        "#define fail(...,test) test",
         "#define",
         "#define fail(...,...)",
     ],
