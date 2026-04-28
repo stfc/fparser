@@ -57,12 +57,14 @@ from fparser.two.C99Preprocessor import (
     Cpp_Macro_Identifier_List,
     Cpp_Undef_Stmt,
     Cpp_Line_Stmt,
+    Cpp_Linemarker_Stmt,
     Cpp_Error_Stmt,
     Cpp_Warning_Stmt,
     Cpp_Null_Stmt,
     Cpp_Pp_Tokens,
 )
-from fparser.two.utils import NoMatchError
+from fparser.two.Fortran2003 import Program
+from fparser.two.utils import NoMatchError, walk
 from fparser.api import get_reader
 
 
@@ -366,7 +368,8 @@ def test_macro_stmt_with_whitespace(line, ref):
         "#def",
         "#defnie",
         "#definex",
-        "#define 2a" "#define fail(...,test) test",
+        "#define 2a",
+        "#define fail(...,test) test",
         "#define",
         "#define fail(...,...)",
     ],
@@ -452,6 +455,30 @@ def test_incorrect_line_stmt(line):
 
 
 @pytest.mark.usefixtures("f2003_create")
+@pytest.mark.parametrize(
+    "line, ref",
+    [
+        ('# 123 "file"', '# 123 "file"'),
+        ('  #     123 "file"', '#     123 "file"'),
+        ('# 123 "file" 1 3', '# 123 "file" 1 3'),
+    ],
+)
+def test_linemarker(line, ref):
+    """Test that #line is recognized"""
+    result = Cpp_Linemarker_Stmt(line)
+    assert str(result) == ref
+
+
+@pytest.mark.usefixtures("f2003_create")
+@pytest.mark.parametrize("line", ["# abc", '# "bla"', "# 123 'wrong_quotes'"])
+def test_incorrect_linemarker(line):
+    """Test that incorrectly formed #line statements raise exception"""
+    with pytest.raises(NoMatchError) as excinfo:
+        _ = Cpp_Linemarker_Stmt(line)
+    assert "Cpp_Linemarker_Stmt: '{0}'".format(line) in str(excinfo.value)
+
+
+@pytest.mark.usefixtures("f2003_create")
 @pytest.mark.parametrize("line", ["#error MSG", "  #  error  MSG  "])
 def test_error_statement_with_msg(line):
     """Test that #error is recognized"""
@@ -525,3 +552,42 @@ def test_incorrect_null_stmt(line):
     with pytest.raises(NoMatchError) as excinfo:
         _ = Cpp_Null_Stmt(line)
     assert "Cpp_Null_Stmt: '{0}'".format(line) in str(excinfo.value)
+
+
+@pytest.mark.usefixtures("f2003_create")
+@pytest.mark.parametrize(
+    "cpp_class, cpp_directive",
+    [
+        (Cpp_If_Stmt, "#if CONST"),
+        (Cpp_Elif_Stmt, "#elif CONST"),
+        (Cpp_Endif_Stmt, "#endif"),
+        (Cpp_Include_Stmt, '#include "test.inc"'),
+        (Cpp_Macro_Stmt, "#define a b"),
+        (Cpp_Undef_Stmt, "#undef a"),
+        (Cpp_Line_Stmt, "#line 123"),
+        (Cpp_Linemarker_Stmt, '# 123 "test.f90"'),
+        (Cpp_Error_Stmt, "#error 123"),
+        (Cpp_Warning_Stmt, "#warning 123"),
+        (Cpp_Null_Stmt, "#"),
+    ],
+)
+def test_cpp_in_fortran(cpp_class, cpp_directive):
+    """
+    Verify that all cpp directives are correctly parsed as part of
+    a real program.
+    """
+    code = f"""
+    program test
+    {cpp_directive}
+    integer a
+    a = 2
+    end program
+    """
+    reader = get_reader(code)
+
+    obj = Program(reader)
+    all_cpp_nodes = walk(obj, cpp_class)
+
+    # There must be exactly one cpp node
+    assert len(all_cpp_nodes) == 1
+    assert str(all_cpp_nodes[0]) == cpp_directive

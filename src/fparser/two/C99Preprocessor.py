@@ -32,7 +32,11 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""C99 Preprocessor Syntax Rules."""
+"""C99 Preprocessor Syntax Rules. It also supports linemarker statements
+(which are technically not preprocessor directives, but are very close
+in their syntax, i.e. starting with `#`)
+
+"""
 
 # Author: Balthasar Reuter <balthasar.reuter@ecmwf.int>
 # Based on previous work by Martin Schlipf (https://github.com/martin-schlipf)
@@ -40,6 +44,7 @@
 
 import re
 import sys
+from typing import Optional, Union
 
 from fparser.common.readfortran import FortranReaderBase, CppDirective
 from fparser.two import pattern_tools as pattern
@@ -57,6 +62,7 @@ CPP_CLASS_NAMES = [
     "Cpp_Macro_Stmt",
     "Cpp_Undef_Stmt",
     "Cpp_Line_Stmt",
+    "Cpp_Linemarker_Stmt",
     "Cpp_Error_Stmt",
     "Cpp_Warning_Stmt",
     "Cpp_Null_Stmt",
@@ -647,6 +653,64 @@ class Cpp_Line_Stmt(WORDClsBase):  # 6.10.4 Line control
         :rtype: str
         """
         return "{0} {1}".format(*self.items)
+
+
+class Cpp_Linemarker_Stmt(WORDClsBase):  # Linemarker
+    """
+    This class represents a Linemarker. A linemarker indicates the
+    line number and file name the following line is coming from (e.g.
+    if a file has been inlined, this will allow the compiler to correctly
+    indicate the original source line). While linemarkers are technically
+    not preprocessor directives, their syntax is very similar, so they are
+    handled here.
+
+    linemarker-stmt is # digit-sequence "s-char-sequence" [digit ...]
+    """
+
+    subclass_names = []
+    use_names = ["Cpp_Pp_Tokens"]
+
+    # The match method will check that it is a valid linemarker, i.e.
+    # it has a line number, and file name in double quotes. Setting value
+    # to None means that the pattern matching will return the matched
+    # string (i.e. `# linenumber "filename"`), any following flags will
+    # be stored as items of type Cpp_Pp_Tokens.
+    _pattern = pattern.Pattern("<linemarker>", r"^\s*#\s+\d+\s+\".*\".*$", value=None)
+
+    @staticmethod
+    def match(
+        string: Union[str, FortranReaderBase],
+    ) -> Optional[tuple[str, "Cpp_Linemarker_Stmt"]]:
+        """Implements the matching for a linemarker.
+        The optional flag (digits) allowed after the file name are not matched
+        any further but simply kept as a string.
+
+        :param string: the string to match with as a line statement.
+
+        :return: an instance of Cpp_Linemarker_Stmt or `None` if there is no
+            match.
+
+        """
+        if not string:
+            return None
+
+        return WORDClsBase.match(
+            Cpp_Linemarker_Stmt._pattern,
+            Cpp_Pp_Tokens,
+            string,
+            colons=False,
+            require_cls=False,
+        )
+
+    def tostr(self) -> str:
+        """
+        Returns the line marker as string. Note that fparser accepts
+        spaces before the `#`, but it should remove the spaces, hence
+        we lstrip the result
+
+        :return: this linemarker as a string.
+        """
+        return self.items[0].lstrip()
 
 
 class Cpp_Error_Stmt(WORDClsBase):  # 6.10.5 Error directive
