@@ -712,15 +712,14 @@ class BlockBase(Base):
         if reader.process_directives:
             comments.insert(0, di.Directive)
         classes = subclasses + comments
-        # Preprocessor directives are always valid sub-classes
-        cpp_classes = [
-            getattr(di.C99Preprocessor, cls_name)
-            for cls_name in di.C99Preprocessor.CPP_CLASS_NAMES
-        ]
-        classes += cpp_classes
         if endcls is not None:
             classes += [endcls]
             endcls_all = tuple([endcls] + endcls.subclasses[endcls.__name__])
+        # Preprocessor directives are always valid sub-classes. While
+        # `match_cpp_directive` is a function, it behaves correctly here
+        # returning either None or an instance, so we can just add it to
+        # the classes that will be tested.
+        classes.append(di.C99Preprocessor.match_cpp_directive)
 
         try:
             # Start trying to match the various subclasses, starting from
