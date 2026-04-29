@@ -336,7 +336,15 @@ class DynamicImport:
             Comment,
             Include_Stmt,
             add_comments_includes_directives,
+            Continue_Stmt,
+            End_Do,
+            End_Do_Stmt,
+            Label_Do_Stmt,
         )
+        from fparser.two.Fortran2008.label_do_stmt_r816 import (
+            Label_Do_Stmt as Label_Do_Stmt_2008,
+        )
+
         from fparser.two import C99Preprocessor
 
         DynamicImport.Else_If_Stmt = Else_If_Stmt
@@ -356,6 +364,11 @@ class DynamicImport:
         DynamicImport.add_comments_includes_directives = (
             add_comments_includes_directives
         )
+        DynamicImport.Continue_Stmt = Continue_Stmt
+        DynamicImport.End_Do = End_Do
+        DynamicImport.End_Do_Stmt = End_Do_Stmt
+        DynamicImport.Label_Do_Stmt = Label_Do_Stmt
+        DynamicImport.Label_Do_Stmt_2008 = Label_Do_Stmt_2008
 
 
 di = DynamicImport()
@@ -748,6 +761,38 @@ class BlockBase(Base):
                     # starting from the i+1'th...
                     i += 1
                     continue
+
+                # The grammar contains an exponential scaling behaviour for
+                # non-blocked labelled loop statements. The parser will try
+                # to find a match for a blocked do statement, but will ignore
+                # the fact that there is a non-blocking label, e.g.:
+                #     do 10 i=1, 10
+                # 10     a(i) = 1
+                # It will try to find a `10 enddo` or `10 continue` statement,
+                # ignoring the fact that the label 10 indicates that it is not
+                # a blocked loop. Full details in ticket 499.
+                # In order to avoid that, we identify if we are looking for a
+                # labelled loop which is blocked (endcls=End_Do), and have
+                # neither an `End_Do` nor a `Continue`, which has the same
+                # label: in this case we can abort looking (which will then
+                # trigger the caller to test for the next rule, which is a
+                # non-blocked loop). This breaks the exponential behaviour
+                # in case of non-blocked loops (since the parser won't look
+                # ahead till the end of the file).
+                if (
+                    startcls in (di.Label_Do_Stmt, di.Label_Do_Stmt_2008)
+                    and endcls is di.End_Do
+                    and hasattr(obj, "get_end_label")
+                    and (content[start_idx].get_start_label() == obj.get_end_label())
+                    and not isinstance(obj, (di.End_Do_Stmt, di.Continue_Stmt))
+                ):
+                    # We need to put the just read statement back:
+                    obj.restore_reader(reader)
+                    # ... and then also restore all previously read content
+                    for obj in reversed(content):
+                        obj.restore_reader(reader)
+                    # ... before we abort.
+                    return None
 
                 # We got a match for this class
                 had_match = True
