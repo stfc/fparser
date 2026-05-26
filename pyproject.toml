@@ -2,7 +2,6 @@
 requires = [
     "setuptools >= 61",
     "setuptools_scm[toml] >= 6.2",
-    "setuptools_scm_git_archive",
     "wheel >= 0.29.0",
 ]
 build-backend = "setuptools.build_meta"
@@ -11,7 +10,8 @@ build-backend = "setuptools.build_meta"
 name = "fparser"
 authors = [{name = "Pearu Peterson"},
 	   {name = "Rupert Ford"},
-	   {name = "Andrew Porter", email = "andrew.porter@stfc.ac.uk"}]
+	   {name = "Andrew Porter", email = "andrew.porter@stfc.ac.uk"},
+	   {name = "Sergi Siso", email = "sergi.siso@stfc.ac.uk"}]
 license = {text = "BSD-3-Clause"}
 description = "Python implementation of a Fortran parser"
 readme = "README.md"
@@ -33,7 +33,6 @@ classifiers = [
 keywords = ["fortran", "parser"]
 dynamic = ["version"]
 requires-python = ">=3.6"
-dependencies = ["setuptools_scm"]
 
 [project.optional-dependencies]
 doc = ["sphinx", "sphinxcontrib.bibtex", "autoapi", "sphinx-autoapi", "sphinx_rtd_theme"]
