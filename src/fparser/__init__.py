@@ -65,28 +65,11 @@
 # First version by: Pearu Peterson <pearu@cens.ioc.ee>
 # First created: Oct 2006
 
-from importlib.metadata import PackageNotFoundError
-from importlib import metadata
-
 import logging
 import codecs
+import fparser._version as v
 
-
-def _get_version():
-    """
-    :returns: the version of this package.
-    :rtype: str
-    """
-    try:
-        return metadata.version(__name__)
-    except PackageNotFoundError:
-        # Package is not installed.
-        from setuptools_scm import get_version
-
-        return get_version(root="../..", relative_to=__file__)
-
-
-__version__ = _get_version()
+__version__ = v.version
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 
