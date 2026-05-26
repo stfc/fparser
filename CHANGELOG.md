@@ -23,6 +23,9 @@ Modifications by (in alphabetical order):
 * A. Voysey, UK Met Office
 
 
+26/05/2026 PR #501 for #499. Avoid exponential loop handling for non-blocked
+           loops when labels are involved.
+
 27/04/2026 PR #504 for #503. Improve preprocessor directives parsing.
 
 ## Release 0.2.2 (19/03/2026) ##
