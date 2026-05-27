@@ -26,6 +26,13 @@ Modifications by (in alphabetical order):
            initial-proc-target (R1217) on the right-hand side of ``=>``,
            not only null-init. See J3/10-007r1 §12.4.3.6.
 
+26/05/2026 PR #501 for #499. Avoid exponential loop handling for non-blocked
+           loops when labels are involved.
+
+27/04/2026 PR #504 for #503. Improve preprocessor directives parsing.
+
+## Release 0.2.2 (19/03/2026) ##
+
 19/03/2026 PR #496. Add support for F2008 unlimited-format-item.
 
 13/03/2026 PR #495 for #494. Fix CI issues with the black formatting check.
