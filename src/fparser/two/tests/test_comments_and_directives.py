@@ -35,7 +35,7 @@
 
 import pytest
 from fparser.two.Fortran2003 import Program, Comment, Directive, Subroutine_Subprogram
-from fparser.two.utils import walk
+from fparser.two.utils import walk, FortranSyntaxError
 from fparser.api import get_reader
 
 from fparser.two.parser import ParserFactory
@@ -92,7 +92,7 @@ END PROGRAM a_prog
         "  ! A full line comment\n"
         '  PRINT *, "Hello"\n'
         "  ! This block gets executed\n"
-        "END PROGRAM a_prog\n"
+        "END PROGRAM a_prog"
     )
 
 
@@ -120,7 +120,7 @@ END PROGRAM a_prog
         '    PRINT *, "Hello"\n'
         "    ! Another full line comment\n"
         "  END IF\n"
-        "END PROGRAM a_prog\n"
+        "END PROGRAM a_prog"
     )
 
 
@@ -147,7 +147,7 @@ END PROGRAM a_prog
         "    ! An in-line comment here\n"
         "  END IF\n"
         "  ! A comment after a block\n"
-        "END PROGRAM a_prog\n"
+        "END PROGRAM a_prog"
     )
 
 
@@ -441,15 +441,11 @@ def test_directive_stmts():
     old = reader.get_item()
     assert old is not None
 
-    out = walk(program, Comment)
-    comments = 0
-    for comment in out:
-        if comment.items[0] != "":
-            comments = comments + 1
-    assert comments == 3
-    assert str(out[1]) == "!$dir inline"
-    assert str(out[3]) == "! A comment!"
-    assert str(out[4]) == "!!$ Another comment"
+    comments = walk(program, Comment)
+    assert len(comments) == 3
+    assert str(comments[0]) == "!$dir inline"
+    assert str(comments[1]) == "! A comment!"
+    assert str(comments[2]) == "!!$ Another comment"
 
     # Check that passing something that isn't a comment into a Directive
     # __new__ call doesn't create a Directive.
@@ -606,3 +602,23 @@ def test_inline_directive_is_comment():
     program = Program(reader)
     out = walk(program, Directive)
     assert len(out) == 0
+
+
+def test_syntax_error_with_comments():
+    """Test that when we keep comments we still correctly give syntax errors
+    when the first line of the file is a blank line."""
+    source = """
+module m
+  integer :: x
+contains
+  subroutine foo()
+    if (.true.)
+      x = 0
+    end if
+  end subroutine
+end module"""
+    reader = get_reader(source, ignore_comments=False)
+    with pytest.raises(FortranSyntaxError) as err:
+        program = Program(reader)
+    assert "at line 6\n" in str(err.value)
+    assert ">>>    if (.true.)\n" in str(err.value)
