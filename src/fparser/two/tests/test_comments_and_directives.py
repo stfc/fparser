@@ -608,6 +608,11 @@ def test_syntax_error_with_comments():
     """Test that when we keep comments we still correctly give syntax errors
     when the first line of the file is a blank line."""
     source = """
+
+
+! This is module m
+
+
 module m
   integer :: x
 contains
@@ -620,5 +625,5 @@ end module"""
     reader = get_reader(source, ignore_comments=False)
     with pytest.raises(FortranSyntaxError) as err:
         program = Program(reader)
-    assert "at line 6\n" in str(err.value)
+    assert "at line 11\n" in str(err.value)
     assert ">>>    if (.true.)\n" in str(err.value)
