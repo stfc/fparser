@@ -627,3 +627,22 @@ end module"""
         program = Program(reader)
     assert "at line 11\n" in str(err.value)
     assert ">>>    if (.true.)\n" in str(err.value)
+
+
+def test_base_to_fortran_empty_comment():
+    """Test that if we have an empty comment we get the correct
+    to_fortran from the base class implementation (i.e. no tab)"""
+    source = """
+    !Comment
+    program test
+    end program
+    """
+    reader = get_reader(source, ignore_comments=False)
+    program = Program(reader)
+    out = walk(program, Comment)
+    comment = out[0]
+    assert comment.tofortran(tab="    ") == "    !Comment"
+    # Change the comment to be an empty comment.
+    comment.items = [""]
+    comment.item = ""
+    assert comment.tofortran(tab="    ") == ""
