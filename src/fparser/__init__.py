@@ -67,9 +67,9 @@
 
 import logging
 import codecs
-import fparser._version as v
+from importlib.metadata import version
 
-__version__ = v.version
+__version__ = version("fparser")
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 
