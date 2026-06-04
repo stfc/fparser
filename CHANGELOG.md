@@ -22,6 +22,9 @@ Modifications by (in alphabetical order):
 * P. Vitt, University of Siegen, Germany
 * A. Voysey, UK Met Office
 
+04/06/2026 PR #509 for #505. Fix truncated syntax error reporting when files
+           have line breaks before the module or program. 
+
 21/04/2026 PR #502. Widen Proc_Decl (R1214) for Fortran 2008 to accept an
            initial-proc-target (R1217) on the right-hand side of ``=>``,
            not only null-init. See J3/10-007r1 §12.4.3.6.
