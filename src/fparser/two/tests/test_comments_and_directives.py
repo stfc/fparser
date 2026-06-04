@@ -35,7 +35,7 @@
 
 import pytest
 from fparser.two.Fortran2003 import Program, Comment, Directive, Subroutine_Subprogram
-from fparser.two.utils import walk
+from fparser.two.utils import walk, FortranSyntaxError
 from fparser.api import get_reader
 
 from fparser.two.parser import ParserFactory
@@ -441,15 +441,11 @@ def test_directive_stmts():
     old = reader.get_item()
     assert old is not None
 
-    out = walk(program, Comment)
-    comments = 0
-    for comment in out:
-        if comment.items[0] != "":
-            comments = comments + 1
-    assert comments == 3
-    assert str(out[1]) == "!$dir inline"
-    assert str(out[3]) == "! A comment!"
-    assert str(out[4]) == "!!$ Another comment"
+    comments = walk(program, Comment)
+    assert len(comments) == 5
+    assert str(comments[1]) == "!$dir inline"
+    assert str(comments[3]) == "! A comment!"
+    assert str(comments[4]) == "!!$ Another comment"
 
     # Check that passing something that isn't a comment into a Directive
     # __new__ call doesn't create a Directive.
@@ -606,3 +602,47 @@ def test_inline_directive_is_comment():
     program = Program(reader)
     out = walk(program, Directive)
     assert len(out) == 0
+
+
+def test_syntax_error_with_comments():
+    """Test that when we keep comments we still correctly give syntax errors
+    when the first line of the file is a blank line."""
+    source = """
+
+
+! This is module m
+
+
+module m
+  integer :: x
+contains
+  subroutine foo()
+    if (.true.)
+      x = 0
+    end if
+  end subroutine
+end module"""
+    reader = get_reader(source, ignore_comments=False)
+    with pytest.raises(FortranSyntaxError) as err:
+        program = Program(reader)
+    assert "at line 11\n" in str(err.value)
+    assert ">>>    if (.true.)\n" in str(err.value)
+
+
+def test_base_to_fortran_empty_comment():
+    """Test that if we have an empty comment we get the correct
+    to_fortran from the base class implementation (i.e. no tab)"""
+    source = """
+    !Comment
+    program test
+    end program
+    """
+    reader = get_reader(source, ignore_comments=False)
+    program = Program(reader)
+    out = walk(program, Comment)
+    comment = out[1]
+    assert comment.tofortran(tab="    ") == "    !Comment"
+    # Change the comment to be an empty comment.
+    comment.items = [""]
+    comment.item = ""
+    assert comment.tofortran(tab="    ") == ""

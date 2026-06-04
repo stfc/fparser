@@ -418,13 +418,8 @@ class Program(BlockBase):  # R201
             # Found a syntax error for this rule. Now look to match
             # (via Main_Program0) with a program containing no program
             # statement as this is optional in Fortran.
-            #
             result = BlockBase.match(Main_Program0, [], None, reader)
-            if not result and comments:
-                # This program only contains comments.
-                return (content,)
-            else:
-                return result
+            return result
         except StopIteration:
             # Reader has no more lines.
             pass
