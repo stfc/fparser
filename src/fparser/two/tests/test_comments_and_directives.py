@@ -92,7 +92,7 @@ END PROGRAM a_prog
         "  ! A full line comment\n"
         '  PRINT *, "Hello"\n'
         "  ! This block gets executed\n"
-        "END PROGRAM a_prog"
+        "END PROGRAM a_prog\n"
     )
 
 
@@ -120,7 +120,7 @@ END PROGRAM a_prog
         '    PRINT *, "Hello"\n'
         "    ! Another full line comment\n"
         "  END IF\n"
-        "END PROGRAM a_prog"
+        "END PROGRAM a_prog\n"
     )
 
 
@@ -147,7 +147,7 @@ END PROGRAM a_prog
         "    ! An in-line comment here\n"
         "  END IF\n"
         "  ! A comment after a block\n"
-        "END PROGRAM a_prog"
+        "END PROGRAM a_prog\n"
     )
 
 
@@ -442,10 +442,10 @@ def test_directive_stmts():
     assert old is not None
 
     comments = walk(program, Comment)
-    assert len(comments) == 3
-    assert str(comments[0]) == "!$dir inline"
-    assert str(comments[1]) == "! A comment!"
-    assert str(comments[2]) == "!!$ Another comment"
+    assert len(comments) == 5
+    assert str(comments[1]) == "!$dir inline"
+    assert str(comments[3]) == "! A comment!"
+    assert str(comments[4]) == "!!$ Another comment"
 
     # Check that passing something that isn't a comment into a Directive
     # __new__ call doesn't create a Directive.
@@ -640,7 +640,7 @@ def test_base_to_fortran_empty_comment():
     reader = get_reader(source, ignore_comments=False)
     program = Program(reader)
     out = walk(program, Comment)
-    comment = out[0]
+    comment = out[1]
     assert comment.tofortran(tab="    ") == "    !Comment"
     # Change the comment to be an empty comment.
     comment.items = [""]
