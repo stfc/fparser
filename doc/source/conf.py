@@ -6,7 +6,6 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 import subprocess
-import fparser
 
 project = 'fparser'
 copyright = '2017-2026, Science and Technology Facilities Council'
