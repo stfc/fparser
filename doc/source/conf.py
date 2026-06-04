@@ -6,14 +6,13 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 import subprocess
-import fparser
 
 project = 'fparser'
-copyright = '2017-2024, Science and Technology Facilities Council'
-author = 'Andrew Porter, Rupert Ford, Balthasar Reuter, Joerg Henrichs and Pearu Peterson'
-
-version = fparser._get_version()
-release = fparser._get_version()
+copyright = '2017-2026, Science and Technology Facilities Council'
+author = (
+    'Andrew Porter, Rupert Ford, Balthasar Reuter, Joerg Henrichs, '
+    'Sergi Siso and Pearu Peterson'
+)
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

@@ -3,7 +3,7 @@
     You can adapt this file completely to your liking, but it should at least
     contain the root `toctree` directive.
 
-    Modified work Copyright (c) 2017-2022 Science and Technology Facilities
+    Modified work Copyright (c) 2017-2026 Science and Technology Facilities
     Council.
     Original work Copyright (c) 1999-2008 Pearu Peterson
 

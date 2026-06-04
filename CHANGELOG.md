@@ -22,6 +22,9 @@ Modifications by (in alphabetical order):
 * P. Vitt, University of Siegen, Germany
 * A. Voysey, UK Met Office
 
+04/06/2026 PR #507 for #506. Remove setuptools_scm_git dependency. Version
+           information is now always obtained using importlib.metadata.version.
+
 04/06/2026 PR #509 for #505. Fix truncated syntax error reporting when files
            have line breaks before the module or program. 
 
