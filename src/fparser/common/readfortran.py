@@ -141,6 +141,7 @@ import os
 import re
 import sys
 import traceback
+from collections import deque
 from typing import Optional, Tuple
 from io import StringIO
 
@@ -594,7 +595,7 @@ class FortranReaderBase:
         self.process_directives = process_directives
 
         self.filo_line = []  # used for un-consuming lines.
-        self.fifo_item = []
+        self.fifo_item = deque()
         self.source_lines = []  # source lines cache
 
         self.f2py_comment_lines = []  # line numbers of f2py directives
@@ -825,7 +826,7 @@ class FortranReaderBase:
             # of the corresponding reader.
             self.reader.put_item(item)
         else:
-            self.fifo_item.insert(0, item)
+            self.fifo_item.appendleft(item)
 
     # Iterator methods:
 
@@ -930,11 +931,10 @@ class FortranReaderBase:
         """
         if ignore_comments is None:
             ignore_comments = self._ignore_comments
-        fifo_item_pop = self.fifo_item.pop
         while 1:
             try:
                 # first empty the FIFO item buffer:
-                item = fifo_item_pop(0)
+                item = self.fifo_item.popleft()
             except IndexError:
                 # construct a new item from source
                 item = self.get_source_item()
@@ -986,8 +986,8 @@ class FortranReaderBase:
                         items.append(new_line)
                 items.reverse()
                 for newitem in items:
-                    self.fifo_item.insert(0, newitem)
-                return fifo_item_pop(0)
+                    self.fifo_item.appendleft(newitem)
+                return self.fifo_item.popleft()
         return item
 
     # Interface to returned items:
@@ -1663,7 +1663,7 @@ class FortranReaderBase:
         # blank. If it is a comment, it has been pushed onto the
         # fifo_item list.
         try:
-            return self.fifo_item.pop(0)
+            return self.fifo_item.popleft()
         except IndexError:
             # A blank line is represented as an empty comment
             return Comment("", (startlineno, endlineno), self)

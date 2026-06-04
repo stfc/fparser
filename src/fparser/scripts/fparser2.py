@@ -68,14 +68,11 @@
 
 import logging
 import sys
+from optparse import OptionParser
+import fparser
 from fparser.scripts.script_options import set_fparser_options
 
 logging.basicConfig()
-
-try:
-    from iocbio.optparse_gui import OptionParser
-except ImportError:
-    from optparse import OptionParser
 
 
 def runner(_, options, args):
@@ -116,7 +113,7 @@ def runner(_, options, args):
 
 def main():
     """Check arguments before parsing code"""
-    parser = OptionParser()
+    parser = OptionParser(version=fparser.__version__)
     set_fparser_options(parser)
     options, args = parser.parse_args()
     runner(parser, options, args)
