@@ -931,11 +931,10 @@ class FortranReaderBase:
         """
         if ignore_comments is None:
             ignore_comments = self._ignore_comments
-        fifo_item_pop = self.fifo_item.popleft
         while 1:
             try:
                 # first empty the FIFO item buffer:
-                item = fifo_item_pop()
+                item = self.fifo_item.popleft()
             except IndexError:
                 # construct a new item from source
                 item = self.get_source_item()
@@ -988,7 +987,7 @@ class FortranReaderBase:
                 items.reverse()
                 for newitem in items:
                     self.fifo_item.appendleft(newitem)
-                return fifo_item_pop()
+                return self.fifo_item.popleft()
         return item
 
     # Interface to returned items:
