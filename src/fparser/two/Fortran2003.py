@@ -238,12 +238,6 @@ class Comment(Base):
         from fparser.common import readfortran
 
         if isinstance(string, readfortran.Comment):
-            # We can reach this with false readfortran.Comment nodes
-            # that represent empty lines in the original input. These
-            # have no syntactic relevance, and so are not kept by
-            # fparser.
-            #if string.comment == "":
-            #    return
             # We were after a comment and we got a comment. Construct
             # one manually to avoid recursively calling this __new__
             # method again...
@@ -424,7 +418,6 @@ class Program(BlockBase):  # R201
             # Found a syntax error for this rule. Now look to match
             # (via Main_Program0) with a program containing no program
             # statement as this is optional in Fortran.
-            #
             result = BlockBase.match(Main_Program0, [], None, reader)
             return result
         except StopIteration:
