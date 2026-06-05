@@ -35,7 +35,6 @@
 """Module containing pytest tests for the support of the Fortran2008
 Critical construct."""
 
-
 import pytest
 
 from fparser.api import get_reader
@@ -46,15 +45,11 @@ from fparser.two.utils import FortranSyntaxError
 
 def test_critical():
     """Test that a basic critical construct is correctly constructed."""
-    critical = Critical_Construct(
-        get_reader(
-            """\
+    critical = Critical_Construct(get_reader("""\
             critical
                a = 1 + b
             end critical
-            """
-        )
-    )
+            """))
     assert isinstance(critical.children[0], Critical_Stmt)
     assert isinstance(critical.children[1], Assignment_Stmt)
     assert isinstance(critical.children[2], End_Critical_Stmt)
@@ -65,15 +60,11 @@ def test_critical():
 def test_named_critical():
     """Test that a named critical construct is matched correctly and that
     its name can be queried."""
-    critical = Critical_Construct(
-        get_reader(
-            """\
+    critical = Critical_Construct(get_reader("""\
             foo: critical
                a = 1 + b
             end critical foo
-            """
-        )
-    )
+            """))
     assert critical.children[0].get_start_name() == "foo"
     assert "foo:CRITICAL\n  a = 1 + b\nEND CRITICAL foo" in str(critical)
 
@@ -82,14 +73,10 @@ def test_end_critical_missing_start_name():  # C809
     """Check that a critical construct with an end name but no start name
     results in a syntax error (C809)."""
     with pytest.raises(FortranSyntaxError) as err:
-        Critical_Construct(
-            get_reader(
-                """\
+        Critical_Construct(get_reader("""\
                 critical
                 end critical foo
-                """
-            )
-        )
+                """))
     assert "Name 'foo' has no corresponding starting name" in str(err)
 
 
@@ -97,26 +84,18 @@ def test_end_critical_missing_end_name():  # C809
     """Test that a named critical construct with the name omitted from
     the end critical results in a syntax error (C809)."""
     with pytest.raises(FortranSyntaxError) as err:
-        Critical_Construct(
-            get_reader(
-                """\
+        Critical_Construct(get_reader("""\
                 foo: critical
                 end critical
-                """
-            )
-        )
+                """))
     assert "Expecting name 'foo' but none given" in str(err)
 
 
 def test_end_critical_wrong_name():  # C809
     """Test that mismatched start and end names result in a syntax error (C809)"""
     with pytest.raises(FortranSyntaxError) as err:
-        Critical_Construct(
-            get_reader(
-                """\
+        Critical_Construct(get_reader("""\
                 foo: critical
                 end critical bar
-                """
-            )
-        )
+                """))
     assert "Expecting name 'foo', got 'bar'" in str(err)

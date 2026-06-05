@@ -64,8 +64,8 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 # DAMAGE.
 
-"""Provides FortranParser.
-"""
+"""Provides FortranParser."""
+
 # Author: Pearu Peterson <pearu@cens.ioc.ee>
 # Created: May 2006
 
@@ -118,7 +118,7 @@ class FortranParser:
         """
         Pushes the given item to the reader.
         """
-        self.reader.fifo_item.insert(0, item)
+        self.reader.fifo_item.appendleft(item)
         return
 
     def parse(self):

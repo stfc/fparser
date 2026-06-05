@@ -32,7 +32,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-""" Module containing pytest tests for the fparser2 CallBase class. """
+"""Module containing pytest tests for the fparser2 CallBase class."""
 
 import pytest
 from fparser.two import Fortran2003

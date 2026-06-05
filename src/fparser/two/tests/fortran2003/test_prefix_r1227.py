@@ -33,6 +33,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 """Test Fortran 2003 rule R1227 : prefix."""
+
 import pytest
 
 import fparser.two.Fortran2003 as f2003

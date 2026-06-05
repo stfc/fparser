@@ -36,6 +36,7 @@
 NAMELIST statement.
 
 """
+
 import pytest
 
 from fparser.two.Fortran2003 import Namelist_Stmt

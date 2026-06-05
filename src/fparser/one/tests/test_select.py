@@ -72,19 +72,6 @@ import pytest
 import fparser.common.sourceinfo
 
 
-# We need to monkeypatch the logger used by fparser because it grabs
-# stdout before the pytest framework can intercept it. In python < 3
-# you can't make a lambda out of 'print' because print is not a
-# function (you cannot do "x = print y" for instance). Therefore we
-# have to create our own function that simply wraps print and returns
-# a value.
-def print_wrapper(arg):
-    """A wrapper that allows us to call print as a function. Used for
-    monkeypatching logging calls."""
-    print(arg)
-    return None
-
-
 def test_case():
     """Basic tests for parsing of individual case statements"""
     from fparser.one.tests.test_parser import parse
@@ -119,8 +106,8 @@ def test_case_internal_error(monkeypatch, capsys):
     monkeypatch.setattr(stmt.item, "get_line", lambda: "case invalid")
     # Monkeypatch the Case object so that a call to self.warning
     # (which normally results in a call to the logger) gets replaced
-    # with a call to our print_wrapper() function
-    monkeypatch.setattr(stmt, "warning", print_wrapper)
+    # with a call to print
+    monkeypatch.setattr(stmt, "warning", lambda out: print(out))
     stmt.process_item()
     output, _ = capsys.readouterr()
     print(output)
@@ -144,8 +131,8 @@ def test_class_internal_error(monkeypatch, capsys):
     monkeypatch.setattr(stmt.item, "get_line", lambda: "class invalid")
     # Monkeypatch the Case object so that a call to self.warning
     # (which normally results in a call to the logger) gets replaced
-    # with a call to our print_wrapper() function
-    monkeypatch.setattr(stmt, "warning", print_wrapper)
+    # with a call to with a call to print
+    monkeypatch.setattr(stmt, "warning", lambda out: print(out))
     stmt.process_item()
     output, _ = capsys.readouterr()
     assert "Internal error when parsing CLASS statement" in output
@@ -336,8 +323,8 @@ def test_type_is_process_item(monkeypatch, capsys):
     monkeypatch.setattr(typeis.item, "get_line", lambda: "type is (blah): wrong_name")
     # Monkeypatch the typeis object so that a call to self.warning
     # (which normally results in a call to the logger) gets replaced
-    # with a call to our print_wrapper() function
-    monkeypatch.setattr(typeis, "warning", print_wrapper)
+    # with a call to with a call to print
+    monkeypatch.setattr(typeis, "warning", lambda out: print(out))
     typeis.process_item()
     output, _ = capsys.readouterr()
     print(output)
@@ -409,8 +396,8 @@ def test_class_is_process_item(monkeypatch, capsys):
     monkeypatch.setattr(clsis.item, "get_line", lambda: "class is (blah): wrong_name")
     # Monkeypatch the typeis object so that a call to self.warning
     # (which normally results in a call to the logger) gets replaced
-    # with a call to our print_wrapper() function
-    monkeypatch.setattr(clsis, "warning", print_wrapper)
+    # with a call to with a call to print
+    monkeypatch.setattr(clsis, "warning", lambda out: print(out))
     clsis.process_item()
     output, _ = capsys.readouterr()
     print(output)

@@ -32,7 +32,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-""" Test the get_child routine provided by utils.py. """
+"""Test the get_child routine provided by utils.py."""
 
 import pytest
 from fparser.api import get_reader

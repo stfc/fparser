@@ -42,14 +42,12 @@ from fparser.two.utils import FortranSyntaxError
 from fparser.api import get_reader
 from fparser.two.Fortran2003 import Program
 
-# Test no content or just white space. This is not officially a
-# Fortran rule but fortran compilers tend to accept empty content so
-# we follow their lead.
-
 
 def test_empty_input(f2003_create):
     """Test that empty input or input only containing white space can be
-    parsed succesfully
+    parsed succesfully. This is not valid fortran but it is accepted by
+    compilers and some applications produce it when there is files with
+    preprocessor ifdefs and includes but all resolve to emtpy strings.
 
     """
     for code in ["", "   ", "  \n  \n\n"]:
@@ -58,15 +56,20 @@ def test_empty_input(f2003_create):
         assert str(ast) == ""
 
 
-def test_only_comments(f2003_create):
+@pytest.mark.parametrize("ignore_comments", [True, False])
+def test_only_comments(f2003_create, ignore_comments):
     """Test that a file containing only comments can be parsed
-    successfully
+    successfully, irrespective of whether or not we are ignoring
+    comments.
 
     """
     code = "! comment1\n! comment2"
-    reader = get_reader(code, ignore_comments=False)
+    reader = get_reader(code, ignore_comments=ignore_comments)
     ast = Program(reader)
-    assert code in str(ast)
+    if ignore_comments:
+        assert str(ast) == ""
+    else:
+        assert code in str(ast)
 
 
 # Test single program units
@@ -75,12 +78,10 @@ def test_only_comments(f2003_create):
 @pytest.mark.usefixtures("f2003_create")
 def test_single():
     """Test that a single program_unit can be parsed successfully."""
-    reader = get_reader(
-        """\
+    reader = get_reader("""\
       subroutine test()
       end subroutine
-      """
-    )
+      """)
     ast = Program(reader)
     assert "SUBROUTINE test\n" "END SUBROUTINE" in str(ast)
     # Check that the Name of the subroutine has the correct parent
@@ -91,12 +92,10 @@ def test_single():
 def test_single_with_end_name():
     """Test that a single program_unit can be parsed successfully when it
     has a name specified on the end clause."""
-    reader = get_reader(
-        """\
+    reader = get_reader("""\
       subroutine test()
       end subroutine test
-      """
-    )
+      """)
     ast = Program(reader)
     assert "SUBROUTINE test\n" "END SUBROUTINE test" in str(ast)
     # Check parent information has been set-up correctly
@@ -112,13 +111,11 @@ def test_single2(f2003_create):
     of the line reports an error on the correct (first) line
 
     """
-    reader = get_reader(
-        """\
+    reader = get_reader("""\
      subroutin test()
      end subroutine
 
-      """
-    )
+      """)
     with pytest.raises(FortranSyntaxError) as excinfo:
         dummy_ = Program(reader)
     assert "at line 1\n>>>      subroutin test()\n" in str(excinfo.value)
@@ -132,13 +129,11 @@ def test_single3(f2003_create):
     of the line reports an error on the correct (second) line
 
     """
-    reader = get_reader(
-        """\
+    reader = get_reader("""\
      subroutine test()
      end subroutin
 
-      """
-    )
+      """)
     with pytest.raises(FortranSyntaxError) as excinfo:
         dummy_ = Program(reader)
     assert "at line 2\n>>>      end subroutin\n" in str(excinfo.value)
@@ -149,12 +144,10 @@ def test_single_error1(f2003_create):
     statement raises an appropriate exception
 
     """
-    reader = get_reader(
-        """\
+    reader = get_reader("""\
       subroutin test()
       end subroutine
-      """
-    )
+      """)
     with pytest.raises(FortranSyntaxError) as excinfo:
         dummy_ = Program(reader)
     assert "at line 1\n>>>      subroutin test()\n" in str(excinfo.value)
@@ -176,14 +169,12 @@ def test_single_error2(f2003_create):
 
 def test_multiple(f2003_create):
     """Test that multiple program_units can be parsed successfully."""
-    reader = get_reader(
-        """\
+    reader = get_reader("""\
       subroutine test()
       end subroutine
       subroutine test2()
       end subroutine test2
-      """
-    )
+      """)
     ast = Program(reader)
     assert "SUBROUTINE test\n" "END SUBROUTINE" in str(ast)
 
@@ -197,14 +188,12 @@ def test_multiple_error1(f2003_create):
     exception
 
     """
-    reader = get_reader(
-        """\
+    reader = get_reader("""\
       subroutine test()
       end subroutine
       subroutine test()
       end subroutine
-      """
-    )
+      """)
     with pytest.raises(FortranSyntaxError) as excinfo:
         dummy_ = Program(reader)
     assert "XXX" in str(excinfo.value)
@@ -215,14 +204,12 @@ def test_multiple_error2(f2003_create):
     exception
 
     """
-    reader = get_reader(
-        """\
+    reader = get_reader("""\
       subroutine 1test()
       end subroutine
       subroutine test()
       end subroutine
-      """
-    )
+      """)
     with pytest.raises(FortranSyntaxError) as excinfo:
         dummy_ = Program(reader)
     assert "at line 1\n>>>      subroutine 1test()\n" in str(excinfo.value)
@@ -233,13 +220,11 @@ def test_multiple_error3(f2003_create):
     appropriate exception
 
     """
-    reader = get_reader(
-        """\
+    reader = get_reader("""\
       subroutine test()
       end subroutine
       subroutine test()
-      end subroutin"""
-    )
+      end subroutin""")
     with pytest.raises(FortranSyntaxError) as excinfo:
         dummy_ = Program(reader)
     assert "at line 4\n>>>      end subroutin\n" in str(excinfo.value)
@@ -255,10 +240,18 @@ def test_missing_prog(f2003_create):
     in Program.
 
     """
+    reader = get_reader("""\
+      end
+      """)
+    ast = Program(reader)
+    assert "END" in str(ast)
     reader = get_reader(
         """\
+      ! This is a program without a program declaration
       end
-      """
+      """,
+        isfree=True,
+        ignore_comments=False,
     )
     ast = Program(reader)
     assert "END" in str(ast)
@@ -270,13 +263,11 @@ def test_missing_prog_multi(f2003_create):
     can be parsed successfully when it is not the first program_unit.
 
     """
-    reader = get_reader(
-        """\
+    reader = get_reader("""\
       subroutine first
       end
       end
-      """
-    )
+      """)
     ast = Program(reader)
     assert "SUBROUTINE first\n" "END SUBROUTINE" in str(ast)
     assert "END PROGRAM" in str(ast)
@@ -288,14 +279,12 @@ def test_missing_prog_multi(f2003_create):
 @pytest.mark.xfail(reason="Only one main program is allowed in a program")
 def test_one_main1(f2003_create):
     """Test that multiple main programs raise an exception."""
-    reader = get_reader(
-        """\
+    reader = get_reader("""\
       program first
       end
       program second
       end
-      """
-    )
+      """)
     with pytest.raises(FortranSyntaxError) as excinfo:
         dummy_ = Program(reader)
     assert "XXX" in str(excinfo.value)
@@ -319,14 +308,12 @@ def test_comment0(f2003_create):
 def test_comment1(f2003_create):
     """Test that a single program_unit can be parsed successfully with
     comments being ignored."""
-    reader = get_reader(
-        """\
+    reader = get_reader("""\
       ! comment1
       subroutine test()
       end subroutine
       ! comment2
-      """
-    )
+      """)
     ast = Program(reader)
     assert "SUBROUTINE test\n" "END SUBROUTINE" in str(ast)
     assert "! comment" not in str(ast)

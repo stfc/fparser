@@ -32,13 +32,12 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-""" Module containing pytest tests for the fparser2 Base class. """
+"""Module containing pytest tests for the fparser2 Base class."""
 
 import pytest
 from fparser.api import get_reader
 from fparser.two import Fortran2003
 from fparser.two.utils import walk
-
 
 TEST_CODE = (
     "program hello\n"

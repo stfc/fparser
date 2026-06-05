@@ -40,6 +40,7 @@ The only difference to F2003 rule R828 is that we force this rule to
 use the F2008 version of loop-control
 
 """
+
 import pytest
 
 from fparser.api import get_reader

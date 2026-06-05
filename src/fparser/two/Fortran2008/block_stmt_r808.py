@@ -33,8 +33,9 @@
 # -----------------------------------------------------------------------------
 
 """
-    Module containing Fortran2008 Block_Stmt rule R808
+Module containing Fortran2008 Block_Stmt rule R808
 """
+
 from fparser.two.utils import StmtBase, WORDClsBase, ScopingRegionMixin
 
 

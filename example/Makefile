@@ -33,17 +33,25 @@
 # ------------------------------------------------------------------------------
 # Author: J. Henrichs, Bureau of Meteorology
 
-.PHONY: test create_dependency fparser2_f2008
+# A simple Makefile driver to test the various examples.
 
-test:  create_dependencies split_file fparser2_f2008
+
+.PHONY: test create_dependency fparser2_f2008 make_public split_file
+
+test:  create_dependencies fparser2_f2008 make_public split_file
 
 create_dependencies:
-	(cd test_files/create_dependencies; ../../create_dependencies.py *.f90)
+	(cd test_files/create_dependencies; \
+	 ../../create_dependencies.py *.f90 | diff correct_dependencies -)
+
+fparser2_f2008:
+	python ./fparser2_f2008.py
+
+make_public:
+	./make_public.py test_files/make_public.f90 | diff test_files/make_public_correct.f90 -
 
 split_file:
 	(cd test_files/split_file; \
 		rm -f Makefile func.f90 mod1.f90 sub.f90 test_prog.f90; \
-		../../split_file.py test.f90)
-
-fparser2_f2008:
-	python ./fparser2_f2008.py
+		../../split_file.py test.f90; \
+		cat mod1.f90 sub.f90 func.f90 test_prog.f90 | diff -B test.f90 -)

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Modified work Copyright (c) 2017-2024 Science and Technology
+# Modified work Copyright (c) 2017-2025 Science and Technology
 # Facilities Council.
 # Original work Copyright (c) 1999-2008 Pearu Peterson
 
@@ -65,14 +65,16 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 # DAMAGE.
 
-"""Fortran 2003 Syntax Rules.
-"""
+"""Fortran 2003 Syntax Rules."""
+
 # Original author: Pearu Peterson <pearu@cens.ioc.ee>
 # First version created: Oct 2006
 
 import inspect
 import re
 import sys
+
+from typing import Union
 
 from fparser.common.splitline import string_replace_map
 from fparser.two import pattern_tools as pattern
@@ -117,9 +119,101 @@ from fparser.two.utils import (
 # R102: <xyz-name> = <name>
 # R103: <scalar-xyz> = <xyz>
 
+
 #
 # SECTION  2
 #
+class Directive(Base):
+    """
+    Represents a Directive. Directives are leaves in the tree, containing
+    a single item consisting of the directive string.
+
+    Fparser supports the following directive formats:
+
+        1. '!$', 'c$' or '*$' followed by any alphabetical character for
+           generic directives.
+        2. '!dir$' or 'cdir$' for the flang, ifx or ifort compilers.
+        3. '!gcc$' for the gfortran compiler.
+    """
+
+    subclass_names = []
+    _directive_formats = [
+        r"\!\$[a-z]",  # Generic directive
+        r"c\$[a-z]",  # Generic directive
+        r"\*\$[a-z]",  # Generic directive
+        r"\!dir\$",  # flang, ifx, ifort directives.
+        r"cdir\$",  # flang, ifx, ifort fixed format directive.
+        r"\!gcc\$",  # GCC compiler directive
+    ]
+
+    @show_result
+    def __new__(cls, string: Union[str, FortranReaderBase], parent_cls=None):
+        """
+        Create a new Directive instance.
+
+        :param type cls: the class of object to create.
+        :param string: (source of) Fortran string to parse.
+        :param parent_cls: the parent class of this object.
+        :type parent_cls: :py:type:`type`
+
+        """
+        from fparser.common import readfortran
+
+        if isinstance(string, readfortran.Comment):
+            # Inline comments cannot be directives.
+            if string.inline:
+                return
+            # Directives must start with one of the specified directive
+            # prefixes.
+            lower = string.comment.lower()
+            if not (
+                any(
+                    [
+                        re.match(prefix, lower) is not None
+                        for prefix in Directive._directive_formats
+                    ]
+                )
+            ):
+                return
+            # We were after a directive and we got a directive. Construct
+            # one manually to avoid recursively calling this __new__
+            # method again...
+            obj = object.__new__(cls)
+            obj.init(string)
+            return obj
+        if isinstance(string, FortranReaderBase):
+            reader = string
+            item = reader.get_item()
+            if item is None:
+                return
+            if isinstance(item, readfortran.Comment):
+                # This effectively recursively calls this routine
+                res = Directive(item)
+                if not res:
+                    # We didn't get a directive so put the item back in
+                    # the FIFO
+                    reader.put_item(item)
+                return res
+            # We didn't get a directive so put the item back in the FIFO
+            reader.put_item(item)
+        # We didn't get a directive
+        return
+
+    def init(self, comment) -> None:
+        """
+        Initialise this Directive from a comment object.
+
+        :param comment: The comment object produced by the reader
+        :type comment: :py:class:`readfortran.Comment`
+        """
+        self.items = [comment.comment]
+        self.item = comment
+
+    def tostr(self) -> str:
+        """
+        :returns: this directive as a string.
+        """
+        return str(self.items[0])
 
 
 class Comment(Base):
@@ -183,32 +277,28 @@ class Comment(Base):
         """
         return str(self.items[0])
 
-    def restore_reader(self, reader):
-        """
-        Undo the read of this comment by putting its content back
-        into the reader (which has a FIFO buffer)
-
-        :param reader: the reader instance to return the comment to
-        :type reader: :py:class:`fparser.readfortran.FortranReaderBase`
-        """
-        reader.put_item(self.item)
-
 
 def match_comment_or_include(reader):
-    """Creates a comment or include object from the current line.
+    """Creates a comment, directive, or include object from the current line.
 
-    :param reader: the fortran file reader containing the line \
+    :param reader: the fortran file reader containing the line
                    of code that we are trying to match
-    :type reader: :py:class:`fparser.common.readfortran.FortranFileReader` \
-                  or \
-                  :py:class:`fparser.common.readfortran.FortranStringReader`
+    :type reader: :py:class:`fparser.common.readfortran.FortranFileReader`
+                   or
+                   :py:class:`fparser.common.readfortran.FortranStringReader`
 
-    :return: a comment or include object if found, otherwise `None`.
-    :rtype: :py:class:`fparser.two.Fortran2003.Comment` or \
+    :return: a comment, directive, or include object if found, otherwise
+             `None`.
+    :rtype: :py:class:`fparser.two.Fortran2003.Comment` or
             :py:class:`fparser.two.Fortran2003.Include_Stmt`
+            or :py:class:`fparser.two.Fortran2003.Directive`
 
     """
-    obj = Comment(reader)
+    obj = None
+    # Whether or not to specialise Directives is a run-time option.
+    if reader.process_directives:
+        obj = Directive(reader)
+    obj = Comment(reader) if not obj else obj
     obj = Include_Stmt(reader) if not obj else obj
     return obj
 
@@ -252,19 +342,23 @@ class Program(BlockBase):  # R201
     use_names = ["Program_Unit"]
 
     @show_result
-    def __new__(cls, string):
+    def __new__(cls, string, _deepcopy=False):
         """Wrapper around base class __new__ to catch an internal NoMatchError
         exception and raise it as an external FortranSyntaxError exception.
 
         :param type cls: the class of object to create
         :param string: (source of) Fortran string to parse
         :type string: :py:class:`FortranReaderBase`
+        :param _deepcopy: Flag to signal whether this class is
+            created by a deep copy
+        :type _deepcopy: bool
+
         :raises FortranSyntaxError: if the code is not valid Fortran
 
         """
         # pylint: disable=unused-argument
         try:
-            return Base.__new__(cls, string)
+            return Base.__new__(cls, string, _deepcopy=_deepcopy)
         except NoMatchError:
             # At the moment there is no useful information provided by
             # NoMatchError so we pass on an empty string.
@@ -276,6 +370,18 @@ class Program(BlockBase):  # R201
             # FortranSyntaxError, adding the reader object (which
             # provides line number information).
             raise FortranSyntaxError(string, excinfo)
+
+    def __getnewargs__(self):
+        """Method to dictate the values passed to the __new__() method upon
+        unpickling. The method must return a pair (args, kwargs) where
+        args is a tuple of positional arguments and kwargs a dictionary
+        of named arguments for constructing the object. Those will be
+        passed to the __new__() method upon unpickling.
+
+        :return: set of arguments for __new__
+        :rtype: tuple[str, bool]
+        """
+        return (self.string, True)
 
     @staticmethod
     def match(reader):
@@ -300,7 +406,9 @@ class Program(BlockBase):  # R201
         try:
             while True:
                 obj = Program_Unit(reader)
-                content.append(obj)
+                if obj:
+                    # obj could be None if there are only Comments
+                    content.append(obj)
                 add_comments_includes_directives(content, reader)
                 # cause a StopIteration exception if there are no more lines
                 next_line = reader.next()
@@ -310,13 +418,8 @@ class Program(BlockBase):  # R201
             # Found a syntax error for this rule. Now look to match
             # (via Main_Program0) with a program containing no program
             # statement as this is optional in Fortran.
-            #
             result = BlockBase.match(Main_Program0, [], None, reader)
-            if not result and comments:
-                # This program only contains comments.
-                return (content,)
-            else:
-                return result
+            return result
         except StopIteration:
             # Reader has no more lines.
             pass
@@ -1395,7 +1498,17 @@ class Char_Selector(Base):  # R424
     use_names = ["Type_Param_Value", "Scalar_Int_Initialization_Expr"]
 
     @staticmethod
-    def match(string):
+    def match(string: str):
+        """
+        Attempts to match the supplied text as a char-selector.
+
+        :param string: the text to attempt to match.
+
+        :returns: the matched Char_Selector object or None.
+        :rtype: Union[None, Tuple[Optional[Type_Param_Value],
+                                  Scalar_Int_Initialization_Expr]]
+
+        """
         if string[0] + string[-1] != "()":
             return
         line, repmap = string_replace_map(string[1:-1].strip())
@@ -1416,7 +1529,8 @@ class Char_Selector(Base):  # R424
             v = repmap(v)
             line = repmap(line)
             return Type_Param_Value(v), Scalar_Int_Initialization_Expr(line)
-        elif line[:4].upper() == "KIND" and line[4:].lstrip().startswith("="):
+
+        if line[:4].upper() == "KIND" and line[4:].lstrip().startswith("="):
             line = line[4:].lstrip()
             line = line[1:].lstrip()
             i = line.find(",")
@@ -1431,17 +1545,16 @@ class Char_Selector(Base):  # R424
                 return
             v = v[1:].lstrip()
             return Type_Param_Value(v), Scalar_Int_Initialization_Expr(line)
-        else:
-            i = line.find(",")
-            if i == -1:
-                return
-            v = line[:i].rstrip()
-            line = line[i + 1 :].lstrip()
-            if line[:4].upper() == "KIND" and line[4:].lstrip().startswith("="):
-                line = line[4:].lstrip()
-                line = line[1:].lstrip()
-            return Type_Param_Value(v), Scalar_Int_Initialization_Expr(line)
-        return None
+
+        i = line.find(",")
+        if i == -1:
+            return
+        v = line[:i].rstrip()
+        line = line[i + 1 :].lstrip()
+        if line[:4].upper() == "KIND" and line[4:].lstrip().startswith("="):
+            line = line[4:].lstrip()
+            line = line[1:].lstrip()
+        return Type_Param_Value(v), Scalar_Int_Initialization_Expr(line)
 
     def tostr(self):
         if self.items[0] is None:
@@ -1636,6 +1749,7 @@ class Derived_Type_Def(BlockBase):  # R429
             End_Type_Stmt,
             reader,
             match_names=True,  # C431
+            strict_order=True
         )
 
 
@@ -2931,13 +3045,24 @@ class Ac_Implied_Do(Base):
     use_names = ["Ac_Value_List", "Ac_Implied_Do_Control"]
 
     @staticmethod
-    def match(string):
+    def match(string: str):
+        """
+        Attempts to match the supplied string as an implicit do within an
+        array constructor.
+
+        :param string: the text to match against.
+
+        :returns: a tuple describing the match or None if there is no match.
+        :rtype: Optional[Tuple[Ac_Value_List, Ac_Implied_Do_Control]]
+
+        """
         if string[0] + string[-1] != "()":
-            return
+            return None
         line, repmap = string_replace_map(string[1:-1].strip())
         i = line.rfind("=")
-        if i == -1:
-            return
+        if i == -1 or (i > 0 and line[i - 1] == "="):
+            # No "=" or it is "==" so no match.
+            return None
         j = line[:i].rfind(",")
         assert j != -1
         s1 = repmap(line[:j].rstrip())
@@ -4563,24 +4688,22 @@ class Implicit_Stmt(StmtBase):  # R549
     use_names = ["Implicit_Spec_List"]
 
     @staticmethod
-    def match(string):
+    def match(string: str):
+        """
+        Attempts to match the supplied string with an IMPLICIT statement.
+
+        :param string: the string to attempt to match.
+
+        :returns: the Implicit_Spec_List resulting from the match or None.
+        :rtype: Union[None, Tuple[str], Tuple[Implicit_Spec_List]]
+
+        """
         if string[:8].upper() != "IMPLICIT":
             return
         line = string[8:].lstrip()
         if len(line) == 4 and line.upper() == "NONE":
             return ("NONE",)
         return (Implicit_Spec_List(line),)
-        for w, cls in [
-            (pattern.abs_implicit_none, None),
-            ("IMPLICIT", Implicit_Spec_List),
-        ]:
-            try:
-                obj = WORDClsBase.match(w, cls, string)
-            except NoMatchError:
-                obj = None
-            if obj is not None:
-                return obj
-        return None
 
     def tostr(self):
         return "IMPLICIT %s" % (self.items[0])
@@ -7659,16 +7782,16 @@ class Select_Type_Stmt(StmtBase):  # R822
 
 
 class Type_Guard_Stmt(StmtBase):  # R823
-    """
-    ::
+    """Fortran 2003 rule R823
 
-        <type-guard-stmt> = TYPE IS ( <type-spec> ) [ <select-construct-name> ]
-                            | CLASS IS ( <type-spec> ) [ <select-construct-name> ]
-                            | CLASS DEFAULT [ <select-construct-name> ]
+    type-guard-stmt is TYPE IS ( type-spec ) [ select-construct-name ]
+                    or CLASS IS ( type-spec ) [ select-construct-name ]
+                    or CLASS DEFAULT [ select-construct-name ]
 
-    The `items` attribute for this class will contain::
+    The `items` attribute for this class will contain:
 
-        ({'TYPE IS', 'CLASS IS', 'CLASS DEFAULT'}, Type_Spec, Select_Construct_Name)
+    ({'TYPE IS', 'CLASS IS', 'CLASS DEFAULT'}, Type_Spec,
+    Select_Construct_Name)
 
     """
 
@@ -7677,10 +7800,23 @@ class Type_Guard_Stmt(StmtBase):  # R823
 
     @staticmethod
     def match(string):
+        """Implements the matching of a Type_Guard_Stmt rule.
+
+        :param str string: the code that we are trying to match.
+
+        :returns: a 3-tuple, containing the guard rule as a string (one of
+            'TYPE IS', 'CLASS IS' or 'CLASS DEFAULT'),
+            followed by an optional Type_Spec and an optional
+            Select_Construct_Name. Returns None if there is no match.
+        :rtype: Optional[Tuple[str, Optional[:py:class:`fparser.two.Type_Spec`],
+            Optional[:py:class:`fparser.two.Select_Construct_Name`]]]
+
+        """
+        string = string.lstrip()
         if string[:4].upper() == "TYPE":
             line = string[4:].lstrip()
             if not line[:2].upper() == "IS":
-                return
+                return None
             line = line[2:].lstrip()
             kind = "TYPE IS"
         elif string[:5].upper() == "CLASS":
@@ -7691,39 +7827,45 @@ class Type_Guard_Stmt(StmtBase):  # R823
             elif line[:7].upper() == "DEFAULT":
                 line = line[7:].lstrip()
                 if line:
-                    if isalnum(line[0]):
-                        return
                     return "CLASS DEFAULT", None, Select_Construct_Name(line)
                 return "CLASS DEFAULT", None, None
             else:
-                return
+                return None
         else:
-            return
+            return None
         if not line.startswith("("):
-            return
-        i = line.rfind(")")
-        if i == -1:
-            return
-        tmp = line[1:i].strip()
+            return None
+        index = line.rfind(")")
+        if index == -1:
+            return None
+        tmp = line[1:index].strip()
         if not tmp:
-            return
-        line = line[i + 1 :].lstrip()
+            return None
+        line = line[index + 1 :].lstrip()
         if line:
             return kind, Type_Spec(tmp), Select_Construct_Name(line)
         return kind, Type_Spec(tmp), None
 
     def tostr(self):
-        s = str(self.items[0])
+        """
+        :returns: string containing Fortran code for the parsed
+            Type_Guard_Stmt rule.
+        :rtype: str
+
+        """
+        string = str(self.items[0])
         if self.items[1] is not None:
-            s += " (%s)" % (self.items[1])
+            string += f" ({self.items[1]})"
         if self.items[2] is not None:
-            s += " %s" % (self.items[2])
-        return s
+            string += f" {self.items[2]}"
+        return string
 
     def get_end_name(self):
         """
-        :return: the name at the END of this block, if it exists
-        :rtype: str or NoneType
+        :returns: the name at the END of this block, if it exists,
+            otherwise None.
+        :rtype: Optional[str]
+
         """
         name = self.items[-1]
         if name is not None:
@@ -8486,14 +8628,19 @@ class Stop_Code(StringBase):  # R850
 
         <stop-code> = <scalar-char-constant>
                       | <digit> [ <digit> [ <digit> [ <digit> [ <digit> ] ] ] ]
-
+        Extension:
+                      | Level_3_Expr
     """
 
     subclass_names = ["Scalar_Char_Constant"]
 
     @staticmethod
     def match(string):
-        return StringBase.match(pattern.abs_label, string)
+        result = StringBase.match(pattern.abs_label, string)
+        if result or not "extended-stop-args" in EXTENSIONS():
+            return result
+        # This will allow statements like `stop -1` and `stop str1//str2`
+        return Level_3_Expr(string)
 
 
 #
@@ -13145,36 +13292,27 @@ for clsname in _names:
             _names.append(n)
             n = n[:-5]
             # Generate 'list' class
-            exec(
-                """\
+            exec("""\
 class %s_List(SequenceBase):
     subclass_names = [\'%s\']
     use_names = []
     def match(string): return SequenceBase.match(r\',\', %s, string)
 
-"""
-                % (n, n, n)
-            )
+""" % (n, n, n))
         elif n.endswith("_Name"):
             _names.append(n)
             n = n[:-5]
-            exec(
-                """\
+            exec("""\
 class %s_Name(Base):
     subclass_names = [\'Name\']
-"""
-                % (n)
-            )
+""" % (n))
         elif n.startswith("Scalar_"):
             _names.append(n)
             n = n[7:]
-            exec(
-                """\
+            exec("""\
 class Scalar_%s(Base):
     subclass_names = [\'%s\']
-"""
-                % (n, n)
-            )
+""" % (n, n))
 
 
 DynamicImport().import_now()

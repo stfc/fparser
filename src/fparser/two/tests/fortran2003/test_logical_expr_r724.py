@@ -42,6 +42,7 @@ from fparser.two.Fortran2003 import (
     Logical_Expr,
     Logical_Literal_Constant,
     Equiv_Operand,
+    Or_Operand,
 )
 from fparser.two.utils import NoMatchError
 
@@ -74,6 +75,18 @@ def test_complicated_case():
         "_Reference(Intrinsic_Name('ABS'), Actual_Arg_Spec_List(',', (Name('"
         "x2'),))))), '.OR.', And_Operand('.NOT.', Name('root')))"
     )
+
+
+@pytest.mark.usefixtures("f2003_create", "fake_symbol_table")
+def test_string_comparison_with_backslash():
+    """
+    Check that a logical expression involving comparison with a string containing
+    a backslash is parsed correctly.
+
+    """
+    result = Logical_Expr("MetFolder(L:L) == '\\' .and. L <= MaxFileNameLength")
+    assert isinstance(result, Or_Operand)
+    assert str(result) == "MetFolder(L : L) == '\\' .AND. L <= MaxFileNameLength"
 
 
 @pytest.mark.parametrize(

@@ -4,9 +4,10 @@
 License
 =======
 
-| Modified work Copyright (c) 2017-2021 Science and Technology Facilities Council
-| Authors: **Andrew Porter** and **Rupert Ford**, STFC Daresbury Laboratory, and
-|          **Balthasar Reuter**, ECMWF
+| Modified work Copyright (c) 2017-2026 Science and Technology Facilities Council
+| Authors: **Andrew Porter** and **Rupert Ford**, STFC Daresbury Laboratory,
+|          **Balthasar Reuter**, ECMWF, and
+|          **Joerg Henrichs**, Bureau of Meteorology
 | Original work Copyright (c) 1999-2008 **Pearu Peterson**
 | All rights reserved.
 

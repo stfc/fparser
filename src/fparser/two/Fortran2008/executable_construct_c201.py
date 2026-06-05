@@ -33,8 +33,9 @@
 # -----------------------------------------------------------------------------
 
 """
-    Module containing Fortran2008 Executable_Construct constraint C201
+Module containing Fortran2008 Executable_Construct constraint C201
 """
+
 from fparser.two.Fortran2003 import (
     Executable_Construct_C201 as Executable_Construct_C201_2003,
 )

@@ -4,6 +4,7 @@ Original code by Pearu Peterson.
 
 Modifications by (in alphabetical order):
 
+* A. B. G. Chalk, Science & Technology Facilities Council, UK
 * P. Elson, UK Met Office
 * R. W. Ford, Science & Technology Facilities Council, UK
 * M. Hambley, UK Met Office
@@ -11,12 +12,88 @@ Modifications by (in alphabetical order):
 * P. Hill, University of York, UK
 * I. Kavcic, UK Met Office
 * A. Morvan, Bull S. A. S., France
+* N. M. Nobre, Science & Technology Facilities Council, UK
 * A. R. Porter, Science & Technology Facilities Council, UK
+* F. Perini, Wisconsin Engine Research Consultants, US
 * B. Reuter, ECMWF, UK
 * S. Siso, Science & Technology Facilities Council, UK
+* M. Schreiber, Universite Grenoble Alpes, France
 * J. Tiira, University of Helsinki, Finland
 * P. Vitt, University of Siegen, Germany
 * A. Voysey, UK Met Office
+
+04/06/2026 PR #507 for #506. Remove setuptools_scm_git dependency. Version
+           information is now always obtained using importlib.metadata.version.
+
+04/06/2026 PR #509 for #505. Fix truncated syntax error reporting when files
+           have line breaks before the module or program. 
+
+21/04/2026 PR #502. Widen Proc_Decl (R1214) for Fortran 2008 to accept an
+           initial-proc-target (R1217) on the right-hand side of ``=>``,
+           not only null-init. See J3/10-007r1 §12.4.3.6.
+
+26/05/2026 PR #501 for #499. Avoid exponential loop handling for non-blocked
+           loops when labels are involved.
+
+27/04/2026 PR #504 for #503. Improve preprocessor directives parsing.
+
+## Release 0.2.2 (19/03/2026) ##
+
+19/03/2026 PR #496. Add support for F2008 unlimited-format-item.
+
+13/03/2026 PR #495 for #494. Fix CI issues with the black formatting check.
+
+13/03/2026 PR #491 for #490. Fix syntax warning and add build artifact
+           to gitignore.
+
+15/12/2025 PR #487. Adds interfaces to the set of things a module provides.
+           Fixes fparser1 errors such as "fparser.common.utils.AnalyzeError:
+           entity name 'dummy_code' is not in module 'dummy_mod'"
+
+25/11/2025 PR #488 for #483. Do not recognize inline comments as Directives.
+
+31/10/2025 PR #486 for #483. Recognize any comment that begins ``!$``, ``c$`` or ``*$`` followed by
+           a character as a Directive node.
+
+## Release 0.2.1 (29/09/2025) ##
+
+08/09/2025 PR #469 for #468. Added (optional) Directive node separated from comments.
+
+29/08/2025 PR #477 for #476. Add Python 3.9 testing back to support upstream requirements.
+
+31/07/2025 PR #474 for #473. Syntax error when parsing a file containing purely comments if
+           ignore_comments=True
+
+21/07/2025 PR #462 for #457. Fix bug with backslash in strings.
+
+21/07/2025 PR #467 for #466. Fix "==" when matching implicit loops in array constructors.
+
+26/06/2025 PR #471 for #470. Drop support for Python 3.7 and 3.8.
+
+25/06/2025 PR #459 for #458. Improvements to the 'make public' example script.
+
+05/06/2025 PR #465 for #463. Pin CI OS to Ubuntu 22.04 and 'black' formatting changes.
+
+28/11/2024 PR #455 for #454. Fixes a few tests to use the tmpdir fixture
+           rather than writing directly to /tmp.
+
+## Release 0.2.0 (26/11/2024) ##
+
+25/11/2024 PR #453 extension of base node types to allow the parse tree to be
+           deepcopied and pickled.
+
+14/10/2024 PR #451 for #320. Adds an extension to Fortran2003 to support non-standard STOP
+           expressions and adds support for them in 2008.
+
+11/10/2024 PR #450 for #448. Adds an example script for removing all protected/private
+           attributes from a parse tree.
+
+15/07/2024 PR #438 for #437. Fix type guard statement bug. 
+
+24/04/2024 PR #444 for #443. Adds an option to the reader to handle code
+           behind OpenMP sentinels (e.g. '!$ write(*,*) "hello"').
+
+23/04/2024 PR #446 for #445. Updates Codecov action to v4.
 
 09/04/2024 PR #442 for #440. Adds a new 'split file' example that splits a single source
            file into separate units and creates a Makefile for them.

@@ -36,6 +36,7 @@
 directory
 
 """
+
 import pytest
 from fparser.two.parser import ParserFactory
 from fparser.two.symbol_table import SYMBOL_TABLES

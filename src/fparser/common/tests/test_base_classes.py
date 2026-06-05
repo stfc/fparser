@@ -39,6 +39,7 @@
 """
 Test battery associated with fparser.common.base_classes package.
 """
+
 import re
 import pytest
 

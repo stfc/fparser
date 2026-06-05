@@ -33,8 +33,9 @@
 # -----------------------------------------------------------------------------
 
 """
-    Module containing Fortran2008 Action_Stmt rule R214
+Module containing Fortran2008 Action_Stmt rule R214
 """
+
 from fparser.two.Fortran2003 import Action_Stmt as Action_Stmt_2003
 
 

@@ -34,7 +34,7 @@
 
 """Test Fortran 2008 rule R512
 
-    lower-cobound is specification-expr
+lower-cobound is specification-expr
 
 """
 

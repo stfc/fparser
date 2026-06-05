@@ -33,8 +33,9 @@
 # -----------------------------------------------------------------------------
 
 """
-    Module containing Fortran2008 Procedure_Stmt rule R1206
+Module containing Fortran2008 Procedure_Stmt rule R1206
 """
+
 from fparser.two.Fortran2003 import Procedure_Stmt as Procedure_Stmt_2003
 
 

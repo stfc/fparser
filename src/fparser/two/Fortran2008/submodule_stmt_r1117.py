@@ -33,8 +33,9 @@
 # -----------------------------------------------------------------------------
 
 """
-    Module containing Fortran2008 Submodule_Stmt rule R1117
+Module containing Fortran2008 Submodule_Stmt rule R1117
 """
+
 from fparser.two.Fortran2008.parent_identifier_r1118 import Parent_Identifier
 from fparser.two.utils import Base, ScopingRegionMixin
 

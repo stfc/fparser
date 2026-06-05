@@ -32,7 +32,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-""" Test Fortran 2003 rule R471: this file tests the support for the
+"""Test Fortran 2003 rule R471: this file tests the support for the
 various forms of implicit loop control within an array constructor.
 
 """

@@ -36,6 +36,7 @@
 Test the various utility functions
 
 """
+
 import pytest
 
 from fparser.common.utils import split_comma, ParseError

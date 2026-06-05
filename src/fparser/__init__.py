@@ -65,33 +65,11 @@
 # First version by: Pearu Peterson <pearu@cens.ioc.ee>
 # First created: Oct 2006
 
-try:
-    from importlib.metadata import PackageNotFoundError
-    from importlib import metadata
-except ImportError:
-    # Use backport package for python <3.8
-    from importlib_metadata import PackageNotFoundError
-    import importlib_metadata as metadata
-
 import logging
 import codecs
+from importlib.metadata import version
 
-
-def _get_version():
-    """
-    :returns: the version of this package.
-    :rtype: str
-    """
-    try:
-        return metadata.version(__name__)
-    except PackageNotFoundError:
-        # Package is not installed.
-        from setuptools_scm import get_version
-
-        return get_version(root="../..", relative_to=__file__)
-
-
-__version__ = _get_version()
+__version__ = version("fparser")
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 

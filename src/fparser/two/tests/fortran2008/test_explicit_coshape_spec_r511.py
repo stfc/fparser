@@ -34,7 +34,7 @@
 
 """Test Fortran 2008 rule R511
 
-    explicit-coshape-spec is [ coshape-spec-list , ] [ lower-cobound : ] *
+explicit-coshape-spec is [ coshape-spec-list , ] [ lower-cobound : ] *
 
 """
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# Modified work Copyright (c) 2017-2023 Science and Technology
+# Modified work Copyright (c) 2017-2025 Science and Technology
 # Facilities Council.
 # Original work Copyright (c) 1999-2008 Pearu Peterson
 
@@ -69,6 +69,7 @@
 # Created: May 2006
 # Modified by R. W. Ford and A. R. Porter, STFC Daresbury Lab
 # Modified by P. Elson, Met Office
+# Modified by J. Henrichs, Bureau of Meteorology
 
 """Provides Fortran reader classes.
 
@@ -140,10 +141,12 @@ import os
 import re
 import sys
 import traceback
+from collections import deque
+from typing import Optional, Tuple
 from io import StringIO
+
 import fparser.common.sourceinfo
 from fparser.common.splitline import String, string_replace_map, splitquote
-
 
 __all__ = [
     "FortranFileReader",
@@ -197,10 +200,8 @@ def _is_fix_comment(line, isstrict, f2py_enabled):
                         # line continuation
                         return False
                     return True
-                else:
-                    # inline comment or ! is used in character context
-                    # inline comments are handled elsewhere
-                    pass
+                # inline comment or ! is used in character context
+                # inline comments are handled elsewhere
     elif line == "":
         return True
     return False
@@ -436,10 +437,10 @@ class Comment:
     :param reader: The reader object being used to read the input \
     source.
     :type reader: :py:class:`fparser.common.readfortran.FortranReaderBase`
-
+    :param inline: whether this was an inline comment.
     """
 
-    def __init__(self, comment, linenospan, reader):
+    def __init__(self, comment, linenospan, reader, inline: bool = False):
         self.comment = comment
         self.span = linenospan
         self.reader = reader
@@ -448,6 +449,7 @@ class Comment:
         # tests as a reader can return an instance of either class and
         # we might want to check the contents in a consistent way.
         self.line = comment
+        self.inline = inline
 
     def __repr__(self):
         return self.__class__.__name__ + "(%r,%s)" % (self.comment, self.span)
@@ -547,32 +549,53 @@ class FortranReaderBase:
     code, free format Fortran code, or PYF signatures (with extended
     free format Fortran syntax).
 
-    :param source: a file-like object with .next() method used to \
+    :param source: a file-like object with .next() method used to
                    retrive a line.
     :type source: :py:class:`StringIO` or a file handle
-    :param mode: a FortranFormat object as returned by \
+    :param mode: a FortranFormat object as returned by
                  `sourceinfo.get_source_info()`
     :type mode: :py:class:`fparser.common.sourceinfo.Format`
-    :param bool isstrict: whether we are strictly enforcing fixed format.
-    :param bool ignore_comments: whether or not to discard comments.
+    :param isstrict: whether we are strictly enforcing fixed format.
+    :param ignore_comments: whether or not to discard comments. If
+        comments are not ignored, they will be added as special Comment node
+        to the tree, and will therefore also be added to the output Fortran
+        source code.
+    :param include_omp_conditional_lines: whether or not the
+        content of a line with an OMP sentinel is parsed or not. Default is
+        False (in which case it is treated as a Comment).
+    :param process_directives: whether or not to process directives as
+        specialised Directive nodes. Default is False (in which case
+        directives are left as comments). This option overrides the
+        ignore_comments input.
 
     The Fortran source is iterated by `get_single_line`,
     `get_next_line`, `put_single_line` methods.
 
     """
 
-    def __init__(self, source, mode, ignore_comments):
+    def __init__(
+        self,
+        source,
+        mode: bool,
+        ignore_comments: bool,
+        include_omp_conditional_lines: bool = False,
+        process_directives: bool = False,
+    ):
         self.source = source
-        self._format = mode
-
+        self._include_omp_conditional_lines = include_omp_conditional_lines
+        self.set_format(mode)
         self.linecount = 0  # the current number of consumed lines
         self.isclosed = False
         # This value for ignore_comments can be overridden by using the
         # ignore_comments optional argument to e.g. get_single_line()
         self._ignore_comments = ignore_comments
+        # Enabling process directives forces comments to be processed.
+        if process_directives:
+            self._ignore_comments = False
+        self.process_directives = process_directives
 
         self.filo_line = []  # used for un-consuming lines.
-        self.fifo_item = []
+        self.fifo_item = deque()
         self.source_lines = []  # source lines cache
 
         self.f2py_comment_lines = []  # line numbers of f2py directives
@@ -614,12 +637,51 @@ class FortranReaderBase:
 
     def set_format(self, mode):
         """
-        Set Fortran code mode (fixed/free format etc).
+        Set Fortran code mode (fixed/free format etc). If handling of
+        OMP sentinels is also enabled, this function will also create
+        the required regular expressions to handle conditional sentinels
+        depending on the (new) format
 
         :param mode: Object describing the desired mode for the reader
         :type mode: :py:class:`fparser.common.sourceinfo.FortranFormat`
         """
         self._format = mode
+        if not self._include_omp_conditional_lines:
+            return
+
+        if self._format.is_fixed or self._format.is_f77:
+            # Initial lines fixed format sentinels: !$, c$, *$ in first
+            # column:
+            sentinel = r"^([\!\*c]\$)"
+
+            # Then only spaces and digits up to column 5, and a
+            # space or 0 at column 6
+            init_line = r"[ 0-9]{3}[ 0]"
+
+            # Continued lines fixed format sentinels: the sentinel as
+            # above followed by three spaces, and a non-space, non-0 character
+            # in column 6:
+            cont_line = r"   [^ 0]"
+            # Combine these two regular expressions
+            self._re_omp_sentinel = re.compile(
+                f"{sentinel}({init_line}|{cont_line})", re.IGNORECASE
+            )
+        else:
+            # Initial free format sentinels: !$ as the first non-space
+            # character followed by a space.
+            self._re_omp_sentinel = re.compile(r"^ *(\!\$) ", re.IGNORECASE)
+            # Continued lines free format sentinels: !$ as the first non-space
+            # character with an optional & that can have spaces or not. The
+            # important implication of the latter is that a continuation line
+            # can only be properly detected if the previous line had a
+            # sentinel (since it does not require a space after the sentinel
+            # anymore. Without the requirement of a space, the regular
+            # expression for continuation lines will also match !$omp
+            # directives). So we need to have two different regular
+            # expressions for free format, and the detection of continuation
+            # lines need to be done in a later stage, when multiple lines
+            # are concatenated.
+            self._re_omp_sentinel_cont = re.compile(r"^ *(\!\$) *&?", re.IGNORECASE)
 
     @property
     def format(self):
@@ -696,6 +758,13 @@ class FortranReaderBase:
 
         # expand tabs, replace special symbols, get rid of nl characters
         line = line.expandtabs().replace("\xa0", " ").rstrip()
+        if self._include_omp_conditional_lines and self._format.is_fixed:
+            # Fixed-format line sentinels can be handled here, since a
+            # continuation line does not depend on the previous line. The
+            # regular expression checks for both an initial or a continuation
+            # line, and if it is found, the sentinel is replaced with two
+            # spaces:
+            line, _ = self.replace_omp_sentinels(line, self._re_omp_sentinel)
 
         self.source_lines.append(line)
 
@@ -757,7 +826,7 @@ class FortranReaderBase:
             # of the corresponding reader.
             self.reader.put_item(item)
         else:
-            self.fifo_item.insert(0, item)
+            self.fifo_item.appendleft(item)
 
     # Iterator methods:
 
@@ -862,11 +931,10 @@ class FortranReaderBase:
         """
         if ignore_comments is None:
             ignore_comments = self._ignore_comments
-        fifo_item_pop = self.fifo_item.pop
         while 1:
             try:
                 # first empty the FIFO item buffer:
-                item = fifo_item_pop(0)
+                item = self.fifo_item.popleft()
             except IndexError:
                 # construct a new item from source
                 item = self.get_source_item()
@@ -918,8 +986,8 @@ class FortranReaderBase:
                         items.append(new_line)
                 items.reverse()
                 for newitem in items:
-                    self.fifo_item.insert(0, newitem)
-                return fifo_item_pop(0)
+                    self.fifo_item.appendleft(newitem)
+                return self.fifo_item.popleft()
         return item
 
     # Interface to returned items:
@@ -942,9 +1010,15 @@ class FortranReaderBase:
             prefix, lines, suffix, (startlineno, endlineno), self, errmessage
         )
 
-    def comment_item(self, comment, startlineno, endlineno):
-        """Construct Comment item."""
-        return Comment(comment, (startlineno, endlineno), self)
+    def comment_item(
+        self, comment, startlineno, endlineno, inline_comment: bool = False
+    ):
+        """Construct Comment item.
+
+        :param inline_comment: whether the comment is an inline comment.
+                               Defaults to False.
+        """
+        return Comment(comment, (startlineno, endlineno), self, inline_comment)
 
     def cpp_directive_item(self, line, startlineno, endlineno):
         """
@@ -1051,6 +1125,29 @@ class FortranReaderBase:
 
     # Auxiliary methods for processing raw source lines:
 
+    @staticmethod
+    def replace_omp_sentinels(line, regex):
+        """Checks if the specified line matches the regex, which represents
+        a conditional OpenMP sentinel. If it is a match, the sentinel (which
+        must be the first group in the regex) is replaced with two spaces.
+
+        :param str line: the line to check if it contains an OpenMP sentinel
+        :param regex: the compiled regular expression to use for detecting a
+            conditional sentinel.
+        :type regex: :py:class:`re.Pattern`
+
+        :returns: 2-tuple consisting of the (potentially modified) line,
+            and whether a sentinel was found or not.
+        :rtype: tuple[str, bool]
+
+        """
+        grp = regex.match(line)
+        if grp:
+            # Replace the OMP sentinel with two spaces
+            line = line[: grp.start(1)] + "  " + line[grp.end(1) :]
+            return (line, True)
+        return (line, False)
+
     def handle_cpp_directive(self, line):
         """
         Determine whether the current line is likely to hold
@@ -1110,20 +1207,26 @@ class FortranReaderBase:
             return newline
         return line
 
-    def handle_inline_comment(self, line, lineno, quotechar=None):
+    def handle_inline_comment(
+        self,
+        line: str,
+        lineno: int,
+        quotechar: Optional[str] = None,
+        buffer_comments_to_fifo: bool = True,
+    ) -> Tuple[str, str, bool]:
         """
         Any in-line comment is extracted from the line. If
-        keep_inline_comments==True then the extracted comments are put back
-        into the fifo sequence where they will subsequently be processed as
+        buffer_comments_to_fifo==True (the default) then the extracted comments are
+        put back into the fifo sequence where they will subsequently be processed as
         a comment line.
 
-        :param str line: line of code from which to remove in-line comment
-        :param int lineno: line-no. in orig. file
+        :param line: line of code from which to remove in-line comment
+        :param lineno: line-no. in orig. file
         :param quotechar: String to use as character-string delimiter
-        :type quotechar: {None, str}
+        :param buffer_comments_to_fifo: whether or not to put any comments back into
+            the fifo buffer for future processing.
 
         :return: line_with_no_comments, quotechar, had_comment
-        :rtype: 3-tuple of str, str, bool
 
         """
         had_comment = False
@@ -1136,14 +1239,26 @@ class FortranReaderBase:
             # There's no comment on this line
             return line, quotechar, had_comment
 
+        if buffer_comments_to_fifo:
+            put_item = self.fifo_item.append
+        else:
+            # We're not putting any Comments into the FIFO buffer.
+            put_item = lambda x: None
+
         idx = line.find("!")
-        put_item = self.fifo_item.append
         if quotechar is None and idx != -1:
             # first try a quick method:
             newline = line[:idx]
             if '"' not in newline and "'" not in newline:
                 if self.format.is_f77 or not line[idx:].startswith("!f2py"):
-                    put_item(self.comment_item(line[idx:], lineno, lineno))
+                    # Its an inline comment if there is a non whitespace
+                    # character before the comment.
+                    is_inline = not (line.lstrip() == line[idx:])
+                    put_item(
+                        self.comment_item(
+                            line[idx:], lineno, lineno, inline_comment=is_inline
+                        )
+                    )
                     return newline, quotechar, True
 
         # We must allow for quotes...
@@ -1169,7 +1284,9 @@ class FortranReaderBase:
                 # go to next iteration:
                 newline = "".join(noncomment_items) + commentline[5:]
                 self.f2py_comment_lines.append(lineno)
-                return self.handle_inline_comment(newline, lineno, quotechar)
+                return self.handle_inline_comment(
+                    newline, lineno, quotechar, buffer_comments_to_fifo
+                )
             put_item(self.comment_item(commentline, lineno, lineno))
             had_comment = True
         return "".join(noncomment_items), newquotechar, had_comment
@@ -1229,7 +1346,7 @@ class FortranReaderBase:
             suffix, qc, had_comment = self.handle_inline_comment(suffix, self.linecount)
             # no line continuation allowed in multiline suffix
             if qc is not None:
-                message = "following character continuation: {!r}," + " expected None."
+                message = "following character continuation: {!r}, expected None."
                 message = self.format_message(
                     "ASSERTION FAILURE(pyf)",
                     message.format(qc),
@@ -1250,7 +1367,7 @@ class FortranReaderBase:
         """
         Return the next source item.
 
-        A source item is\:
+        A source item is:
         - a fortran line
         - a list of continued fortran lines
         - a multiline - lines inside triple-quotes, only when in ispyf mode
@@ -1266,6 +1383,8 @@ class FortranReaderBase:
             :py:class:`fparser.common.readfortran.SyntaxErrorMultiLine`
 
         """
+        # pylint: disable=too-many-return-statements, too-many-branches
+        # pylint: disable=too-many-statements
         get_single_line = self.get_single_line
         line = get_single_line()
         if line is None:
@@ -1284,6 +1403,15 @@ class FortranReaderBase:
             return self.cpp_directive_item("".join(lines), startlineno, endlineno)
 
         line = self.handle_cf2py_start(line)
+        had_omp_sentinels = False
+        # Free format omp sentinels need to be handled here, since a
+        # continuation line can only be properly detected if there was a
+        # previous non-continued conditional sentinel:
+        if self._format.is_free and self._include_omp_conditional_lines:
+            line, had_omp_sentinels = self.replace_omp_sentinels(
+                line, self._re_omp_sentinel
+            )
+
         is_f2py_directive = (
             self._format.f2py_enabled and startlineno in self.f2py_comment_lines
         )
@@ -1357,7 +1485,7 @@ class FortranReaderBase:
                         self.error("No construct following construct-name.")
                     elif label is not None:
                         self.warning(
-                            "Label must follow nonblank character" + " (F2008:3.2.5_2)"
+                            "Label must follow nonblank character (F2008:3.2.5_2)"
                         )
                     return self.comment_item("", startlineno, self.linecount)
                 # line is not a comment and the start of the line is valid
@@ -1415,7 +1543,7 @@ class FortranReaderBase:
                 next_line = self.get_next_line()
             # no character continuation should follows now
             if qc is not None:
-                message = "following character continuation: " + "{!r}, expected None."
+                message = "following character continuation: {!r}, expected None."
                 message = self.format_message(
                     "ASSERTION FAILURE(fix)",
                     message.format(qc),
@@ -1449,6 +1577,10 @@ class FortranReaderBase:
         put_item = self.fifo_item.append
         qchar = None
         while line is not None:
+            if had_omp_sentinels:
+                # In free-format we can only have a continuation line
+                # if we had a omp line previously:
+                line, _ = self.replace_omp_sentinels(line, self._re_omp_sentinel_cont)
             if start_index:  # fix format code
                 line, qchar, had_comment = handle_inline_comment(
                     line[start_index:], self.linecount, qchar
@@ -1513,7 +1645,7 @@ class FortranReaderBase:
             line = get_single_line()
 
         if qchar is not None:
-            message = "following character continuation: {!r}, " + "expected None."
+            message = "following character continuation: {!r}, expected None."
             message = self.format_message(
                 "ASSERTION FAILURE(free)", message.format(qchar), startlineno, endlineno
             )
@@ -1531,10 +1663,29 @@ class FortranReaderBase:
         # blank. If it is a comment, it has been pushed onto the
         # fifo_item list.
         try:
-            return self.fifo_item.pop(0)
+            return self.fifo_item.popleft()
         except IndexError:
             # A blank line is represented as an empty comment
             return Comment("", (startlineno, endlineno), self)
+
+    def is_comment_line(self, line: str) -> bool:
+        """
+        Utility that examines the supplied line of code and determines whether this
+        reader instance would identify it as a comment.
+
+        :param line: the line of Fortran to examine.
+
+        :returns: whether or not the supplied line is considered to be a comment.
+
+        """
+        if self._format.is_fixed:
+            return _is_fix_comment(
+                line, self._format.is_strict, self._format.f2py_enabled
+            )
+        new_line, _, had_comment = self.handle_inline_comment(
+            line, 0, buffer_comments_to_fifo=False
+        )
+        return not new_line.strip() and had_comment
 
 
 class FortranFileReader(FortranReaderBase):
@@ -1543,12 +1694,22 @@ class FortranFileReader(FortranReaderBase):
 
     :param file_candidate: A filename or file-like object.
     :param list include_dirs: Directories in which to look for inclusions.
-    :param list source_only: Fortran source files to search for modules \
-                             required by "use" statements.
-    :param bool ignore_comments: Whether or not to ignore comments
-    :param Optional[bool] ignore_encoding: whether or not to ignore Python-style \
-        encoding information (e.g. "-*- fortran -*-") when attempting to determine \
-        the format of the file. Default is True.
+    :param list source_only: Fortran source files to search for modules
+        required by "use" statements.
+    :param bool ignore_comments: whether or not to discard comments. If
+        comments are not ignored, they will be added as special Comment node
+        to the tree, and will therefore also be added to the output Fortran
+        source code.
+    :param Optional[bool] ignore_encoding: whether or not to ignore
+        Python-style encoding information (e.g. "-*- fortran -*-") when
+        attempting to determine the format of the file. Default is True.
+    :param Optional[bool] include_omp_conditional_lines: whether or not the
+        content of a line with an OMP sentinel is parsed or not. Default is
+        False (in which case it is treated as a Comment).
+    :param process_directives: whether or not to process directives as
+        specialised Directive nodes. Default is False (in which case
+        directives are left as comments). This option overrides the
+        ignore_comments input.
 
     For example::
 
@@ -1565,6 +1726,8 @@ class FortranFileReader(FortranReaderBase):
         source_only=None,
         ignore_comments=True,
         ignore_encoding=True,
+        include_omp_conditional_lines=False,
+        process_directives: bool = False,
     ):
         # The filename is used as a unique ID. This is then used to cache the
         # contents of the file. Obviously if the file changes content but not
@@ -1592,7 +1755,13 @@ class FortranFileReader(FortranReaderBase):
             file_candidate, ignore_encoding
         )
 
-        super().__init__(self.file, mode, ignore_comments)
+        super().__init__(
+            self.file,
+            mode,
+            ignore_comments,
+            include_omp_conditional_lines=include_omp_conditional_lines,
+            process_directives=process_directives,
+        )
 
         if include_dirs is None:
             self.include_dirs.insert(0, os.path.dirname(self.id))
@@ -1615,12 +1784,22 @@ class FortranStringReader(FortranReaderBase):
 
     :param str string: string to read
     :param list include_dirs: List of dirs to search for include files
-    :param list source_only: Fortran source files to search for modules \
-                             required by "use" statements.
-    :param bool ignore_comments: Whether or not to ignore comments
-    :param Optional[bool] ignore_encoding: whether or not to ignore Python-style \
-        encoding information (e.g. "-*- fortran -*-") when attempting to determine \
-        the format of the source. Default is True.
+    :param list source_only: Fortran source files to search for modules
+        required by "use" statements.
+    :param bool ignore_comments: whether or not to discard comments. If
+        comments are not ignored, they will be added as special Comment node
+        to the tree, and will therefore also be added to the output Fortran
+        source code.
+    :param Optional[bool] ignore_encoding: whether or not to ignore
+        Python-style encoding information (e.g. "-*- fortran -*-") when
+        attempting to determine the format of the source. Default is True.
+    :param Optional[bool] include_omp_conditional_lines: whether or not
+        the content of a line with an OMP sentinel is parsed or not. Default
+        is False (in which case it is treated as a Comment).
+    :param process_directives: whether or not to process directives as
+        specialised Directive nodes. Default is False (in which case
+        directives are left as comments). This option overrides the
+        ignore_comments input.
 
     For example:
 
@@ -1642,6 +1821,8 @@ class FortranStringReader(FortranReaderBase):
         source_only=None,
         ignore_comments=True,
         ignore_encoding=True,
+        include_omp_conditional_lines=False,
+        process_directives: bool = False,
     ):
         # The Python ID of the string was used to uniquely identify it for
         # caching purposes. Unfortunately this ID is only unique for the
@@ -1657,7 +1838,13 @@ class FortranStringReader(FortranReaderBase):
         mode = fparser.common.sourceinfo.get_source_info_str(
             string, ignore_encoding=ignore_encoding
         )
-        super().__init__(source, mode, ignore_comments)
+        super().__init__(
+            source,
+            mode,
+            ignore_comments,
+            include_omp_conditional_lines=include_omp_conditional_lines,
+            process_directives=process_directives,
+        )
         if include_dirs is not None:
             self.include_dirs = include_dirs[:]
         if source_only is not None:

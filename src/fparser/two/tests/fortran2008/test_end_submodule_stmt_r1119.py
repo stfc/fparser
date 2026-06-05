@@ -34,9 +34,10 @@
 
 """Test Fortran 2008 rule R1119.
 
-    end-submodule-stmt is END [ SUBMODULE [ submodule-name ] ]
+end-submodule-stmt is END [ SUBMODULE [ submodule-name ] ]
 
 """
+
 import pytest
 from fparser.two.utils import NoMatchError
 from fparser.two.Fortran2008 import End_Submodule_Stmt

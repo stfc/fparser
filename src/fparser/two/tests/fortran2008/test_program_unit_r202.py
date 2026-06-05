@@ -49,36 +49,30 @@ def test_other(f2008_create):
     program-unit options.
 
     """
-    reader = get_reader(
-        """\
+    reader = get_reader("""\
       subroutine test()
       end subroutine
-      """
-    )
+      """)
     ast = Program_Unit(reader)
     assert "SUBROUTINE test\n" "END SUBROUTINE" in str(ast)
 
 
 def test_submodule(f2008_create):
     """Test that submodule as a top-level program unit can be parsed."""
-    reader = get_reader(
-        """\
+    reader = get_reader("""\
       submodule (foobar) bar
       end
-      """
-    )
+      """)
     ast = Program_Unit(reader)
     assert "SUBMODULE (foobar) bar\n" "END" in str(ast)
 
 
 def test_submodule_nomatch(f2008_create):
     """Test an exception is raised if there is a syntax error."""
-    reader = get_reader(
-        """\
+    reader = get_reader("""\
       submod (foobar) bar
       end
-      """
-    )
+      """)
     with pytest.raises(NoMatchError) as excinfo:
         dummy_ = Program_Unit(reader)
     assert "at line 1\n>>>      submod (foobar) bar\n" in str(excinfo.value)

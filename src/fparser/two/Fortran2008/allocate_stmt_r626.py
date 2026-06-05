@@ -33,8 +33,9 @@
 # -----------------------------------------------------------------------------
 
 """
-    Module containing Fortran2008 Allocate_Stmt rule R626
+Module containing Fortran2008 Allocate_Stmt rule R626
 """
+
 from fparser.two.Fortran2003 import Allocate_Stmt as Allocate_Stmt_2003
 
 

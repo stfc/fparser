@@ -33,8 +33,9 @@
 # -----------------------------------------------------------------------------
 
 """
-    Module containing Fortran2008 Program_Unit rule R202
+Module containing Fortran2008 Program_Unit rule R202
 """
+
 from fparser.two.Fortran2003 import Program_Unit as Program_Unit_2003
 
 

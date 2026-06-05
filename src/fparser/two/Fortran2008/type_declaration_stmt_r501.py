@@ -33,8 +33,9 @@
 # -----------------------------------------------------------------------------
 
 """
-    Module containing Fortran2008 Type_Declaration_Stmt rule R501
+Module containing Fortran2008 Type_Declaration_Stmt rule R501
 """
+
 from fparser.two.Fortran2003 import Type_Declaration_Stmt as Type_Declaration_Stmt_2003
 
 

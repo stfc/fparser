@@ -102,17 +102,13 @@ def test_open_f2003_args(open_args):
 
 def test_open_newunit(f2008_parser):
     """Test that NEWUNIT is a valid argument to OPEN."""
-    tree = f2008_parser(
-        get_reader(
-            """\
+    tree = f2008_parser(get_reader("""\
 subroutine myopen( unit, file )
   integer, intent(out):: unit
   character(len=*), intent(in):: file
   open( newunit=unit, file=file )
 endsubroutine myopen
-    """
-        )
-    )
+    """))
     open_stmts = walk(tree, Fortran2008.Open_Stmt)
     assert open_stmts
     assert len(open_stmts[0].children) == 2

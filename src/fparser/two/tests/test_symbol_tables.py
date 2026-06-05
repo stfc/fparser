@@ -33,8 +33,8 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # -----------------------------------------------------------------------------
 
-""" Module containing tests for the SymbolTables container functionality
- of fparser2. """
+"""Module containing tests for the SymbolTables container functionality
+of fparser2."""
 
 import pytest
 from fparser.two import Fortran2003

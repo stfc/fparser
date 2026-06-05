@@ -68,13 +68,11 @@ from optparse import OptionGroup, NO_DEFAULT
 
 
 def set_read_options(parser):
-    parser.set_usage(
-        """\
+    parser.set_usage("""\
 %prog [options] <Fortran files>
 
 Description:
-  %prog reads Fortran codes."""
-    )
+  %prog reads Fortran codes.""")
     parser.add_option(
         "--task",
         default="show",
@@ -85,13 +83,11 @@ Description:
 
 
 def set_parse_options(parser):
-    parser.set_usage(
-        """\
+    parser.set_usage("""\
 %prog [options] <Fortran files>
 
 Description:
-  %prog parses Fortran codes."""
-    )
+  %prog parses Fortran codes.""")
     parser.add_option(
         "--task",
         default="show",
@@ -109,13 +105,11 @@ def set_fparser_options(parser):
 
     """
 
-    parser.set_usage(
-        """\
+    parser.set_usage("""\
 %prog [options] <Fortran files>
 
 Description:
-  %prog parses Fortran code."""
-    )
+  %prog parses Fortran code.""")
     parser.add_option(
         "--task",
         default="show",

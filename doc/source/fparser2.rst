@@ -1,4 +1,4 @@
-..  Copyright (c) 2017-2024 Science and Technology Facilities Council.
+..  Copyright (c) 2017-2026 Science and Technology Facilities Council.
 
     All rights reserved.
 
@@ -161,6 +161,14 @@ they were encountered.
 Preprocessing directives are retained as `CppDirective` objects by the
 readers and are represented by matching nodes in the parse tree created
 by fparser2. See section `Preprocessing Directives`_ for more details.
+
+If the optional parameter `include_omp_conditional_lines` is set to `True`,
+then any source code line that contains a conditional OpenMP sentinel
+(e.g. `!$` at the beginning of a line) will be handled as if OpenMP is
+enabled - i.e. the sentinel will be replaced by spaces, and the remainder
+of the line is parsed. In this case, the lines will not be returned
+as comment lines, nor would they be ignored even if
+`ignore_comments` is set to `True`.
 
 Note that empty input, or input that consists of purely white space
 and/or newlines, is not treated as invalid Fortran and an empty parse
@@ -366,6 +374,19 @@ This extension is supported by (at least) the Gnu, Intel and Cray compilers
 but is not a part of any Fortran standard. More details can be found at
 https://gcc.gnu.org/onlinedocs/gfortran/CONVERT-specifier.html
 
+Extended arguments for STOP
++++++++++++++++++++++++++++
+
+Many compilers support extended arguments for the STOP statement before Fortran 2008.
+Examples are negative numbers, and string operations::
+
+    STOP -1
+    STOP str1 // str2
+
+This extension will accept these expressions in Fortran 2003. Note that the
+Fortran 2008 standard changes the definition of the stop code to accept even
+more flexible expressions.
+
 Classes
 -------
 
@@ -473,6 +494,24 @@ file was found but would fail if the include file was not found::
 
   program x
   include 'endprogram.inc'
+
+Compiler/OpenMP Directive support
+---------------------------------
+Most Fortran compilers support directives to enable compiler-specific
+functionality. Fparser has an option to support converting these into
+``Directive`` nodes where possible. This option is ``process_directives``,
+and by default it is set to ``False``. If its set to true, it forces
+``ignore_comments`` to be ``False``.
+
+The supported directives are those recognized by flang, ifx, ifort (``!dir$``),
+and gcc (``!gcc$``), as well as support for any generic directive. A generic
+directive is any comment that begins ``!$``, ``c$`` or ``*$`` followed by an
+alphabetical character.
+
+For example::
+
+  reader = FortranFileReader("compute_mod.f90", process_directives=True)
+
 
 Preprocessing Directives
 ------------------------

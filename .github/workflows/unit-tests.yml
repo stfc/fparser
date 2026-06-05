@@ -1,7 +1,7 @@
 # -----------------------------------------------------------------------------
 # BSD 3-Clause License
 #
-# Copyright (c) 2020-2023, Science and Technology Facilities Council.
+# Copyright (c) 2020-2025, Science and Technology Facilities Council.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -51,11 +51,17 @@ jobs:
   # It is the responsibility of the developer to apply Black. (Auto-
   # committing the results of running Black here is possible but
   # then breaks the normal GitHub reviewing workflow.)
+  # NOTE: Black's decisions depend upon the version of Python being
+  # used. Therefore, fparser developers are recommended to use the
+  # the version of Python that is specified below.
   black:
 
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+    - uses: actions/setup-python@v4
+      with:
+        python-version: 3.14
     - uses: psf/black@stable
       with:
         src: "./src ./example"
@@ -65,7 +71,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.7', '3.8', '3.11']
+        python-version: ['3.9', '3.10', '3.14']
     steps:
     - uses: actions/checkout@v3
       with:
@@ -81,10 +87,13 @@ jobs:
         pip install .
     - name: Test with pytest
       run: |
-        # fparser should work even under limited terminal conditions so set
-        # LC_ALL (this is only relevant for versions before Python 3.7).
-        LC_ALL=POSIX pytest --cov=fparser --cov-report=xml src/fparser
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v3
+        pytest --cov=fparser --cov-report=xml src/fparser
+    - name: Test examples
+      run: |
+        make -C example test
+    - name: Upload coverage to Codecov with GitHub Action
+      uses: codecov/codecov-action@v4
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
       with:
         verbose: true

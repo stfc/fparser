@@ -46,16 +46,12 @@ from fparser.two.utils import FortranSyntaxError, ScopingRegionMixin, walk
 
 def test_block():
     """Test that the Block_Construct matches as expected."""
-    block = Block_Construct(
-        get_reader(
-            """\
+    block = Block_Construct(get_reader("""\
             block
                integer :: b = 4
                a = 1 + b
             end block
-            """
-        )
-    )
+            """))
     assert isinstance(block.children[0], Block_Stmt)
     assert isinstance(block.children[0], ScopingRegionMixin)
     name = block.children[0].get_scope_name()
@@ -68,9 +64,7 @@ def test_block():
 )
 def test_block_new_scope(f2008_parser, before, after):
     """Test that a Block_Construct creates a new scoping region."""
-    block = f2008_parser(
-        get_reader(
-            f"""\
+    block = f2008_parser(get_reader(f"""\
             program foo
             integer :: b = 3
             {before}
@@ -80,9 +74,7 @@ def test_block_new_scope(f2008_parser, before, after):
             end block
             {after}
             end program foo
-            """
-        )
-    )
+            """))
 
     assert "BLOCK\nINTEGER :: b = 4\na = 1 + b\nEND BLOCK" in str(block).replace(
         "  ", ""
@@ -96,9 +88,7 @@ def test_block_new_scope(f2008_parser, before, after):
 
 def test_block_in_if(f2008_parser):
     """Test that a Block may appear inside an IF."""
-    ptree = f2008_parser(
-        get_reader(
-            """\
+    ptree = f2008_parser(get_reader("""\
             program foo
             integer :: b = 3
             if (b == 2) then
@@ -109,9 +99,7 @@ def test_block_in_if(f2008_parser):
               end block
             end if
             end program foo
-            """
-        )
-    )
+            """))
     blocks = walk([ptree], Block_Construct)
     assert len(blocks) == 1
 
@@ -122,16 +110,12 @@ def test_named_block():
     reproduced.
 
     """
-    block = Block_Construct(
-        get_reader(
-            """\
+    block = Block_Construct(get_reader("""\
             foo: block
                integer :: b = 4
                a = 1 + b
             end block foo
-            """
-        )
-    )
+            """))
 
     assert "foo:BLOCK\n  INTEGER :: b = 4\n  a = 1 + b\nEND BLOCK foo" in str(block)
 
@@ -143,14 +127,10 @@ def test_end_block_missing_start_name():  # C808
 
     """
     with pytest.raises(FortranSyntaxError) as err:
-        Block_Construct(
-            get_reader(
-                """\
+        Block_Construct(get_reader("""\
                 block
                 end block foo
-                """
-            )
-        )
+                """))
     assert "Name 'foo' has no corresponding starting name" in str(err)
 
 
@@ -161,14 +141,10 @@ def test_end_block_missing_end_name():  # C808
 
     """
     with pytest.raises(FortranSyntaxError) as err:
-        Block_Construct(
-            get_reader(
-                """\
+        Block_Construct(get_reader("""\
                 foo: block
                 end block
-                """
-            )
-        )
+                """))
     assert "Expecting name 'foo' but none given" in str(err)
 
 
@@ -179,14 +155,10 @@ def test_end_block_wrong_name():  # C808
 
     """
     with pytest.raises(FortranSyntaxError) as err:
-        Block_Construct(
-            get_reader(
-                """\
+        Block_Construct(get_reader("""\
                 foo: block
                 end block bar
-                """
-            )
-        )
+                """))
     assert "Expecting name 'foo', got 'bar'" in str(err)
 
 

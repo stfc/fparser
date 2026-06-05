@@ -63,9 +63,8 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 # DAMAGE.
 
-"""Base classes and exception handling for Fortran parser.
+"""Base classes and exception handling for Fortran parser."""
 
-"""
 # Original author: Pearu Peterson <pearu@cens.ioc.ee>
 # First version created: Oct 2006
 
@@ -113,6 +112,11 @@ _EXTENSIONS += ["dollar-descriptor"]
 # used to indicate any endian-related conversion that must be performed
 # when reading/writing data using unformatted IO.
 _EXTENSIONS += ["open-convert"]
+
+# While non-standard, many compilers support negative numbers, and string
+# operations in stop statements, e.g. `stop -1` or `stop str1//str2`.
+# With this extension, these statements will be allowed.
+_EXTENSIONS += ["extended-stop-args"]
 
 
 def EXTENSIONS():
@@ -328,10 +332,19 @@ class DynamicImport:
             End_Select_Type_Stmt,
             Case_Stmt,
             End_Select_Stmt,
+            Directive,
             Comment,
             Include_Stmt,
             add_comments_includes_directives,
+            Continue_Stmt,
+            End_Do,
+            End_Do_Stmt,
+            Label_Do_Stmt,
         )
+        from fparser.two.Fortran2008.label_do_stmt_r816 import (
+            Label_Do_Stmt as Label_Do_Stmt_2008,
+        )
+
         from fparser.two import C99Preprocessor
 
         DynamicImport.Else_If_Stmt = Else_If_Stmt
@@ -344,12 +357,18 @@ class DynamicImport:
         DynamicImport.End_Select_Type_Stmt = End_Select_Type_Stmt
         DynamicImport.Case_Stmt = Case_Stmt
         DynamicImport.End_Select_Stmt = End_Select_Stmt
+        DynamicImport.Directive = Directive
         DynamicImport.Comment = Comment
         DynamicImport.Include_Stmt = Include_Stmt
         DynamicImport.C99Preprocessor = C99Preprocessor
         DynamicImport.add_comments_includes_directives = (
             add_comments_includes_directives
         )
+        DynamicImport.Continue_Stmt = Continue_Stmt
+        DynamicImport.End_Do = End_Do
+        DynamicImport.End_Do_Stmt = End_Do_Stmt
+        DynamicImport.Label_Do_Stmt = Label_Do_Stmt
+        DynamicImport.Label_Do_Stmt_2008 = Label_Do_Stmt_2008
 
 
 di = DynamicImport()
@@ -404,7 +423,7 @@ class Base(ComparableMixin):
         self.parent = None
 
     @show_result
-    def __new__(cls, string, parent_cls=None):
+    def __new__(cls, string, parent_cls=None, _deepcopy=False):
         if parent_cls is None:
             parent_cls = [cls]
         elif cls not in parent_cls:
@@ -412,6 +431,11 @@ class Base(ComparableMixin):
 
         # Get the class' match method if it has one
         match = getattr(cls, "match", None)
+
+        if _deepcopy:
+            # If this is part of a deep-copy operation (and string is None), simply call
+            # the super method without string
+            return super().__new__(cls)
 
         if (
             isinstance(string, FortranReaderBase)
@@ -477,20 +501,13 @@ class Base(ComparableMixin):
             raise AssertionError(repr(result))
         # If we get to here then we've failed to match the current line
         if isinstance(string, FortranReaderBase):
-            content = False
-            for index in range(string.linecount):
-                # Check all lines up to this one for content. We
-                # should be able to only check the current line but
-                # but as the line number returned is not always
-                # correct (due to coding errors) we cannot assume the
-                # line pointed to is the line where the error actually
-                # happened.
-                if string.source_lines[index].strip():
-                    content = True
-                    break
-            if not content:
-                # There are no lines in the input or all lines up to
-                # this one are empty or contain only white space. This
+            freader: FortranReaderBase = string
+            if not freader.source_lines or all(
+                (line.strip() == "" or freader.is_comment_line(line))
+                for line in freader.source_lines
+            ):
+                # There are no lines in the input or all lines up to this one
+                # are empty, comments or contain only white space. This
                 # is typically accepted by fortran compilers so we
                 # follow their lead and do not raise an exception.
                 return
@@ -499,6 +516,18 @@ class Base(ComparableMixin):
         else:
             errmsg = f"{cls.__name__}: '{string}'"
         raise NoMatchError(errmsg)
+
+    def __getnewargs__(self):
+        """Method to dictate the values passed to the __new__() method upon
+        unpickling. The method must return a pair (args, kwargs) where
+        args is a tuple of positional arguments and kwargs a dictionary
+        of named arguments for constructing the object. Those will be
+        passed to the __new__() method upon unpickling.
+
+        :return: set of arguments for __new__
+        :rtype: tuple[str, NoneType, bool]
+        """
+        return (self.string, None, True)
 
     def get_root(self):
         """
@@ -694,10 +723,20 @@ class BlockBase(Base):
             if match_names:
                 start_name = obj.get_start_name()
 
-        classes = subclasses
+        # Directives, Comments and Include statements are always valid sub-classes
+        comments = [di.Comment, di.Include_Stmt]
+        # Only add directives if enabled.
+        if reader.process_directives:
+            comments.insert(0, di.Directive)
+        classes = subclasses + comments
         if endcls is not None:
             classes += [endcls]
             endcls_all = tuple([endcls] + endcls.subclasses[endcls.__name__])
+        # Preprocessor directives are always valid sub-classes. While
+        # `match_cpp_directive` is a function, it behaves correctly here
+        # returning either None or an instance, so we can just add it to
+        # the classes that will be tested.
+        classes.append(di.C99Preprocessor.match_cpp_directive)
 
         # Deal with any preceding comments, includes, and/or directives
         DynamicImport.add_comments_includes_directives(content, reader)
@@ -729,6 +768,38 @@ class BlockBase(Base):
                     # starting from the i+1'th...
                     i += 1
                     continue
+
+                # The grammar contains an exponential scaling behaviour for
+                # non-blocked labelled loop statements. The parser will try
+                # to find a match for a blocked do statement, but will ignore
+                # the fact that there is a non-blocking label, e.g.:
+                #     do 10 i=1, 10
+                # 10     a(i) = 1
+                # It will try to find a `10 enddo` or `10 continue` statement,
+                # ignoring the fact that the label 10 indicates that it is not
+                # a blocked loop. Full details in ticket 499.
+                # In order to avoid that, we identify if we are looking for a
+                # labelled loop which is blocked (endcls=End_Do), and have
+                # neither an `End_Do` nor a `Continue`, which has the same
+                # label: in this case we can abort looking (which will then
+                # trigger the caller to test for the next rule, which is a
+                # non-blocked loop). This breaks the exponential behaviour
+                # in case of non-blocked loops (since the parser won't look
+                # ahead till the end of the file).
+                if (
+                    startcls in (di.Label_Do_Stmt, di.Label_Do_Stmt_2008)
+                    and endcls is di.End_Do
+                    and hasattr(obj, "get_end_label")
+                    and (content[start_idx].get_start_label() == obj.get_end_label())
+                    and not isinstance(obj, (di.End_Do_Stmt, di.Continue_Stmt))
+                ):
+                    # We need to put the just read statement back:
+                    obj.restore_reader(reader)
+                    # ... and then also restore all previously read content
+                    for obj in reversed(content):
+                        obj.restore_reader(reader)
+                    # ... before we abort.
+                    return None
 
                 # We got a match for this class
                 had_match = True
@@ -897,6 +968,8 @@ class BlockBase(Base):
         :rtype: str
         """
         mylist = []
+        if not self.content:
+            return ""
         start = self.content[0]
         end = self.content[-1]
         extra_tab = ""

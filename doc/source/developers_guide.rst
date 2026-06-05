@@ -1,4 +1,4 @@
-..  Copyright (c) 2017-2023 Science and Technology Facilities Council.
+..  Copyright (c) 2017-2026 Science and Technology Facilities Council.
 
     All rights reserved.
 
@@ -143,8 +143,8 @@ by the `Program_Unit` class. In general, the name of the class
 corresponding to a given rule can be obtained by replacing '-' with
 '_' and capitalising each word.
 
-The Fortran2003 classes exist in the Fortran2003.py file and the
-Fortran2008 classes exist in the Fortran2008.py file (see
+The Fortran2003 classes exist in the ``Fortran2003.py`` file and the
+Fortran2008 classes exist in the ``Fortran2008`` directory (see
 :ref:`Fortran2008` section for Fortran2008-specific implementation
 details).
 
@@ -320,9 +320,9 @@ The reason for this is that such classes can be written in a generic,
 boiler-plate way so it is simpler if these are generated rather than
 them having to be hand written.
 
-At the end of the Fortran2003.py and Fortran2008.py files there is
-code that is executed when the file is imported. This code generates
-the required classes described above in the local file.
+At the end of the ``Fortran2003.py`` and ``Fortran2008/__init__.py``
+files there is code that is executed when the file is imported. This
+code generates the required classes described above in the local file.
 
 .. note::
 
@@ -354,8 +354,8 @@ imported.
 .. note::
 
    At the moment the same code-generation code is replicated in both
-   the Fortran2003.py and Fortran2008.py files. It would be better to
-   import this code from a separate file if it is possible to do so.
+   the ``Fortran2003.py`` and ``Fortran2008/__init__.py`` files. It would be
+   better to import this code from a separate file if it is possible to do so.
 
 .. _base-classes:
 
@@ -403,7 +403,7 @@ and for Fortran2008 it is
     R202 program-unit is main-program
                          or external-subprogram
                          or module
-			 or submodule
+                         or submodule
                          or block-data
 
 Therefore to implement the Fortran2008 version of this class, the
@@ -976,13 +976,24 @@ Python versions and the coverage reports are uploaded automatically to CodeCov
 (https://codecov.io/gh/stfc/fparser). The configuration for this is in the
 `.github/workflows/unit-tests.yml` file.
 
-In addition, an Action is also used check that all of the code conforms
-to Black (https://black.readthedocs.io) formatting. It is up to the developer
-to ensure that this passes (e.g. by running `black` locally and committing
-the results). Note that it is technically possibly to have the Action
-actually make the changes and commit them but this was found to break
+Black Formatting
+++++++++++++++++
+
+A second job within the GitHub Action is used to check that all of the
+code conforms to Black (https://black.readthedocs.io) formatting. It
+is up to the developer to ensure that this passes (e.g. by running
+`black` locally and committing the results).
+
+The formatting choices made by Black are influenced by the version of Python
+being used. Therefore it is recommended that a developer use the version of
+Python that is specfied for the `Black` job within the yml configuration
+file mentioned above. (This will normally be the most recent, stable version
+of Python.)
+
+Note that while it is technically possibly to have the Action
+actually make the changes and commit them, this was found to break
 the Github review process since the automated commit is not permitted to
-trigger further Actions and this then leaves GitHub thinking that the
+trigger further Actions. This then leaves GitHub thinking that the
 various checks have not run.
 
 Automatic Packaging
@@ -1009,7 +1020,7 @@ f2003_create        --                      Sets-up the class hierarchy for the
                                             Fortran2003 parser.
 f2003_parser        `Fortran2003.Program`   Sets-up the class hierarchy for the
                                             Fortran2003 parser and returns the
-					    top-level Program object.
+                                            top-level Program object.
 clear_symbol_table  --                      Removes all stored symbol tables.
 fake_symbol_table   --                      Creates a fake scoping region and
                                             associated symbol table.

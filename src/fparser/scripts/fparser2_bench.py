@@ -39,6 +39,7 @@ it takes fparser2 to parse it. This is based on the benchmark suggested
 by Ondřej Čertík via Ioannis Nikiteas.
 
 """
+
 from time import perf_counter
 
 from fparser.common.sourceinfo import FortranFormat

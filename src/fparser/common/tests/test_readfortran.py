@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 ##############################################################################
-# Copyright (c) 2017-2023 Science and Technology Facilities Council.
+# Copyright (c) 2017-2024 Science and Technology Facilities Council.
 #
 # All rights reserved.
 #
@@ -36,6 +36,7 @@
 ##############################################################################
 # Modified M. Hambley and P. Elson, Met Office
 # Modified R. W. Ford and A. R. Porter, STFC Daresbury Lab
+# Modified by J. Henrichs, Bureau of Meteorology
 ##############################################################################
 """
 Test battery associated with fparser.common.readfortran package.
@@ -43,7 +44,6 @@ Test battery associated with fparser.common.readfortran package.
 
 import io
 import os.path
-import tempfile
 import pytest
 
 from fparser.common.readfortran import (
@@ -261,6 +261,42 @@ def test_base_handle_multilines(log):
     expected = 'following character continuation: "\'", expected None.'
     result = log.messages["warning"][0].split("<==")[1].lstrip()
     assert result == expected
+
+
+def test_fortranreaderbase_is_comment_line():
+    """
+    Tests for the is_comment_line() utility method.
+    """
+    reader = FortranStringReader("    ")
+    # Make the reader free-format.
+    reader.set_format(FortranFormat(True, True))
+    assert not reader.is_comment_line("      ")
+    assert reader.is_comment_line("!")
+    assert reader.is_comment_line("!   ")
+    assert not reader.is_comment_line("call a_func()")
+    # Make the reader fixed-format.
+    reader.set_format(FortranFormat(False, True))
+    assert not reader.is_comment_line("      ")
+    assert reader.is_comment_line("!     a comment")
+    assert reader.is_comment_line("c     a comment")
+    assert reader.is_comment_line("c         ")
+
+
+def test_base_handle_quoted_backslashes(log):
+    """
+    Test that the reader isn't tripped-up when a string contains a backslash.
+    """
+    log.reset()
+    code = "If (MetFolder(L:L) == '\\' .and. L <= MaxFileNameLength) Then"
+    reader = FortranStringReader(code)
+    mode = FortranFormat(True, True)
+    reader.set_format(mode)  # Force strict free format
+    reader.get_source_item()
+    assert log.messages["debug"] == []
+    assert log.messages["info"] == []
+    assert log.messages["error"] == []
+    assert log.messages["critical"] == []
+    assert log.messages["warning"] == []
 
 
 def test_base_fixed_nonlabel(log):
@@ -786,12 +822,11 @@ FULL_FREE_EXPECTED = [
 ##############################################################################
 
 
-def test_filename_reader():
+def test_filename_reader(tmpdir):
     """
     Tests that a Fortran source file can be read given its filename.
     """
-    handle, filename = tempfile.mkstemp(suffix=".f90", text=True)
-    os.close(handle)
+    filename = f"{tmpdir}/out.f90"
     try:
         with io.open(filename, mode="w", encoding="UTF-8") as source_file:
             source_file.write(FULL_FREE_SOURCE)
@@ -810,12 +845,11 @@ def test_filename_reader():
 ##############################################################################
 
 
-def test_file_reader():
+def test_file_reader(tmpdir):
     """
     Tests that a Fortran source file can be read given a file object of it.
     """
-    handle, filename = tempfile.mkstemp(suffix=".f90", text=True)
-    os.close(handle)
+    filename = f"{tmpdir}/out.f90"
     try:
         with io.open(filename, mode="w", encoding="UTF-8") as source_file:
             source_file.write(FULL_FREE_SOURCE)
@@ -832,12 +866,11 @@ def test_file_reader():
         raise
 
 
-def test_none_in_fifo(log):
+def test_none_in_fifo(tmpdir, log):
     """Check that a None entry in the reader FIFO buffer is handled
     correctly."""
     log.reset()
-    handle, filename = tempfile.mkstemp(suffix=".f90", text=True)
-    os.close(handle)
+    filename = f"{tmpdir}/out.f90"
 
     with io.open(filename, mode="w", encoding="UTF-8") as source_file:
         source_file.write(FULL_FREE_SOURCE)
@@ -887,8 +920,8 @@ def test_string_reader():
 @pytest.mark.parametrize("reader_cls", [FortranStringReader, FortranFileReader])
 def test_reader_ignore_encoding(reader_cls, tmp_path):
     """
-    Tests that the Fortran{String,File}Reader can be configured to take notice of
-    Python-style encoding information.
+    Tests that the Fortran{String,File}Reader can be configured to take
+    notice of Python-style encoding information.
     """
     source = "! -*- f77 -*-\n" + FULL_FREE_SOURCE
     if reader_cls is FortranFileReader:
@@ -902,7 +935,8 @@ def test_reader_ignore_encoding(reader_cls, tmp_path):
     # By default the encoding information is ignored so the format should be
     # free format, not strict.
     assert reader.format == FortranFormat(True, False)
-    # Check that explicitly setting ignore_encoding=True gives the same behaviour.
+    # Check that explicitly setting ignore_encoding=True gives
+    # the same behaviour.
     reader1 = reader_cls(rinput, ignore_encoding=True)
     assert reader1.format == FortranFormat(True, False)
     # Now test when the reader takes notice of the encoding information.
@@ -911,7 +945,7 @@ def test_reader_ignore_encoding(reader_cls, tmp_path):
     assert reader2.format == FortranFormat(False, True)
 
 
-def test_inherited_f77():
+def test_inherited_f77(tmpdir):
     """
     A grab bag of functional tests inherited from readfortran.py.
     """
@@ -946,8 +980,8 @@ a    'g
         assert str(item) == stack.pop(0)
 
     # Reading from file
-    handle, filename = tempfile.mkstemp(suffix=".f", text=True)
-    os.close(handle)
+    filename = f"{tmpdir}/out.f"
+
     with open(filename, "w") as fortran_file:
         print(string_f77, file=fortran_file)
 
@@ -1321,7 +1355,8 @@ def test_many_comments():
 
 @pytest.mark.parametrize("inline_comment", [' "', " '", " 'andy' '"])
 def test_quotes_in_inline_comments(inline_comment):
-    """Test that an in-line comment containing a quotation mark is read successfully."""
+    """Test that an in-line comment containing a quotation mark is
+    read successfully."""
     input_text = f"""\
     character(*) :: a='hello' &!{inline_comment}
     &        b
@@ -1399,7 +1434,7 @@ def test_multiple_blank_lines():
     output as an empty Comment objects.
 
     """
-    input_text = "   \n\n" "program test\n" "  \n\n" "end program test\n" "  \n\n"
+    input_text = "   \n\nprogram test\n  \n\nend program test\n  \n\n"
     reader = FortranStringReader(input_text, ignore_comments=False)
     lines = list(reader)
     assert len(lines) == 8
@@ -1431,9 +1466,7 @@ def test_blank_lines_within_continuation():
     removed.
 
     """
-    input_text = (
-        "  \n" "  real :: a &\n" "  \n\n" "          ,b\n" "  \n" "  real :: c\n"
-    )
+    input_text = "  \n  real :: a &\n  \n\n          ,b\n  \n  real :: c\n"
 
     reader = FortranStringReader(input_text, ignore_comments=False)
     lines = list(reader)
@@ -1461,3 +1494,261 @@ def test_blank_lines_within_continuation():
     assert isinstance(lines[1], Line)
     assert lines[1].span == (7, 7)
     assert lines[1].line == "real :: c"
+
+
+def test_conditional_include_omp_conditional_liness_fixed_format_single_line():
+    """Test handling of conditional OMP sentinels in a single line
+    with source code in fixed format."""
+
+    for sentinel in ["!$", "c$", "C$", "*$"]:
+        input_text = f"{sentinel}    bla"
+
+        # 1. By default (not ignoring comments), the line is just a comment:
+        reader = FortranStringReader(input_text, ignore_comments=False)
+        comment = reader.next()
+        assert isinstance(comment, Comment)
+        assert comment.comment == input_text
+
+        # 2. And if comments are ignored, nothing should be returned and a
+        #    StopIteration exception will be raised.
+        reader = FortranStringReader(input_text, ignore_comments=True)
+        with pytest.raises(StopIteration):
+            comment = reader.next()
+
+        # 3. When omp-sentinels are accepted, we should get a line,
+        # not a comment:
+        reader = FortranStringReader(
+            input_text, ignore_comments=False, include_omp_conditional_lines=True
+        )
+        line = reader.next()
+        assert isinstance(line, Line)
+        assert line.line == "bla"
+
+        # 4. If omp-sentinels are accepted, and comments ignored,
+        #    we should still get the line (with the sentinel removed):
+        reader = FortranStringReader(
+            input_text, ignore_comments=True, include_omp_conditional_lines=True
+        )
+        line = reader.next()
+        assert isinstance(line, Line)
+        assert line.line == "bla"
+
+        # 5. Make sure that a real omp directive stays a comment:
+        input_text = f"{sentinel}omp something"
+        reader = FortranStringReader(
+            input_text, ignore_comments=False, include_omp_conditional_lines=True
+        )
+        line = reader.next()
+        # This is not a conditional sentinel, so it must be returned
+        # as a comment line:
+        assert isinstance(line, Comment)
+        assert line.line == input_text
+
+    # 6. Test some corner cases (all of which are not valid sentinels):
+    for sentinel in ["!!$", "! $", " !$", " ! $"]:
+        input_text = f"{sentinel}    bla"
+        reader = FortranStringReader(
+            input_text, ignore_comments=False, include_omp_conditional_lines=True
+        )
+        # Enforce fixed format, otherwise fparser will silently switch
+        # to free format and suddenly interpret comments differently
+        reader.set_format(FortranFormat(False, False))
+        comment = reader.next()
+        assert isinstance(comment, Comment)
+        assert comment.comment == input_text
+
+
+def test_conditional_include_omp_conditional_liness_free_format_single_line():
+    """Test handling of conditional OMP sentinels in a single line
+    with source code in free format."""
+
+    # 1. By default, a omp sentinel will be returned as a comment
+    input_text = "  !$ bla"
+    reader = FortranStringReader(input_text, ignore_comments=False)
+    comment = reader.next()
+    reader.set_format(FortranFormat(True, True))
+    assert isinstance(comment, Comment)
+    assert comment.comment == input_text.strip()
+
+    # 2. And if comments are ignored, nothing should be returned and a
+    #    StopIteration exception will be raised.
+    reader = FortranStringReader(input_text, ignore_comments=True)
+    reader.set_format(FortranFormat(True, True))
+    with pytest.raises(StopIteration):
+        comment = reader.next()
+
+    # 3. When omp-sentinels are accepted, we should get a line,
+    # not a comment:
+    reader = FortranStringReader(
+        input_text, ignore_comments=False, include_omp_conditional_lines=True
+    )
+    reader.set_format(FortranFormat(True, True))
+    line = reader.next()
+    assert isinstance(line, Line)
+    assert line.line == "bla"
+
+    # 4. If omp-sentinels are accepted, and comments ignored,
+    #    we should still get the line (with the sentinel removed):
+    reader = FortranStringReader(
+        input_text, ignore_comments=True, include_omp_conditional_lines=True
+    )
+    line = reader.next()
+    assert isinstance(line, Line)
+    assert line.line == "bla"
+
+    # 5. Make sure that a real omp directive stays a comment:
+    input_text = "  !$omp something"
+    reader = FortranStringReader(
+        input_text, ignore_comments=False, include_omp_conditional_lines=True
+    )
+    reader.set_format(FortranFormat(True, True))
+    line = reader.next()
+    # This is not a conditional sentinel, so it must be returned
+    # as a comment line:
+    assert isinstance(line, Comment)
+    assert line.line == input_text.strip()
+
+    # 6. Test some corner cases (all of which are not valid sentinels):
+    for sentinel in ["!!$", "! $", " ! $"]:
+        input_text = f"{sentinel}    bla"
+        reader = FortranStringReader(
+            input_text, ignore_comments=False, include_omp_conditional_lines=True
+        )
+        reader.set_format(FortranFormat(True, True))
+        comment = reader.next()
+        assert isinstance(comment, Comment)
+        # Since fparser will remove leading white spaces, we need to
+        # compare with the input text after removing its white spaces:
+        assert comment.comment == input_text.strip()
+
+
+def test_conditional_include_omp_conditional_liness_fixed_format_multiple():
+    """Test handling of conditional OMP sentinels with continuation lines
+    with source code in fixed format."""
+
+    input_text = "!$     bla\n!$   &bla"
+    reader = FortranStringReader(input_text, ignore_comments=True)
+    with pytest.raises(StopIteration):
+        reader.next()
+    reader = FortranStringReader(input_text, ignore_comments=False)
+    # Without handling of sentinels, this should return
+    # two comment lines:
+    comment = reader.next()
+    assert isinstance(comment, Comment)
+    assert comment.comment == "!$     bla"
+    comment = reader.next()
+    assert isinstance(comment, Comment)
+    assert comment.comment == "!$   &bla"
+
+    # Now enable handling of sentinels, which will result
+    # in returning only one line with both concatenated.
+    input_text = "!$     bla\n!$   &bla"
+    reader = FortranStringReader(
+        input_text, ignore_comments=False, include_omp_conditional_lines=True
+    )
+    line = reader.next()
+    assert isinstance(line, Line)
+    assert line.line == "blabla"
+
+    # Ignoring comments must not change the behaviour:
+    reader = FortranStringReader(
+        input_text, ignore_comments=True, include_omp_conditional_lines=True
+    )
+    line = reader.next()
+    assert isinstance(line, Line)
+    assert line.line == "blabla"
+
+    # Add invalid sentinels in continuation lines:
+    input_text = "!$     bla\n! $   &bla"
+    reader = FortranStringReader(
+        input_text, ignore_comments=True, include_omp_conditional_lines=True
+    )
+    line = reader.next()
+    assert line.line == "bla"
+    # The second line is just a comment line, so it must be ignored:
+    with pytest.raises(StopIteration):
+        reader.next()
+
+    reader = FortranStringReader(
+        input_text, ignore_comments=False, include_omp_conditional_lines=True
+    )
+    line = reader.next()
+    assert line.line == "bla"
+    line = reader.next()
+    assert line.line == "! $   &bla"
+
+
+def test_conditional_include_omp_conditional_liness_free_format_multiple():
+    """Test handling of conditional OMP sentinels with continuation lines
+    with source code in free format."""
+
+    # Test with the optional & in the continuation line:
+    # ---------------------------------------------------
+    input_text = "!$     bla   &\n!$&     bla"
+    reader = FortranStringReader(input_text, ignore_comments=False)
+    # Make sure to enforce free format
+    reader.set_format(FortranFormat(True, True))
+    comment = reader.next()
+
+    assert comment.comment == "!$     bla   &"
+    comment = reader.next()
+    assert comment.comment == "!$&     bla"
+
+    input_text = "!$     bla   &\n!$&     bla"
+    reader = FortranStringReader(
+        input_text, ignore_comments=False, include_omp_conditional_lines=True
+    )
+    # Make sure to enforce free format
+    reader.set_format(FortranFormat(True, True))
+    line = reader.next()
+    assert line.line == "bla        bla"
+
+    # Test without the optional & in the continuation line:
+    # -----------------------------------------------------
+    input_text = "!$     bla   &\n!$      bla"
+    reader = FortranStringReader(input_text, ignore_comments=False)
+    # Make sure to enforce free format
+    reader.set_format(FortranFormat(True, True))
+    comment = reader.next()
+
+    assert comment.comment == "!$     bla   &"
+    comment = reader.next()
+    assert comment.comment == "!$      bla"
+
+    reader = FortranStringReader(input_text, ignore_comments=True)
+    # Make sure to enforce free format
+    reader.set_format(FortranFormat(True, True))
+    with pytest.raises(StopIteration):
+        comment = reader.next()
+
+    input_text = "!$     bla   &\n!$     bla"
+    reader = FortranStringReader(
+        input_text, ignore_comments=False, include_omp_conditional_lines=True
+    )
+    # Make sure to enforce free format
+    reader.set_format(FortranFormat(True, True))
+    line = reader.next()
+    # 8 spaces in input_text, plus two for replacing the !$
+    assert line.line == "bla          bla"
+
+
+def test_process_directives_option_read_fortran():
+    """Test handling of the process_directives option.
+
+    Note that the funcionality tests for this option are in
+    fparser/two/tests/test_comments_and_directives.py"""
+
+    input_text = "!$omp target\n! comment"
+    reader = FortranStringReader(input_text)
+    assert not reader.process_directives
+    assert reader._ignore_comments
+
+    reader = FortranStringReader(input_text, process_directives=True)
+    assert reader.process_directives
+    assert not reader._ignore_comments
+
+    reader = FortranStringReader(
+        input_text, ignore_comments=False, process_directives=True
+    )
+    assert reader.process_directives
+    assert not reader._ignore_comments

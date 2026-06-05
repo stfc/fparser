@@ -42,6 +42,7 @@ Neither C701 nor C702 can be tested here, as they require context of the
 type defined outside of Primary.
 
 """
+
 import sys
 
 import pytest
