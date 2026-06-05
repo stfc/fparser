@@ -172,10 +172,18 @@ use d
     obj = tcls(reader)
     assert str(obj) == code
 
-    reader = get_reader("integer :: a\n" "use my_mod\n")
-    tcls = Specification_Part
-    obj = tcls(reader)
-    assert obj is None
+    reader = get_reader("""
+    module mymod
+        integer :: a
+        use my_mod
+    end module
+    """)
+
+    with pytest.raises(NoMatchError) as excinfo:
+        obj = Module(reader)
+    error = str(excinfo.value)
+    assert "at line 4\n>>>        use my_mod" in error
+
 
 
 #

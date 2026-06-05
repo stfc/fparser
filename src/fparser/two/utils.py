@@ -723,24 +723,10 @@ class BlockBase(Base):
             if match_names:
                 start_name = obj.get_start_name()
 
-        # Directives, Comments and Include statements are always valid sub-classes
-        comments = [di.Comment, di.Include_Stmt]
-        # Only add directives if enabled.
-        if reader.process_directives:
-            comments.insert(0, di.Directive)
-        classes = subclasses + comments
+        classes = subclasses
         if endcls is not None:
             classes += [endcls]
             endcls_all = tuple([endcls] + endcls.subclasses[endcls.__name__])
-        # Preprocessor directives are always valid sub-classes. While
-        # `match_cpp_directive` is a function, it behaves correctly here
-        # returning either None or an instance, so we can just add it to
-        # the classes that will be tested.
-        classes.append(di.C99Preprocessor.match_cpp_directive)
-
-        # Deal with any preceding comments, includes, and/or directives
-        DynamicImport.add_comments_includes_directives(content, reader)
-
         try:
             # Start trying to match the various subclasses, starting from
             # the beginning of the list (where else?)
@@ -748,6 +734,9 @@ class BlockBase(Base):
             had_match = False
             found_end = False
             while i < len(classes):
+                # Deal with any preceding comments, includes, and/or directives
+                DynamicImport.add_comments_includes_directives(content, reader)
+
                 if enable_do_label_construct_hook:
                     # Multiple, labelled DO statements can reference the
                     # same label.
