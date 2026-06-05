@@ -50,7 +50,8 @@ from fparser.two.Fortran2003 import (
     If_Construct,
     Allocate_Stmt,
     Derived_Type_Def,
-    Function_Subprogram)
+    Function_Subprogram,
+)
 from fparser.two.parser import ParserFactory
 from fparser.two.utils import walk, get_child, FortranSyntaxError
 

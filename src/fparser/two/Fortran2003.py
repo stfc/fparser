@@ -1749,7 +1749,7 @@ class Derived_Type_Def(BlockBase):  # R429
             End_Type_Stmt,
             reader,
             match_names=True,  # C431
-            strict_order=True
+            strict_order=True,
         )
 
 
