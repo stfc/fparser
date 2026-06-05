@@ -2455,7 +2455,11 @@ class Type_Bound_Procedure_Part(BlockBase):  # pylint: disable=invalid-name
                   `Name`]) or `None`
         """
         return BlockBase.match(
-            Contains_Stmt, [Binding_Private_Stmt, Proc_Binding_Stmt], None, reader, strict_order=True
+            Contains_Stmt,
+            [Binding_Private_Stmt, Proc_Binding_Stmt],
+            None,
+            reader,
+            strict_order=True,
         )
 
 
@@ -2867,7 +2871,10 @@ class Enum_Def(BlockBase):  # R460
     @staticmethod
     def match(reader):
         return BlockBase.match(
-            Enum_Def_Stmt, [Enumerator_Def_Stmt], End_Enum_Stmt, reader,
+            Enum_Def_Stmt,
+            [Enumerator_Def_Stmt],
+            End_Enum_Stmt,
+            reader,
         )
 
 
@@ -11122,7 +11129,7 @@ class Main_Program0(BlockBase):
             End_Program_Stmt,
             reader,
             strict_order=True,
-            once_only=True
+            once_only=True,
         )
 
         SYMBOL_TABLES.exit_scope()

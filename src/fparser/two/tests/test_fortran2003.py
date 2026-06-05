@@ -185,7 +185,6 @@ use d
     assert "at line 4\n>>>        use my_mod" in error
 
 
-
 #
 # SECTION  3
 #
