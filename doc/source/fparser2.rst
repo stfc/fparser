@@ -552,6 +552,12 @@ backslash character `\\` at the end of the line.
 
 __ http://www.open-std.org/jtc1/sc22/wg14/www/docs/n1256.pdf#page=157
 
+Added is the support for compiler linemarkers, i.e. lines in the format
+``# line-number "filename"``, which indicates for a compiler the line number
+and filename that the next line came from. While technically not a preprocessor
+directive, these statements follow a very similar syntax so their handling
+is combined with the preprocessor handling.
+
 The implementation of directives is in the C99Preprocessor.py `file`__
 with support for the following::
 
@@ -568,6 +574,7 @@ with support for the following::
   #error
   #warning
   #
+  # line-number "filename"
 
 __ https://github.com/stfc/fparser/blob/master/src/fparser/two/C99Preprocessor.py
 

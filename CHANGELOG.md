@@ -22,6 +22,9 @@ Modifications by (in alphabetical order):
 * P. Vitt, University of Siegen, Germany
 * A. Voysey, UK Met Office
 
+09/06/2026 PR #498 for #390 by adding support for linemarkers in parsed
+           code (e.g. '# 123 "test.f90"').
+
 04/06/2026 PR #507 for #506. Remove setuptools_scm_git dependency. Version
            information is now always obtained using importlib.metadata.version.
 
