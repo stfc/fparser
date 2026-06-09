@@ -675,7 +675,8 @@ class Cpp_Linemarker_Stmt(WORDClsBase):  # Linemarker
     # to None means that the pattern matching will return the matched
     # string (i.e. `# linenumber "filename"`), any following flags will
     # be stored as items of type Cpp_Pp_Tokens.
-    _pattern = pattern.Pattern("<linemarker>", r"^\s*#\s+\d+\s+\".*\".*$", value=None)
+    _pattern = pattern.Pattern("<linemarker>",
+                               r"^\s*#\s+\d+\s+\".*\".*$", value=None)
 
     @staticmethod
     def match(
@@ -687,8 +688,8 @@ class Cpp_Linemarker_Stmt(WORDClsBase):  # Linemarker
 
         :param string: the string to match with as a line statement.
 
-        :return: an instance of Cpp_Linemarker_Stmt or `None` if there is no
-            match.
+        :return: a tuple consisting of the string matched and an instance of
+            Cpp_Linemarker_Stmt or `None` if there is no match.
 
         """
         if not string:
