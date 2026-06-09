@@ -470,8 +470,7 @@ def test_linemarker(line, ref):
 
 
 @pytest.mark.usefixtures("f2003_create")
-@pytest.mark.parametrize("line", ["# abc", "", '# "bla"',
-                                  "# 123 'wrong_quotes'"])
+@pytest.mark.parametrize("line", ["# abc", "", '# "bla"', "# 123 'wrong_quotes'"])
 def test_incorrect_linemarker(line):
     """Test that incorrectly formed #line statements raise exception"""
     with pytest.raises(NoMatchError) as excinfo:
