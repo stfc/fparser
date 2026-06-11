@@ -22,6 +22,8 @@ Modifications by (in alphabetical order):
 * P. Vitt, University of Siegen, Germany
 * A. Voysey, UK Met Office
 
+## Release 0.2.3 (11/06/2026) ##
+
 09/06/2026 PR #498 for #390 by adding support for linemarkers in parsed
            code (e.g. '# 123 "test.f90"').
 

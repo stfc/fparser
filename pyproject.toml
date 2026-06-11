@@ -12,7 +12,7 @@ authors = [{name = "Pearu Peterson"},
 	   {name = "Rupert Ford"},
 	   {name = "Andrew Porter", email = "andrew.porter@stfc.ac.uk"},
 	   {name = "Sergi Siso", email = "sergi.siso@stfc.ac.uk"}]
-license = {text = "BSD-3-Clause"}
+license = "BSD-3-Clause"
 description = "Python implementation of a Fortran parser"
 readme = "README.md"
 classifiers = [
