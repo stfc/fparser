@@ -648,6 +648,7 @@ class BlockBase(Base):
         enable_where_construct_hook=False,
         strict_order=False,
         strict_match_names=False,
+        once_only=False,
     ):
         """
         Checks whether the content in reader matches the given
@@ -671,6 +672,9 @@ class BlockBase(Base):
                                   given subclasses.
         :param bool strict_match_names: if start name present, end name \
                                         must exist and match.
+        :param bool once_only: whether to restrict matching to at most \
+            once for a subclass. This is only active if strict_order is \
+            also set.
 
         :return: instance of startcls or None if no match is found
         :rtype: startcls
@@ -719,21 +723,10 @@ class BlockBase(Base):
             if match_names:
                 start_name = obj.get_start_name()
 
-        # Directives, Comments and Include statements are always valid sub-classes
-        comments = [di.Comment, di.Include_Stmt]
-        # Only add directives if enabled.
-        if reader.process_directives:
-            comments.insert(0, di.Directive)
-        classes = subclasses + comments
+        classes = subclasses
         if endcls is not None:
             classes += [endcls]
             endcls_all = tuple([endcls] + endcls.subclasses[endcls.__name__])
-        # Preprocessor directives are always valid sub-classes. While
-        # `match_cpp_directive` is a function, it behaves correctly here
-        # returning either None or an instance, so we can just add it to
-        # the classes that will be tested.
-        classes.append(di.C99Preprocessor.match_cpp_directive)
-
         try:
             # Start trying to match the various subclasses, starting from
             # the beginning of the list (where else?)
@@ -741,6 +734,9 @@ class BlockBase(Base):
             had_match = False
             found_end = False
             while i < len(classes):
+                # Deal with any preceding comments, includes, and/or directives
+                DynamicImport.add_comments_includes_directives(content, reader)
+
                 if enable_do_label_construct_hook:
                     # Multiple, labelled DO statements can reference the
                     # same label.
@@ -833,11 +829,11 @@ class BlockBase(Base):
                                 reader,
                                 f"Name '{end_name}' has no corresponding starting name",
                             )
-                        elif strict_match_names and start_name and not end_name:
+                        if strict_match_names and start_name and not end_name:
                             raise FortranSyntaxError(
                                 reader, f"Expecting name '{start_name}' but none given"
                             )
-                        elif (
+                        if (
                             start_name
                             and end_name
                             and (start_name.lower() != end_name.lower())
@@ -849,9 +845,18 @@ class BlockBase(Base):
                     # We've found the enclosing end statement so break out
                     found_end = True
                     break
+
+                # Deal with any following comments, includes, and/or directives
+                DynamicImport.add_comments_includes_directives(content, reader)
+
                 if not strict_order:
                     # Return to start of classes list now that we've matched.
                     i = 0
+                elif once_only:
+                    # There was a match for this sub-class and
+                    # once_only is set so move on to the next
+                    # sub-class
+                    i += 1
                 if enable_if_construct_hook:
                     if isinstance(obj, di.Else_If_Stmt):
                         # Got an else-if so go back to start of possible
