@@ -1,7 +1,7 @@
 # -----------------------------------------------------------------------------
 # BSD 3-Clause License
 #
-# Copyright (c) 2023, Science and Technology Facilities Council.
+# Copyright (c) 2023-2026, Science and Technology Facilities Council.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -37,12 +37,12 @@ label-do-stmt rule r816.
     label-do-stmt is [ do-construct-name : ] DO label [ loop-control ]
 
 The only difference to F2003 rule R828 is that we force this rule to
-use the F2008 version of loop-control
+use the F2008 version of loop-control.
 
 """
 
 from fparser.two.Fortran2003 import Label_Do_Stmt as Label_Do_Stmt_2003
-from fparser.two.Fortran2008 import Loop_Control
+from fparser.two.Fortran2008.loop_control_r818 import Loop_Control
 
 
 class Label_Do_Stmt(Label_Do_Stmt_2003):
@@ -52,10 +52,8 @@ class Label_Do_Stmt(Label_Do_Stmt_2003):
     """
 
     @staticmethod
-    def loop_control_cls():
+    def loop_control_cls() -> Loop_Control:
         """
         :returns: Fortran2008 Loop_Control class.
-        :rtype: :py:class:`fparser.two.Fortran2008.Loop_Control`
-
         """
         return Loop_Control
