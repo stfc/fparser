@@ -12457,7 +12457,7 @@ class Intrinsic_Name(STRINGBase):  # No explicit rule
         specific_function_names.keys()
     )
 
-    subclass_names = []
+    subclass_names = ["Fortran2008_Intrinsic_Names"]
 
     @staticmethod
     def match(string):
@@ -12509,9 +12509,9 @@ class Intrinsic_Function_Reference(CallBase):  # No explicit rule
         result = CallBase.match(Intrinsic_Name, Actual_Arg_Spec_List, string)
         if not result:
             return None
-
         # There is a match so check the number of args provided
         # matches the number of args expected by the intrinsic.
+        intrinsic_type = type(result[0])
         function_name = str(result[0])
         function_args = result[1]
 
@@ -12528,16 +12528,15 @@ class Intrinsic_Function_Reference(CallBase):  # No explicit rule
             pass
 
         nargs = 0 if function_args is None else len(function_args.items)
-
-        if function_name in Intrinsic_Name.specific_function_names.keys():
+        if function_name in intrinsic_type.specific_function_names.keys():
             # If this is a specific function then use its generic
             # name to test min and max number of arguments.
-            test_name = Intrinsic_Name.specific_function_names[function_name]
+            test_name = intrinsic_type.specific_function_names[function_name]
         else:
             test_name = function_name
 
-        min_nargs = Intrinsic_Name.generic_function_names[test_name]["min"]
-        max_nargs = Intrinsic_Name.generic_function_names[test_name]["max"]
+        min_nargs = intrinsic_type.generic_function_names[test_name]["min"]
+        max_nargs = intrinsic_type.generic_function_names[test_name]["max"]
 
         # None indicates an unlimited number of arguments
         if max_nargs is None:
