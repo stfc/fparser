@@ -38,6 +38,7 @@ Module containing Fortran2008 Intrinsics.
 
 from fparser.two.Fortran2003 import Intrinsic_Name
 
+
 class Fortran2008_Intrinsic_Names(Intrinsic_Name):
     """
     Represents the name of a Fortran 2008 intrinsic function.
@@ -59,11 +60,11 @@ class Fortran2008_Intrinsic_Names(Intrinsic_Name):
         "ERF": {"min": 1, "max": 1},
         "GAMMA": {"min": 1, "max": 1},
     }
-    
+
     f08_bitshift_intrinsics = {
-            "SHIFTL": {"min": 2, "max": 2},
-            "SHIFTR": {"min": 2, "max": 2},
-            "SHIFTA": {"min": 2, "max": 2},
+        "SHIFTL": {"min": 2, "max": 2},
+        "SHIFTR": {"min": 2, "max": 2},
+        "SHIFTA": {"min": 2, "max": 2},
     }
 
     generic_function_names = {}
@@ -92,5 +93,5 @@ class Fortran2008_Intrinsic_Names(Intrinsic_Name):
 
         """
         from fparser.two.utils import STRINGBase
-        return STRINGBase.match(Fortran2008_Intrinsic_Names.function_names,
-                                string)
+
+        return STRINGBase.match(Fortran2008_Intrinsic_Names.function_names, string)

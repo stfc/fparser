@@ -32,40 +32,37 @@
 # POSSIBILITY OF SUCH DAMAGE.
 # -----------------------------------------------------------------------------
 
-'''Test the Fortran 2008 intrinsic support.'''
+"""Test the Fortran 2008 intrinsic support."""
 
 from fparser.common.readfortran import FortranStringReader
 from fparser.two.Fortran2003 import Part_Ref
 from fparser.two.Fortran2008 import Fortran2008_Intrinsic_Names
-from fparser.two.utils import  walk
+from fparser.two.utils import walk
 
 
 def test_f2008_intrinsic(f2008_parser):
     """Test Fortran2008 intrinsic is created with the f2008 parser."""
 
-    reader = FortranStringReader(
-        """subroutine test
+    reader = FortranStringReader("""subroutine test
         integer :: i
 
         i = erf(i)
         end subroutine test
-        """
-    )
+        """)
     tree = f2008_parser(reader)
     intrinsic = walk(tree, Fortran2008_Intrinsic_Names)
     assert len(intrinsic) == 1
     assert str(intrinsic[0]) == "ERF"
 
+
 def test_f2008_intrinsic_f2003_parse(f2003_parser):
     """Test Fortran2008 intrinsic is not created with the f2003 parser."""
-    reader = FortranStringReader(
-        """subroutine test
+    reader = FortranStringReader("""subroutine test
         integer :: i
 
         i = erf(i)
         end subroutine test
-        """
-    )
+        """)
     tree = f2003_parser(reader)
     intrinsic = walk(tree, Fortran2008_Intrinsic_Names)
     assert len(intrinsic) == 0
