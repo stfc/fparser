@@ -36,10 +36,16 @@
 Module containing Fortran2008 Intrinsics.
 """
 
-from fparser.two.Fortran2003 import Intrinsic_Name
+from typing import Union
+
+from fparser.two.Fortran2003 import Intrinsic_Name as F2003_Intrinsic_Name
+from fparser.two.Fortran2003 import (
+    Intrinsic_Function_Reference as F2003_Intrinsic_Function_Reference,
+)
+from fparser.two.utils import STRINGBase
 
 
-class Fortran2008_Intrinsic_Names(Intrinsic_Name):
+class Intrinsic_Name(F2003_Intrinsic_Name):
     """
     Represents the name of a Fortran 2008 intrinsic function.
 
@@ -67,31 +73,27 @@ class Fortran2008_Intrinsic_Names(Intrinsic_Name):
         "SHIFTA": {"min": 2, "max": 2},
     }
 
+    # Create the dicts (not inherited from F2003_Intrinsic_Name)
     generic_function_names = {}
+    generic_function_names.update(F2003_Intrinsic_Name.generic_function_names)
     generic_function_names.update(f08_math_intrinsics)
     generic_function_names.update(f08_bitshift_intrinsics)
 
-    specific_function_names = {}
+    specific_function_names = F2003_Intrinsic_Name.specific_function_names
 
     # A list of all function names
     function_names = list(generic_function_names.keys()) + list(
         specific_function_names.keys()
     )
 
-    @staticmethod
-    def match(string):
-        """Attempt to match the input `string` with the intrinsic function
-        names defined in `generic_function_names` or
-        `specific_function_names`. If there is a match the resultant
-        string will be converted to upper case.
 
-        :param str string: The pattern to be matched.
+class Intrinsic_Function_Reference(F2003_Intrinsic_Function_Reference):
+    """
+    Represents Fortran intrinsics::
 
-        :returns: A tuple containing the matched string (converted to \
-        upper case) if there is a match or None if there is not.
-        :rtype: (str,) or NoneType
+        function-reference is intrinsic-name ( [ actual-arg-spec-list ] )
 
-        """
-        from fparser.two.utils import STRINGBase
+    """
 
-        return STRINGBase.match(Fortran2008_Intrinsic_Names.function_names, string)
+    # Set the type of Intrinsic_Name to be used
+    _intrinsic_type = Intrinsic_Name

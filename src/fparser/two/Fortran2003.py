@@ -12457,10 +12457,10 @@ class Intrinsic_Name(STRINGBase):  # No explicit rule
         specific_function_names.keys()
     )
 
-    subclass_names = ["Fortran2008_Intrinsic_Names"]
+    subclass_names = []
 
-    @staticmethod
-    def match(string):
+    @classmethod
+    def match(cls, string):
         """Attempt to match the input `string` with the intrinsic function
         names defined in `generic_function_names` or
         `specific_function_names`. If there is a match the resultant
@@ -12473,7 +12473,7 @@ class Intrinsic_Name(STRINGBase):  # No explicit rule
         :rtype: (str,) or NoneType
 
         """
-        return STRINGBase.match(Intrinsic_Name.function_names, string)
+        return STRINGBase.match(cls.function_names, string)
 
 
 class Intrinsic_Function_Reference(CallBase):  # No explicit rule
@@ -12486,9 +12486,12 @@ class Intrinsic_Function_Reference(CallBase):  # No explicit rule
 
     subclass_names = []
     use_names = ["Intrinsic_Name", "Actual_Arg_Spec_List"]
+    # Set the type of Intrinsic_Name to be used (so it can be overridden
+    # in subclasses).
+    _intrinsic_type = Intrinsic_Name
 
-    @staticmethod
-    def match(string):
+    @classmethod
+    def match(cls, string):
         """Match the string as an intrinsic function. Also check that the
         number of arguments provided matches the number expected by
         the intrinsic.
@@ -12506,7 +12509,8 @@ class Intrinsic_Function_Reference(CallBase):  # No explicit rule
             (that overrides it) into scope.
 
         """
-        result = CallBase.match(Intrinsic_Name, Actual_Arg_Spec_List, string)
+        result = CallBase.match(cls._intrinsic_type,
+                                Actual_Arg_Spec_List, string)
         if not result:
             return None
         # There is a match so check the number of args provided

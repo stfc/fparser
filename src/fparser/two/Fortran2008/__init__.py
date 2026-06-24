@@ -101,7 +101,9 @@ from fparser.two.Fortran2008.block_nonlabel_do_construct_r814_2 import (
 )
 from fparser.two.Fortran2008.label_do_stmt_r816 import Label_Do_Stmt
 from fparser.two.Fortran2008.nonlabel_do_stmt_r817 import Nonlabel_Do_Stmt
-from fparser.two.Fortran2008.f08_intrinsics import Fortran2008_Intrinsic_Names
+from fparser.two.Fortran2008.intrinsics_f08 import (
+    Intrinsic_Name, Intrinsic_Function_Reference
+)
 
 # pylint: disable=eval-used
 # pylint: disable=exec-used

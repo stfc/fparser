@@ -36,7 +36,7 @@
 
 from fparser.common.readfortran import FortranStringReader
 from fparser.two.Fortran2003 import Part_Ref
-from fparser.two.Fortran2008 import Fortran2008_Intrinsic_Names
+from fparser.two.Fortran2008 import Intrinsic_Name
 from fparser.two.utils import walk
 
 
@@ -50,7 +50,8 @@ def test_f2008_intrinsic(f2008_parser):
         end subroutine test
         """)
     tree = f2008_parser(reader)
-    intrinsic = walk(tree, Fortran2008_Intrinsic_Names)
+    intrinsic = walk(tree, Intrinsic_Name)
+    print(tree.__repr__)
     assert len(intrinsic) == 1
     assert str(intrinsic[0]) == "ERF"
 
@@ -64,7 +65,7 @@ def test_f2008_intrinsic_f2003_parse(f2003_parser):
         end subroutine test
         """)
     tree = f2003_parser(reader)
-    intrinsic = walk(tree, Fortran2008_Intrinsic_Names)
+    intrinsic = walk(tree, Intrinsic_Name)
     assert len(intrinsic) == 0
     partref = walk(tree, Part_Ref)
     assert len(partref) == 1
