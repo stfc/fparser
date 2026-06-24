@@ -13288,8 +13288,7 @@ for clsname in _names:
             _names.append(n)
             n = n[:-5]
             # Generate 'list' class
-            exec(
-                """\
+            exec("""\
 class %s_List(SequenceBase):
     subclass_names = [\'%s\']
     use_names = []
@@ -13299,16 +13298,14 @@ class %s_List(SequenceBase):
         elif n.endswith("_Name"):
             _names.append(n)
             n = n[:-5]
-            exec(
-                """\
+            exec("""\
 class %s_Name(Base):
     subclass_names = [\'Name\']
 """ % (n))
         elif n.startswith("Scalar_"):
             _names.append(n)
             n = n[7:]
-            exec(
-                """\
+            exec("""\
 class Scalar_%s(Base):
     subclass_names = [\'%s\']
 """ % (n, n))
