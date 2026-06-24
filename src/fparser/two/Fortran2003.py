@@ -12509,8 +12509,7 @@ class Intrinsic_Function_Reference(CallBase):  # No explicit rule
             (that overrides it) into scope.
 
         """
-        result = CallBase.match(cls._intrinsic_type,
-                                Actual_Arg_Spec_List, string)
+        result = CallBase.match(cls._intrinsic_type, Actual_Arg_Spec_List, string)
         if not result:
             return None
         # There is a match so check the number of args provided
@@ -13289,27 +13288,36 @@ for clsname in _names:
             _names.append(n)
             n = n[:-5]
             # Generate 'list' class
-            exec("""\
+            exec(
+                """\
 class %s_List(SequenceBase):
     subclass_names = [\'%s\']
     use_names = []
     def match(string): return SequenceBase.match(r\',\', %s, string)
 
-""" % (n, n, n))
+"""
+                % (n, n, n)
+            )
         elif n.endswith("_Name"):
             _names.append(n)
             n = n[:-5]
-            exec("""\
+            exec(
+                """\
 class %s_Name(Base):
     subclass_names = [\'Name\']
-""" % (n))
+"""
+                % (n)
+            )
         elif n.startswith("Scalar_"):
             _names.append(n)
             n = n[7:]
-            exec("""\
+            exec(
+                """\
 class Scalar_%s(Base):
     subclass_names = [\'%s\']
-""" % (n, n))
+"""
+                % (n, n)
+            )
 
 
 DynamicImport().import_now()

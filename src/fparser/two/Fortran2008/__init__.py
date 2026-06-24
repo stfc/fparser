@@ -102,7 +102,8 @@ from fparser.two.Fortran2008.block_nonlabel_do_construct_r814_2 import (
 from fparser.two.Fortran2008.label_do_stmt_r816 import Label_Do_Stmt
 from fparser.two.Fortran2008.nonlabel_do_stmt_r817 import Nonlabel_Do_Stmt
 from fparser.two.Fortran2008.intrinsics_f08 import (
-    Intrinsic_Name, Intrinsic_Function_Reference
+    Intrinsic_Name,
+    Intrinsic_Function_Reference,
 )
 
 # pylint: disable=eval-used
@@ -130,27 +131,33 @@ for clsname in _names:
             _names.append(n)
             n = n[:-5]
             # Generate 'list' class
-            exec(f"""\
+            exec(
+                f"""\
 class {n}_List(SequenceBase):
     subclass_names = [\'{n}\']
     use_names = []
     @staticmethod
     def match(string): return SequenceBase.match(r\',\', {n}, string)
-""")
+"""
+            )
         elif n.endswith("_Name"):
             _names.append(n)
             n = n[:-5]
-            exec(f"""\
+            exec(
+                f"""\
 class {n}_Name(Base):
     subclass_names = [\'Name\']
-""")
+"""
+            )
         elif n.startswith("Scalar_"):
             _names.append(n)
             n = n[7:]
-            exec(f"""\
+            exec(
+                f"""\
 class Scalar_{n}(Base):
     subclass_names = [\'{n}\']
-""")
+"""
+            )
 # Make sure NEW_CLS does not reference a class so is not accidentally
 # picked up in __all__.
 NEW_CLS = None
