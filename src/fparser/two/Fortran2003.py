@@ -13295,9 +13295,7 @@ class %s_List(SequenceBase):
     use_names = []
     def match(string): return SequenceBase.match(r\',\', %s, string)
 
-"""
-                % (n, n, n)
-            )
+""" % (n, n, n))
         elif n.endswith("_Name"):
             _names.append(n)
             n = n[:-5]
@@ -13305,9 +13303,7 @@ class %s_List(SequenceBase):
                 """\
 class %s_Name(Base):
     subclass_names = [\'Name\']
-"""
-                % (n)
-            )
+""" % (n))
         elif n.startswith("Scalar_"):
             _names.append(n)
             n = n[7:]
@@ -13315,9 +13311,7 @@ class %s_Name(Base):
                 """\
 class Scalar_%s(Base):
     subclass_names = [\'%s\']
-"""
-                % (n, n)
-            )
+""" % (n, n))
 
 
 DynamicImport().import_now()

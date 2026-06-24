@@ -138,8 +138,7 @@ class {n}_List(SequenceBase):
     use_names = []
     @staticmethod
     def match(string): return SequenceBase.match(r\',\', {n}, string)
-"""
-            )
+""")
         elif n.endswith("_Name"):
             _names.append(n)
             n = n[:-5]
@@ -147,8 +146,7 @@ class {n}_List(SequenceBase):
                 f"""\
 class {n}_Name(Base):
     subclass_names = [\'Name\']
-"""
-            )
+""")
         elif n.startswith("Scalar_"):
             _names.append(n)
             n = n[7:]
@@ -156,8 +154,7 @@ class {n}_Name(Base):
                 f"""\
 class Scalar_{n}(Base):
     subclass_names = [\'{n}\']
-"""
-            )
+""")
 # Make sure NEW_CLS does not reference a class so is not accidentally
 # picked up in __all__.
 NEW_CLS = None
