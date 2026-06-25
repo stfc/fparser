@@ -51,7 +51,6 @@ def test_f2008_intrinsic(f2008_parser):
         """)
     tree = f2008_parser(reader)
     intrinsic = walk(tree, Intrinsic_Name)
-    print(tree.__repr__)
     assert len(intrinsic) == 1
     assert str(intrinsic[0]) == "ERF"
 
