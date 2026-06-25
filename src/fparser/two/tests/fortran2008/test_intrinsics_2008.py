@@ -32,14 +32,16 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""Test intrinsic handling within Fortran2008. At the moment, the only
-special consideration (beyond 2003) is that we can't disambiguate a
-shadowed intrinsic within a submodule.
+"""Test intrinsic handling within Fortran2008. In particular: the special
+consideration (beyond 2003) is that we can't disambiguate a shadowed
+intrinsic within a submodule. There are also a few new intrinsic
+functions.
 
 """
 
 import pytest
 from fparser.api import get_reader
+from fparser.common.readfortran import FortranStringReader
 from fparser.two import Fortran2003, Fortran2008
 from fparser.two.utils import walk
 
@@ -63,3 +65,34 @@ def test_intrinsic_in_submodule():
       """)
     ast = Fortran2008.Submodule(reader)
     assert not walk(ast, Fortran2003.Intrinsic_Function_Reference)
+
+
+def test_f2008_intrinsic(f2008_parser):
+    """Test Fortran2008 intrinsic is created with the f2008 parser."""
+
+    reader = FortranStringReader("""subroutine test
+        integer :: i
+
+        i = erf(i)
+        end subroutine test
+        """)
+    tree = f2008_parser(reader)
+    intrinsic = walk(tree, Fortran2008.Intrinsic_Name)
+    assert len(intrinsic) == 1
+    assert str(intrinsic[0]) == "ERF"
+
+
+def test_f2008_intrinsic_f2003_parse(f2003_parser):
+    """Test Fortran2008 intrinsic is not created with the f2003 parser."""
+    reader = FortranStringReader("""subroutine test
+        integer :: i
+
+        i = erf(i)
+        end subroutine test
+        """)
+    tree = f2003_parser(reader)
+    intrinsic = walk(tree, Fortran2008.Intrinsic_Name)
+    assert len(intrinsic) == 0
+    partref = walk(tree, Fortran2003.Part_Ref)
+    assert len(partref) == 1
+    assert str(partref[0]) == "erf(i)"

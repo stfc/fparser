@@ -12459,8 +12459,8 @@ class Intrinsic_Name(STRINGBase):  # No explicit rule
 
     subclass_names = []
 
-    @staticmethod
-    def match(string):
+    @classmethod
+    def match(cls, string):
         """Attempt to match the input `string` with the intrinsic function
         names defined in `generic_function_names` or
         `specific_function_names`. If there is a match the resultant
@@ -12473,7 +12473,7 @@ class Intrinsic_Name(STRINGBase):  # No explicit rule
         :rtype: (str,) or NoneType
 
         """
-        return STRINGBase.match(Intrinsic_Name.function_names, string)
+        return STRINGBase.match(cls.function_names, string)
 
 
 class Intrinsic_Function_Reference(CallBase):  # No explicit rule
@@ -12486,9 +12486,12 @@ class Intrinsic_Function_Reference(CallBase):  # No explicit rule
 
     subclass_names = []
     use_names = ["Intrinsic_Name", "Actual_Arg_Spec_List"]
+    # Set the type of Intrinsic_Name to be used (so it can be overridden
+    # in subclasses).
+    _intrinsic_type = Intrinsic_Name
 
-    @staticmethod
-    def match(string):
+    @classmethod
+    def match(cls, string):
         """Match the string as an intrinsic function. Also check that the
         number of arguments provided matches the number expected by
         the intrinsic.
@@ -12506,12 +12509,12 @@ class Intrinsic_Function_Reference(CallBase):  # No explicit rule
             (that overrides it) into scope.
 
         """
-        result = CallBase.match(Intrinsic_Name, Actual_Arg_Spec_List, string)
+        result = CallBase.match(cls._intrinsic_type, Actual_Arg_Spec_List, string)
         if not result:
             return None
-
         # There is a match so check the number of args provided
         # matches the number of args expected by the intrinsic.
+        intrinsic_type = type(result[0])
         function_name = str(result[0])
         function_args = result[1]
 
@@ -12528,16 +12531,15 @@ class Intrinsic_Function_Reference(CallBase):  # No explicit rule
             pass
 
         nargs = 0 if function_args is None else len(function_args.items)
-
-        if function_name in Intrinsic_Name.specific_function_names.keys():
+        if function_name in intrinsic_type.specific_function_names.keys():
             # If this is a specific function then use its generic
             # name to test min and max number of arguments.
-            test_name = Intrinsic_Name.specific_function_names[function_name]
+            test_name = intrinsic_type.specific_function_names[function_name]
         else:
             test_name = function_name
 
-        min_nargs = Intrinsic_Name.generic_function_names[test_name]["min"]
-        max_nargs = Intrinsic_Name.generic_function_names[test_name]["max"]
+        min_nargs = intrinsic_type.generic_function_names[test_name]["min"]
+        max_nargs = intrinsic_type.generic_function_names[test_name]["max"]
 
         # None indicates an unlimited number of arguments
         if max_nargs is None:
