@@ -22,6 +22,8 @@ Modifications by (in alphabetical order):
 * P. Vitt, University of Siegen, Germany
 * A. Voysey, UK Met Office
 
+25/06/2026 PR #514 towards #428. Add some Fortran2008-only intrinsics.
+
 19/06/2026 PR #513 for #512. Fix circular import in Fortran2008.
 
 ## Release 0.2.3 (11/06/2026) ##
