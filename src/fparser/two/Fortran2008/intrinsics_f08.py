@@ -36,13 +36,10 @@
 Module containing Fortran2008 Intrinsics.
 """
 
-from typing import Union
-
 from fparser.two.Fortran2003 import Intrinsic_Name as F2003_Intrinsic_Name
 from fparser.two.Fortran2003 import (
     Intrinsic_Function_Reference as F2003_Intrinsic_Function_Reference,
 )
-from fparser.two.utils import STRINGBase
 
 
 class Intrinsic_Name(F2003_Intrinsic_Name):
