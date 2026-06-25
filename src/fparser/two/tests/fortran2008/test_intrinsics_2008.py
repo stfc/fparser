@@ -53,8 +53,7 @@ def test_intrinsic_in_submodule():
     assume that is bringing the shadowed symbol into scope).
 
     """
-    reader = get_reader(
-        """\
+    reader = get_reader("""\
       submodule (foobar) bar
 
         contains
@@ -63,8 +62,7 @@ def test_intrinsic_in_submodule():
           a = dot_product(1,2,3)
         end subroutine my_sub
       end
-      """
-    )
+      """)
     ast = Fortran2008.Submodule(reader)
     assert not walk(ast, Fortran2003.Intrinsic_Function_Reference)
 
@@ -72,14 +70,12 @@ def test_intrinsic_in_submodule():
 def test_f2008_intrinsic(f2008_parser):
     """Test Fortran2008 intrinsic is created with the f2008 parser."""
 
-    reader = FortranStringReader(
-        """subroutine test
+    reader = FortranStringReader("""subroutine test
         integer :: i
 
         i = erf(i)
         end subroutine test
-        """
-    )
+        """)
     tree = f2008_parser(reader)
     intrinsic = walk(tree, Fortran2008.Intrinsic_Name)
     assert len(intrinsic) == 1
@@ -88,14 +84,12 @@ def test_f2008_intrinsic(f2008_parser):
 
 def test_f2008_intrinsic_f2003_parse(f2003_parser):
     """Test Fortran2008 intrinsic is not created with the f2003 parser."""
-    reader = FortranStringReader(
-        """subroutine test
+    reader = FortranStringReader("""subroutine test
         integer :: i
 
         i = erf(i)
         end subroutine test
-        """
-    )
+        """)
     tree = f2003_parser(reader)
     intrinsic = walk(tree, Fortran2008.Intrinsic_Name)
     assert len(intrinsic) == 0
