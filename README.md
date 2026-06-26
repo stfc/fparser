@@ -1,4 +1,6 @@
 # News #
+  * 26/06/2026 Version 0.2.4 released (bug fix for importing F2008 without
+    F2003. Support for additional F2008 intrinsic functions).
   * 10/06/2026 Version 0.2.3 released (adds support for preprocessor line markers,
     improved handling of labelled DO loops and support for F2008 extension to
     Proc_Decl).
