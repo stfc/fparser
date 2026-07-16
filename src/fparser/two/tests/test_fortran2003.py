@@ -458,6 +458,21 @@ def test_char_selector():  # R424
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == "(LEN = 2, KIND = 8)"
 
+    # A length that is itself an expression containing a comma (e.g. the
+    # arguments to an intrinsic) must survive the splitting of the kind and
+    # length parts of the selector. The kind-first and positional forms of
+    # the selector previously left the length expression truncated at the
+    # inner comma.
+    obj = tcls("(kind=8,len=max(2, 0))")
+    assert isinstance(obj, tcls), repr(obj)
+    assert str(obj) == "(LEN = MAX(2, 0), KIND = 8)"
+    assert "F2PY" not in repr(obj)
+
+    obj = tcls("(max(2, 0),8)")
+    assert isinstance(obj, tcls), repr(obj)
+    assert str(obj) == "(LEN = MAX(2, 0), KIND = 8)"
+    assert "F2PY" not in repr(obj)
+
 
 def test_complex_literal_constant():  # R421
     tcls = Complex_Literal_Constant

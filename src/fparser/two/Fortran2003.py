@@ -1539,7 +1539,7 @@ class Char_Selector(Base):  # R424
             line = line[1:].lstrip()
             i = line.find(",")
             if i == -1:
-                return None, Scalar_Int_Initialization_Expr(line)
+                return None, Scalar_Int_Initialization_Expr(repmap(line))
             v = line[i + 1 :].lstrip()
             line = line[:i].rstrip()
             if v[:3].upper() != "LEN":
@@ -1548,6 +1548,8 @@ class Char_Selector(Base):  # R424
             if not v.startswith("="):
                 return
             v = v[1:].lstrip()
+            v = repmap(v)
+            line = repmap(line)
             return Type_Param_Value(v), Scalar_Int_Initialization_Expr(line)
 
         i = line.find(",")
@@ -1558,6 +1560,8 @@ class Char_Selector(Base):  # R424
         if line[:4].upper() == "KIND" and line[4:].lstrip().startswith("="):
             line = line[4:].lstrip()
             line = line[1:].lstrip()
+        v = repmap(v)
+        line = repmap(line)
         return Type_Param_Value(v), Scalar_Int_Initialization_Expr(line)
 
     def tostr(self):
