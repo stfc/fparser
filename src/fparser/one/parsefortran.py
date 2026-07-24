@@ -118,7 +118,7 @@ class FortranParser:
         """
         Pushes the given item to the reader.
         """
-        self.reader.fifo_item.insert(0, item)
+        self.reader.fifo_item.appendleft(item)
         return
 
     def parse(self):

@@ -1,4 +1,4 @@
-..  Copyright (c) 2017-2023 Science and Technology Facilities Council.
+..  Copyright (c) 2017-2026 Science and Technology Facilities Council.
 
     All rights reserved.
 
@@ -169,6 +169,14 @@ child class is tested for a match and the one that matches is
 returned. An example of a simple choice rule is `R202`. See the
 :ref:`program-unit-class` section for a description of its
 implementation.
+
+Another example is the support for Fortran 2008 intrinsics.
+These are defined in the `Fortran2008_Intrinsic_Names` class, which is then
+defined in the `subclass_names` list of the base `Intrinsic_Names` class in
+the Fortran2003 spec. When fparser runs with the 2008 standard, it will attempt
+to match both the Fortran2003 `Intrinsic_Names` and the
+`Fortran2008_Intrinsic_Names` classes, but with only the 2003 standard it will
+only use the base Fortran2003 intrinsic lists.
 
 The `use_names` list should contain any classes that are referenced by the
 implementation of the current class. These lists of names are aggregated

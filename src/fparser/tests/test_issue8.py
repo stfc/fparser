@@ -76,7 +76,7 @@ def test_reproduce_issue():
                               !   2, 3,..
                               !   3, 4,..
                               !
-     &  ncore(nclass)   ! ncore = \sum_l 
+     &  ncore(nclass)   ! ncore = \\sum_l
                         ! Number of diffe
       end
 """
@@ -93,7 +93,7 @@ def test_reproduce_issue():
           !   2, 3,..
           !   3, 4,..
           !
-          ! ncore = \sum_l
+          ! ncore = \\sum_l
           ! Number of diffe
         END SUBROUTINE gwinput_v2x
     """

@@ -26,6 +26,32 @@ Modifications by (in alphabetical order):
            contains a comma (e.g. the arguments to an intrinsic such as
            MAX) when the kind appears before the length in a char-selector.
 
+25/06/2026 PR #514 towards #428. Add some Fortran2008-only intrinsics.
+
+19/06/2026 PR #513 for #512. Fix circular import in Fortran2008.
+
+## Release 0.2.3 (11/06/2026) ##
+
+09/06/2026 PR #498 for #390 by adding support for linemarkers in parsed
+           code (e.g. '# 123 "test.f90"').
+
+04/06/2026 PR #507 for #506. Remove setuptools_scm_git dependency. Version
+           information is now always obtained using importlib.metadata.version.
+
+04/06/2026 PR #509 for #505. Fix truncated syntax error reporting when files
+           have line breaks before the module or program. 
+
+21/04/2026 PR #502. Widen Proc_Decl (R1214) for Fortran 2008 to accept an
+           initial-proc-target (R1217) on the right-hand side of ``=>``,
+           not only null-init. See J3/10-007r1 §12.4.3.6.
+
+26/05/2026 PR #501 for #499. Avoid exponential loop handling for non-blocked
+           loops when labels are involved.
+
+27/04/2026 PR #504 for #503. Improve preprocessor directives parsing.
+
+## Release 0.2.2 (19/03/2026) ##
+
 19/03/2026 PR #496. Add support for F2008 unlimited-format-item.
 
 13/03/2026 PR #495 for #494. Fix CI issues with the black formatting check.

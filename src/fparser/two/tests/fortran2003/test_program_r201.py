@@ -42,14 +42,12 @@ from fparser.two.utils import FortranSyntaxError
 from fparser.api import get_reader
 from fparser.two.Fortran2003 import Program
 
-# Test no content or just white space. This is not officially a
-# Fortran rule but fortran compilers tend to accept empty content so
-# we follow their lead.
-
 
 def test_empty_input(f2003_create):
     """Test that empty input or input only containing white space can be
-    parsed succesfully
+    parsed succesfully. This is not valid fortran but it is accepted by
+    compilers and some applications produce it when there is files with
+    preprocessor ifdefs and includes but all resolve to emtpy strings.
 
     """
     for code in ["", "   ", "  \n  \n\n"]:

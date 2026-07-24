@@ -1,5 +1,10 @@
 # News #
-  * 01/04/2025 Version 0.2.2 released (adds support for more types of directive and
+  * 26/06/2026 Version 0.2.4 released (bug fix for importing F2008 without
+    F2003. Support for additional F2008 intrinsic functions).
+  * 10/06/2026 Version 0.2.3 released (adds support for preprocessor line markers,
+    improved handling of labelled DO loops and support for F2008 extension to
+    Proc_Decl).
+  * 01/04/2026 Version 0.2.2 released (adds support for more types of directive and
     support for the Fortran2008 unlimited-repeat format specifier).
   * Good to know: fparser with Python 3.14 is approximately a factor of two faster than
     it is with older Python versions.
