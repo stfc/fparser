@@ -22,6 +22,10 @@ Modifications by (in alphabetical order):
 * P. Vitt, University of Siegen, Germany
 * A. Voysey, UK Met Office
 
+16/07/2026 PR #520 for #519. Fix truncation of a character length expression that
+           contains a comma (e.g. the arguments to an intrinsic such as
+           MAX) when the kind appears before the length in a char-selector.
+
 25/06/2026 PR #514 towards #428. Add some Fortran2008-only intrinsics.
 
 19/06/2026 PR #513 for #512. Fix circular import in Fortran2008.
