@@ -22,6 +22,9 @@ Modifications by (in alphabetical order):
 * P. Vitt, University of Siegen, Germany
 * A. Voysey, UK Met Office
 
+18/08/2026 PR #525 for #524. Fix Io_Implied_Do rejecting a minimal-length
+           io-implied-do such as "(i,i=1,n)" (off-by-one in the length guard).
+
 16/07/2026 PR #520 for #519. Fix truncation of a character length expression that
            contains a comma (e.g. the arguments to an intrinsic such as
            MAX) when the kind appears before the length in a char-selector.
