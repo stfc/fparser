@@ -319,6 +319,23 @@ omitted, the value is implicitly assumed to be one. For example::
 For more information see
 https://gcc.gnu.org/onlinedocs/gfortran/X-format-descriptor-without-count-field.html
 
+Missing Comma in Format Specifications
+++++++++++++++++++++++++++++++++++++++
+
+Standard Fortran only permits the comma separating format items to be
+omitted in a small number of situations (constraint C1002). However,
+many compilers (e.g. gfortran, ifort, ifx) additionally accept a
+missing comma between a character-string edit descriptor and a
+neighbouring format item. For example::
+
+  100 format('a' 1x,'b')
+  200 format(15x'a')
+  300 format('a' 'b')
+
+The 'format-missing-comma' extension adds support in fparser for this
+relaxation. Note that when such a format specification is re-generated
+from the parse tree the omitted commas are re-introduced.
+
 Hollerith Constant
 ++++++++++++++++++
 

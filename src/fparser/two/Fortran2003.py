@@ -10054,6 +10054,35 @@ def skip_digits(string):
     return found, index
 
 
+def split_leading_char_literal(string):
+    """Splits a string that starts with a character literal into the
+    literal and the remainder, honouring doubled (escaped) quotes
+    inside the literal.
+
+    :param str string: the string to split.
+
+    :returns: a 2-tuple containing the character literal and the \
+        remainder of the string, or None if the string does not start \
+        with a complete character literal.
+    :rtype: Optional[Tuple[str, str]]
+
+    """
+    if not string or string[0] not in "'\"":
+        return None
+    quote = string[0]
+    index = 1
+    while index < len(string):
+        if string[index] == quote:
+            if index + 1 < len(string) and string[index + 1] == quote:
+                # A doubled quote is an escaped quote, still inside the
+                # literal.
+                index += 2
+                continue
+            return string[: index + 1], string[index + 1 :]
+        index += 1
+    return None
+
+
 class Format_Item_C1002(Base):  # pylint: disable=invalid-name
     """
     Fortran 2003 constraint C1002::
@@ -10078,6 +10107,12 @@ class Format_Item_C1002(Base):  # pylint: disable=invalid-name
 
     (4) Before or after a colon edit descriptor.
 
+    If 'format-missing-comma' is specified in the EXTENSIONS list then
+    the comma may additionally be omitted between a character-string
+    edit descriptor and any neighbouring format item, e.g.
+    FORMAT('a' 1x,'b'), FORMAT(15x'a') or FORMAT('a' 'b'), as accepted
+    by many compilers (e.g. gfortran, ifort, ifx).
+
     """
 
     subclass_names = []
@@ -10085,6 +10120,36 @@ class Format_Item_C1002(Base):  # pylint: disable=invalid-name
 
     @staticmethod
     def match(string):
+        """Implements the matching for the C1002 Format Item constraint,
+        optionally relaxed by the 'format-missing-comma' extension.
+
+        :param str string: The string to check for conformance with a \
+                           C1002 format item constraint.
+        :return: `None` if there is no match, otherwise a tuple of \
+        size 2 containing a mixture of Control_Edit_Descriptor and \
+        Format_Item classes depending on what has been matched.
+
+        :rtype: `NoneType` or ( \
+        :py:class:`fparser.two.Control_Edit_Desc`, \
+        :py:class:`fparser.two.Format_Item` ) or \
+        (:py:class:`fparser.two.Format_Item`, \
+        :py:class:`fparser.two.Control_Edit_Desc`) or \
+        (:py:class:`fparser.two.Format_Item`, \
+        :py:class:`fparser.two.Format_Item`)
+
+        """
+        try:
+            result = Format_Item_C1002._standard_match(string)
+        except NoMatchError:
+            result = None
+        if result:
+            return result
+        if "format-missing-comma" not in EXTENSIONS():
+            return None
+        return Format_Item_C1002._extension_match(string)
+
+    @staticmethod
+    def _standard_match(string):
         """Implements the matching for the C1002 Format Item constraint. The
         constraints specify certain combinations of format items that
         do not need a comma to separate them. Rather than sorting this
@@ -10185,6 +10250,52 @@ class Format_Item_C1002(Base):  # pylint: disable=invalid-name
                     Format_Item(repmap(left.rstrip())),
                     Format_Item(option + repmap(right.lstrip())),
                 )
+
+        return None
+
+    @staticmethod
+    def _extension_match(string):
+        """Implements the matching for the 'format-missing-comma'
+        extension. Various compilers (e.g. gfortran, ifort, ifx) accept
+        a missing comma between a character-string edit descriptor and
+        the neighbouring format item, e.g. FORMAT('a' 1x,'b'),
+        FORMAT(15x'a') or FORMAT('a' 'b'). The item is split at the
+        boundary of the first character literal and both sides are
+        matched separately.
+
+        :param str string: The string to check for conformance with the \
+                           'format-missing-comma' extension.
+        :return: `None` if there is no match, otherwise a tuple of \
+        size 2 containing two Format_Item classes.
+        :rtype: `NoneType` or \
+        (:py:class:`fparser.two.Format_Item`, \
+        :py:class:`fparser.two.Format_Item`)
+
+        """
+        if not string:
+            return None
+        strip_string = string.strip()
+        split = split_leading_char_literal(strip_string)
+        if split:
+            # The item starts with a character literal, e.g. "'a' 1x".
+            literal, rest = split
+            rest = rest.lstrip()
+            if not rest or rest.startswith(","):
+                # Nothing follows the literal, or standard syntax.
+                return None
+            return (Format_Item(literal), Format_Item(rest))
+        indices = [
+            strip_string.find(quote) for quote in "'\"" if strip_string.find(quote) > 0
+        ]
+        if indices:
+            # The item contains a character literal preceded by another
+            # format item, e.g. "15x'a'". Split at the earliest quote.
+            index = min(indices)
+            return (
+                Format_Item(strip_string[:index].rstrip()),
+                Format_Item(strip_string[index:]),
+            )
+        return None
 
     def tostr(self):
         """
