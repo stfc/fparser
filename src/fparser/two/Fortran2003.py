@@ -9758,13 +9758,10 @@ class Inquire_Spec(KeywordValueBase):  # R930
                          | STREAM = <scalar-default-char-variable>
                          | UNFORMATTED = <scalar-default-char-variable>
                          | WRITE = <scalar-default-char-variable>
-    If the extension inquiry-directory is enabled, it will also allow
+    If the extension `inquiry-directory` is enabled, it will also allow
     the intel specific arguments:
                          | DIRECTORY = <file-name-expr>
                          | DIRSPEC = <scalar-default-char-variable>
-
-            valid.append(("DIRECTORY", File_Name_Expr))
-            valid.append(("DIRSPEC", Scalar_Default_Char_Variable))
 
     The `items` attribute for this class contains (str, instance).
 
