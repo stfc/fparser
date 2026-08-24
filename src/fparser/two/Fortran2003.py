@@ -9758,6 +9758,10 @@ class Inquire_Spec(KeywordValueBase):  # R930
                          | STREAM = <scalar-default-char-variable>
                          | UNFORMATTED = <scalar-default-char-variable>
                          | WRITE = <scalar-default-char-variable>
+    If the extension `inquiry-directory` is enabled, it will also allow
+    the intel specific arguments:
+                         | DIRECTORY = <file-name-expr>
+                         | DIRSPEC = <scalar-default-char-variable>
 
     The `items` attribute for this class contains (str, instance).
 
@@ -9789,7 +9793,7 @@ class Inquire_Spec(KeywordValueBase):  # R930
             # The only argument which need not be named is the unit number
             return "UNIT", File_Unit_Number(string)
         # We have a keyword-value pair. Check whether it is valid...
-        for keyword, value in [
+        valid = [
             (
                 [
                     "ACCESS",
@@ -9825,13 +9829,21 @@ class Inquire_Spec(KeywordValueBase):  # R930
             ("IOMSG", Iomsg_Variable),
             ("FILE", File_Name_Expr),
             ("UNIT", File_Unit_Number),
-        ]:
+        ]
+
+        if "inquire-directory" in EXTENSIONS():
+            # Support the intel-specific extension:
+            valid.append(("DIRECTORY", File_Name_Expr))
+            valid.append(("DIRSPEC", Scalar_Default_Char_Variable))
+
+        for keyword, value in valid:
             try:
                 obj = KeywordValueBase.match(keyword, value, string, upper_lhs=True)
             except NoMatchError:
                 obj = None
             if obj is not None:
                 return obj
+
         return None
 
 
