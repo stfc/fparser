@@ -22,6 +22,9 @@ Modifications by (in alphabetical order):
 * P. Vitt, University of Siegen, Germany
 * A. Voysey, UK Met Office
 
+24/08/2026 PR #523 for #522. Adds an extension to support the (Intel-specific)
+           'directory=' and 'dirspec=' arguments to the INQUIRY function.
+
 16/07/2026 PR #520 for #519. Fix truncation of a character length expression that
            contains a comma (e.g. the arguments to an intrinsic such as
            MAX) when the kind appears before the length in a char-selector.
