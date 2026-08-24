@@ -2228,6 +2228,11 @@ def test_io_implied_do():  # R917
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == "(a, i = 1, 2)"
 
+    # Minimal-length (9-character) io-implied-do.
+    obj = tcls("(i,i=1,2)")
+    assert isinstance(obj, tcls), repr(obj)
+    assert str(obj) == "(i, i = 1, 2)"
+
     obj = tcls("((i+j,j=3,4,1), i=1,2)")
     assert isinstance(obj, tcls), repr(obj)
     assert str(obj) == "((i + j, j = 3, 4, 1), i = 1, 2)"

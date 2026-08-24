@@ -9329,7 +9329,9 @@ class Io_Implied_Do(Base):  # R917
 
     @staticmethod
     def match(string):
-        if len(string) <= 9 or string[0] != "(" or string[-1] != ")":
+        # The shortest possible io-implied-do, e.g. "(i,i=1,2)", is 9
+        # characters long.
+        if len(string) < 9 or string[0] != "(" or string[-1] != ")":
             return
         line, repmap = string_replace_map(string[1:-1].strip())
         i = line.rfind("=")
