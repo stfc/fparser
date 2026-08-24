@@ -7,6 +7,7 @@ Modifications by (in alphabetical order):
 * A. B. G. Chalk, Science & Technology Facilities Council, UK
 * P. Elson, UK Met Office
 * R. W. Ford, Science & Technology Facilities Council, UK
+* P. Gagné, Bentley Systems, Canda
 * M. Hambley, UK Met Office
 * J. Henrichs, Australian Bureau of Meteorology
 * P. Hill, University of York, UK
@@ -21,6 +22,9 @@ Modifications by (in alphabetical order):
 * J. Tiira, University of Helsinki, Finland
 * P. Vitt, University of Siegen, Germany
 * A. Voysey, UK Met Office
+
+24/08/2026 PR #525 for #524. Bug fix for Io_implied_Do rejecting a minimal-
+           length io-implied-do.
 
 24/08/2026 PR #523 for #522. Adds an extension to support the (Intel-specific)
            'directory=' and 'dirspec=' arguments to the INQUIRY function.
