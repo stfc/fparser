@@ -9760,8 +9760,9 @@ class Inquire_Spec(KeywordValueBase):  # R930
                          | STREAM = <scalar-default-char-variable>
                          | UNFORMATTED = <scalar-default-char-variable>
                          | WRITE = <scalar-default-char-variable>
-    If the extension `inquiry-directory` is enabled, it will also allow
-    the intel specific arguments:
+    If the extension `inquire-directory` is enabled, it will also allow
+    the intel specific arguments::
+
                          | DIRECTORY = <file-name-expr>
                          | DIRSPEC = <scalar-default-char-variable>
 

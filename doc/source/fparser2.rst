@@ -387,6 +387,15 @@ This extension will accept these expressions in Fortran 2003. Note that the
 Fortran 2008 standard changes the definition of the stop code to accept even
 more flexible expressions.
 
+Non-standard Inquire Arguments
+++++++++++++++++++++++++++++++
+The Fortran standard does not specify the handling of directories in the
+`INQUIRE` statement. The Intel compiler adds the non-standard arguments
+`DIRECTORY` and `DIRSPEC` to handle directories.
+
+The extension `inquire-directory` will accept these non-standard arguments.
+
+
 Classes
 -------
 
