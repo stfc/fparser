@@ -146,8 +146,7 @@ def test_format_missing_comma_disabled(f2003_create, monkeypatch, my_input):
 
 def test_format_missing_comma_format_statement(f2003_create):
     """Check that format statements making use of the
-    'format-missing-comma' extension are parsed (see issue #484 and
-    the MODFLOW-2005 codebase).
+    'format-missing-comma' extension are parsed.
 
     """
     from fparser.two.Fortran2003 import Format_Stmt
