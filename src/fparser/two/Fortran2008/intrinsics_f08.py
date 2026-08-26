@@ -104,7 +104,7 @@ class Intrinsic_Name(F2003_Intrinsic_Name):
     }
 
     f08_other_intrinsics = {
-        "STORAGE_SIZE": {"min": 1, "max": 3},
+        "STORAGE_SIZE": {"min": 1, "max": 2},
         "PARITY": {"min": 1, "max": 2},
         "EXECUTE_COMMAND_LINE": {"min": 1, "max": 5},
         "FINDLOC": {"min": 2, "max": 6},
