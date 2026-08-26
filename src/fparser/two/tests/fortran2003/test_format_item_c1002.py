@@ -42,6 +42,7 @@ this class.
 
 import pytest
 from fparser.two.Fortran2003 import Format_Item_C1002
+from fparser.two import utils
 from fparser.two.utils import InternalError, NoMatchError
 
 
@@ -106,3 +107,53 @@ def test_internal_error3(f2003_create, monkeypatch):
     assert (
         "items entry 1 should contain a format items object but it " "is empty or None"
     ) in str(excinfo.value)
+
+
+@pytest.mark.parametrize(
+    "my_input,expected",
+    [
+        ("'a' 1x", "'a', 1X"),
+        ("'a' 'b'", "'a', 'b'"),
+        ("'a''b' 'c'", "'a''b', 'c'"),
+        ("15x'a'", "15X, 'a'"),
+        ("21x ' if it is the case '", "21X, ' if it is the case '"),
+        ('1x"don\'t"', '1X, "don\'t"'),
+        ("'a' 1x 'b'", "'a', 1X, 'b'"),
+    ],
+)
+def test_format_missing_comma_extension(f2003_create, my_input, expected):
+    """Check that a missing comma between a character-string edit
+    descriptor and a neighbouring format item is matched when the
+    'format-missing-comma' extension is enabled (which it is by
+    default).
+
+    """
+    ast = Format_Item_C1002(my_input)
+    assert str(ast) == expected
+
+
+@pytest.mark.parametrize("my_input", ["'a' 1x", "15x'a'", "'a' 'b'"])
+def test_format_missing_comma_disabled(f2003_create, monkeypatch, my_input):
+    """Check that a missing comma between a character-string edit
+    descriptor and a neighbouring format item is not matched when the
+    'format-missing-comma' extension is not enabled.
+
+    """
+    monkeypatch.setattr(utils, "_EXTENSIONS", [])
+    with pytest.raises(NoMatchError):
+        _ = Format_Item_C1002(my_input)
+
+
+def test_format_missing_comma_format_statement(f2003_create):
+    """Check that format statements making use of the
+    'format-missing-comma' extension are parsed.
+
+    """
+    from fparser.two.Fortran2003 import Format_Stmt
+
+    ast = Format_Stmt("FORMAT(//1X,'SWR PROCESS REQUIRES LAYCON'1X,'FOR',//)")
+    assert (
+        str(ast) == "FORMAT(/, /, 1X, 'SWR PROCESS REQUIRES LAYCON', 1X, 'FOR', /, /)"
+    )
+    ast = Format_Stmt("FORMAT(/1x,'unable to find:',1x,A,/15x' in file:')")
+    assert str(ast) == "FORMAT(/, 1X, 'unable to find:', 1X, A, /, 15X, ' in file:')"

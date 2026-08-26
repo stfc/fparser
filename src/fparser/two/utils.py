@@ -122,6 +122,13 @@ _EXTENSIONS += ["extended-stop-args"]
 # with a directory, using e.g. INQUIRE (DIRECTORY=".", DIRSPEC=C_DIRSPEC, ...)
 _EXTENSIONS += ["inquire-directory"]
 
+# Many compilers (e.g. gfortran, ifort, ifx) accept a missing comma
+# between a character-string edit descriptor and a neighbouring format
+# item in a format specification, e.g. FORMAT('a' 1x,'b'), FORMAT(15x'a')
+# or FORMAT('a' 'b'). This is supported by fparser if
+# 'format-missing-comma' is specified in the EXTENSIONS list.
+_EXTENSIONS += ["format-missing-comma"]
+
 
 def EXTENSIONS():
     """

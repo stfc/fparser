@@ -70,11 +70,12 @@
 # Original author: Pearu Peterson <pearu@cens.ioc.ee>
 # First version created: Oct 2006
 
+from __future__ import annotations
 import inspect
 import re
 import sys
 
-from typing import Union
+from typing import Optional, Union
 
 from fparser.common.splitline import string_replace_map
 from fparser.two import pattern_tools as pattern
@@ -10078,13 +10079,54 @@ class Format_Item_C1002(Base):  # pylint: disable=invalid-name
 
     (4) Before or after a colon edit descriptor.
 
+    If 'format-missing-comma' is specified in the EXTENSIONS list then
+    the comma may additionally be omitted between a character-string
+    edit descriptor and any neighbouring format item, e.g.
+    FORMAT('a' 1x,'b'), FORMAT(15x'a') or FORMAT('a' 'b'), as accepted
+    by many compilers (e.g. gfortran, ifort, ifx).
+
     """
 
     subclass_names = []
     use_names = ["K", "W", "D", "E", "Format_Item", "R"]
 
     @staticmethod
-    def match(string):
+    def match(
+        string: str,
+    ) -> Optional[
+        tuple[
+            Union[Control_Edit_Desc, Format_Item], Union[Control_Edit_Desc, Format_Item]
+        ]
+    ]:
+        """Implements the matching for the C1002 Format Item constraint,
+        optionally relaxed by the 'format-missing-comma' extension.
+
+        :param string: the string to check for conformance with a
+            C1002 format item constraint.
+
+        :returns: `None` if there is no match, otherwise a tuple of
+            size 2 containing a mixture of Control_Edit_Descriptor and
+            Format_Item classes depending on what has been matched.
+
+        """
+        try:
+            result = Format_Item_C1002._standard_match(string)
+        except NoMatchError:
+            result = None
+        if result:
+            return result
+        if "format-missing-comma" not in EXTENSIONS():
+            return None
+        return Format_Item_C1002._extension_match(string)
+
+    @staticmethod
+    def _standard_match(
+        string: str,
+    ) -> Optional[
+        tuple[
+            Union[Control_Edit_Desc, Format_Item], Union[Control_Edit_Desc, Format_Item]
+        ]
+    ]:
         """Implements the matching for the C1002 Format Item constraint. The
         constraints specify certain combinations of format items that
         do not need a comma to separate them. Rather than sorting this
@@ -10092,19 +10134,12 @@ class Format_Item_C1002(Base):  # pylint: disable=invalid-name
         separately and match them in this class. As a result the
         generated class hierarchy is a little more complicated.
 
-        :param str string: The string to check for conformance with a \
-                           C1002 format item constraint.
-        :return: `None` if there is no match, otherwise a tuple of \
-        size 2 containing a mixture of Control_Edit_Descriptor and \
-        Format_Item classes depending on what has been matched.
+        :param string: the string to check for conformance with a
+            C1002 format item constraint.
 
-        :rtype: `NoneType` or ( \
-        :py:class:`fparser.two.Control_Edit_Desc`, \
-        :py:class:`fparser.two.Format_Item` ) or \
-        (:py:class:`fparser.two.Format_Item`, \
-        :py:class:`fparser.two.Control_Edit_Desc`) or \
-        (:py:class:`fparser.two.Format_Item`, \
-        :py:class:`fparser.two.Format_Item`)
+        :returns: `None` if there is no match, otherwise a tuple of
+            size 2 containing a mixture of Control_Edit_Descriptor and
+            Format_Item classes depending on what has been matched.
 
         """
         if not string:
@@ -10185,6 +10220,60 @@ class Format_Item_C1002(Base):  # pylint: disable=invalid-name
                     Format_Item(repmap(left.rstrip())),
                     Format_Item(option + repmap(right.lstrip())),
                 )
+
+        return None
+
+    @staticmethod
+    def _extension_match(string: str) -> Optional[tuple[Format_Item, Format_Item]]:
+        """Implements the matching for the 'format-missing-comma'
+        extension. Various compilers (e.g. gfortran, ifort, ifx) accept
+        a missing comma between a character-string edit descriptor and
+        the neighbouring format item, e.g. FORMAT('a' 1x,'b'),
+        FORMAT(15x'a') or FORMAT('a' 'b'). The item is split at the
+        boundary of the first character literal and both sides are
+        matched separately.
+
+        Quote/escape handling is delegated to string_replace_map()
+        (the same helper _standard_match() uses to locate the '/' and
+        ':' edit descriptors), rather than re-implementing it here: it
+        masks character literals - simple ones are left untouched and
+        complex ones (e.g. containing doubled quotes) are replaced
+        with a placeholder - so the masked line can never contain the
+        literal's own quote character before its closing quote.
+
+        :param string: the string to check for conformance with the
+            'format-missing-comma' extension.
+
+        :returns: `None` if there is no match, otherwise a tuple of
+            size 2 containing two Format_Item classes.
+
+        """
+        if not string:
+            return None
+        strip_string = string.strip()
+        line, repmap = string_replace_map(strip_string)
+        if line and line[0] in "'\"":
+            # The item starts with a character literal, e.g. "'a' 1x".
+            quote = line[0]
+            end = line.find(quote, 1)
+            if end == -1:
+                return None
+            literal = repmap(line[: end + 1])
+            rest = repmap(line[end + 1 :]).lstrip()
+            if not rest or rest.startswith(","):
+                # Nothing follows the literal, or standard syntax.
+                return None
+            return (Format_Item(literal), Format_Item(rest))
+        indices = [line.find(quote) for quote in "'\"" if line.find(quote) > 0]
+        if indices:
+            # The item contains a character literal preceded by another
+            # format item, e.g. "15x'a'". Split at the earliest quote.
+            index = min(indices)
+            return (
+                Format_Item(repmap(line[:index]).rstrip()),
+                Format_Item(repmap(line[index:])),
+            )
+        return None
 
     def tostr(self):
         """

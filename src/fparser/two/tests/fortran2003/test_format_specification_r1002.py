@@ -38,6 +38,7 @@ format specification.
 """
 
 import pytest
+from fparser.two import utils
 from fparser.two.Fortran2003 import Format_Specification
 from fparser.two.utils import NoMatchError
 
@@ -247,7 +248,7 @@ def test_syntaxerror(f2003_create):
             _ = Format_Specification(my_input)
 
 
-def test_syntaxerror_c1002(f2003_create):
+def test_syntaxerror_c1002(f2003_create, monkeypatch):
     """Test that we get an exception in situations where no comma is
     supplied and the C1002 constraints for optional commas do not
     apply.
@@ -259,9 +260,21 @@ def test_syntaxerror_c1002(f2003_create):
     for my_input in ["(2P, 2/)", "('hello', 2/)", "(2E2.2, 3/)"]:
         ast = Format_Specification(my_input)
     # invalid syntax
-    for my_input in ["(2P 2/)", "(2P2/)", "('hello' 2/)", "('hello'2/)"]:
+    for my_input in ["(2P 2/)", "(2P2/)"]:
         with pytest.raises(NoMatchError):
             _ = Format_Specification(my_input)
+    # A missing comma after a character-string edit descriptor is
+    # accepted by the 'format-missing-comma' extension (enabled by
+    # default) ...
+    for my_input in ["('hello' 2/)", "('hello'2/)"]:
+        ast = Format_Specification(my_input)
+        assert str(ast) == "('hello', 2/)"
+    # ... and is invalid syntax without the extension.
+    with monkeypatch.context() as mpatch:
+        mpatch.setattr(utils, "_EXTENSIONS", [])
+        for my_input in ["('hello' 2/)", "('hello'2/)"]:
+            with pytest.raises(NoMatchError):
+                _ = Format_Specification(my_input)
     # Comma is mandatory after a P descriptor if not one of ['F', 'E',
     # 'EN', 'ES', 'D', 'G'] or not a '/' or a ':'
     # Test valid syntax.
@@ -285,7 +298,6 @@ def test_syntaxerror_c1002(f2003_create):
         _ = Format_Specification(my_input)
     # Comma is mandatory if C1002 is not relevant
     for my_input in [
-        "('hello' 'hello')",
         "(2P 2P)",
         "(2P2P)",
         "(F2.2 F2.2)",
@@ -299,3 +311,13 @@ def test_syntaxerror_c1002(f2003_create):
     ]:
         with pytest.raises(NoMatchError):
             _ = Format_Specification(my_input)
+    # A missing comma between two character-string edit descriptors is
+    # accepted by the 'format-missing-comma' extension (enabled by
+    # default) ...
+    ast = Format_Specification("('hello' 'hello')")
+    assert str(ast) == "('hello', 'hello')"
+    # ... and is invalid syntax without the extension.
+    with monkeypatch.context() as mpatch:
+        mpatch.setattr(utils, "_EXTENSIONS", [])
+        with pytest.raises(NoMatchError):
+            _ = Format_Specification("('hello' 'hello')")
