@@ -139,11 +139,7 @@ def test_format_missing_comma_disabled(f2003_create, monkeypatch, my_input):
     'format-missing-comma' extension is not enabled.
 
     """
-    monkeypatch.setattr(
-        utils,
-        "_EXTENSIONS",
-        [ext for ext in utils.EXTENSIONS() if ext != "format-missing-comma"],
-    )
+    monkeypatch.setattr(utils, "_EXTENSIONS", [])
     with pytest.raises(NoMatchError):
         _ = Format_Item_C1002(my_input)
 

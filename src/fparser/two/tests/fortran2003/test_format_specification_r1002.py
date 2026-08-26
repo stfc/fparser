@@ -271,11 +271,7 @@ def test_syntaxerror_c1002(f2003_create, monkeypatch):
         assert str(ast) == "('hello', 2/)"
     # ... and is invalid syntax without the extension.
     with monkeypatch.context() as mpatch:
-        mpatch.setattr(
-            utils,
-            "_EXTENSIONS",
-            [ext for ext in utils.EXTENSIONS() if ext != "format-missing-comma"],
-        )
+        mpatch.setattr(utils, "_EXTENSIONS", [])
         for my_input in ["('hello' 2/)", "('hello'2/)"]:
             with pytest.raises(NoMatchError):
                 _ = Format_Specification(my_input)
@@ -322,10 +318,6 @@ def test_syntaxerror_c1002(f2003_create, monkeypatch):
     assert str(ast) == "('hello', 'hello')"
     # ... and is invalid syntax without the extension.
     with monkeypatch.context() as mpatch:
-        mpatch.setattr(
-            utils,
-            "_EXTENSIONS",
-            [ext for ext in utils.EXTENSIONS() if ext != "format-missing-comma"],
-        )
+        mpatch.setattr(utils, "_EXTENSIONS", [])
         with pytest.raises(NoMatchError):
             _ = Format_Specification("('hello' 'hello')")
