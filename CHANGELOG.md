@@ -23,6 +23,8 @@ Modifications by (in alphabetical order):
 * P. Vitt, University of Siegen, Germany
 * A. Voysey, UK Met Office
 
+26/08/2026 PR #518. Adds support for the remaining F2008 intrinsics.
+
 26/08/2026 PR #526 for #484. Adds a 'format-missing-comma' extension which
            permits commas to be omitted between character-string edit
            descriptors and neighbouring format items.
