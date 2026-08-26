@@ -74,7 +74,7 @@ import inspect
 import re
 import sys
 
-from typing import Union
+from typing import Optional, Union
 
 from fparser.common.splitline import string_replace_map
 from fparser.two import pattern_tools as pattern
@@ -10090,7 +10090,10 @@ class Format_Item_C1002(Base):  # pylint: disable=invalid-name
     use_names = ["K", "W", "D", "E", "Format_Item", "R"]
 
     @staticmethod
-    def match(string: str):
+    def match(string: str) -> Optional[tuple[Union[Control_Edit_Desc,
+                                                   Format_Item],
+                                             Union[Control_Edit_Desc,
+                                                   Format_Item]]]:
         """Implements the matching for the C1002 Format Item constraint,
         optionally relaxed by the 'format-missing-comma' extension.
 
@@ -10100,9 +10103,6 @@ class Format_Item_C1002(Base):  # pylint: disable=invalid-name
         :returns: `None` if there is no match, otherwise a tuple of
             size 2 containing a mixture of Control_Edit_Descriptor and
             Format_Item classes depending on what has been matched.
-        :rtype: Optional[Tuple[
-            Union[Control_Edit_Desc, Format_Item],
-            Union[Control_Edit_Desc, Format_Item]]]
 
         """
         try:
@@ -10116,7 +10116,10 @@ class Format_Item_C1002(Base):  # pylint: disable=invalid-name
         return Format_Item_C1002._extension_match(string)
 
     @staticmethod
-    def _standard_match(string: str):
+    def _standard_match(string: str) -> Optional[tuple[Union[Control_Edit_Desc,
+                                                             Format_Item],
+                                                       Union[Control_Edit_Desc,
+                                                             Format_Item]]]:
         """Implements the matching for the C1002 Format Item constraint. The
         constraints specify certain combinations of format items that
         do not need a comma to separate them. Rather than sorting this
@@ -10130,9 +10133,6 @@ class Format_Item_C1002(Base):  # pylint: disable=invalid-name
         :returns: `None` if there is no match, otherwise a tuple of
             size 2 containing a mixture of Control_Edit_Descriptor and
             Format_Item classes depending on what has been matched.
-        :rtype: Optional[Tuple[
-            Union[Control_Edit_Desc, Format_Item],
-            Union[Control_Edit_Desc, Format_Item]]]
 
         """
         if not string:
@@ -10217,7 +10217,8 @@ class Format_Item_C1002(Base):  # pylint: disable=invalid-name
         return None
 
     @staticmethod
-    def _extension_match(string: str):
+    def _extension_match(string: str) -> Optional[tuple[Format_Item,
+                                                        Format_Item]]:
         """Implements the matching for the 'format-missing-comma'
         extension. Various compilers (e.g. gfortran, ifort, ifx) accept
         a missing comma between a character-string edit descriptor and
@@ -10239,7 +10240,6 @@ class Format_Item_C1002(Base):  # pylint: disable=invalid-name
 
         :returns: `None` if there is no match, otherwise a tuple of
             size 2 containing two Format_Item classes.
-        :rtype: Optional[Tuple[Format_Item, Format_Item]]
 
         """
         if not string:
