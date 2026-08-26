@@ -23,6 +23,10 @@ Modifications by (in alphabetical order):
 * P. Vitt, University of Siegen, Germany
 * A. Voysey, UK Met Office
 
+26/08/2026 PR #526 for #484. Adds a 'format-missing-comma' extension which
+           permits commas to be omitted between character-string edit
+           descriptors and neighbouring format items.
+
 24/08/2026 PR #525 for #524. Bug fix for Io_implied_Do rejecting a minimal-
            length io-implied-do.
 
