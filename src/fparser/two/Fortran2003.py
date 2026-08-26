@@ -10054,35 +10054,6 @@ def skip_digits(string):
     return found, index
 
 
-def split_leading_char_literal(string):
-    """Splits a string that starts with a character literal into the
-    literal and the remainder, honouring doubled (escaped) quotes
-    inside the literal.
-
-    :param str string: the string to split.
-
-    :returns: a 2-tuple containing the character literal and the \
-        remainder of the string, or None if the string does not start \
-        with a complete character literal.
-    :rtype: Optional[Tuple[str, str]]
-
-    """
-    if not string or string[0] not in "'\"":
-        return None
-    quote = string[0]
-    index = 1
-    while index < len(string):
-        if string[index] == quote:
-            if index + 1 < len(string) and string[index + 1] == quote:
-                # A doubled quote is an escaped quote, still inside the
-                # literal.
-                index += 2
-                continue
-            return string[: index + 1], string[index + 1 :]
-        index += 1
-    return None
-
-
 class Format_Item_C1002(Base):  # pylint: disable=invalid-name
     """
     Fortran 2003 constraint C1002::
@@ -10119,23 +10090,19 @@ class Format_Item_C1002(Base):  # pylint: disable=invalid-name
     use_names = ["K", "W", "D", "E", "Format_Item", "R"]
 
     @staticmethod
-    def match(string):
+    def match(string: str):
         """Implements the matching for the C1002 Format Item constraint,
         optionally relaxed by the 'format-missing-comma' extension.
 
-        :param str string: The string to check for conformance with a \
-                           C1002 format item constraint.
-        :return: `None` if there is no match, otherwise a tuple of \
-        size 2 containing a mixture of Control_Edit_Descriptor and \
-        Format_Item classes depending on what has been matched.
+        :param string: the string to check for conformance with a
+            C1002 format item constraint.
 
-        :rtype: `NoneType` or ( \
-        :py:class:`fparser.two.Control_Edit_Desc`, \
-        :py:class:`fparser.two.Format_Item` ) or \
-        (:py:class:`fparser.two.Format_Item`, \
-        :py:class:`fparser.two.Control_Edit_Desc`) or \
-        (:py:class:`fparser.two.Format_Item`, \
-        :py:class:`fparser.two.Format_Item`)
+        :returns: `None` if there is no match, otherwise a tuple of
+            size 2 containing a mixture of Control_Edit_Descriptor and
+            Format_Item classes depending on what has been matched.
+        :rtype: Optional[Tuple[
+            Union[Control_Edit_Desc, Format_Item],
+            Union[Control_Edit_Desc, Format_Item]]]
 
         """
         try:
@@ -10149,7 +10116,7 @@ class Format_Item_C1002(Base):  # pylint: disable=invalid-name
         return Format_Item_C1002._extension_match(string)
 
     @staticmethod
-    def _standard_match(string):
+    def _standard_match(string: str):
         """Implements the matching for the C1002 Format Item constraint. The
         constraints specify certain combinations of format items that
         do not need a comma to separate them. Rather than sorting this
@@ -10157,19 +10124,15 @@ class Format_Item_C1002(Base):  # pylint: disable=invalid-name
         separately and match them in this class. As a result the
         generated class hierarchy is a little more complicated.
 
-        :param str string: The string to check for conformance with a \
-                           C1002 format item constraint.
-        :return: `None` if there is no match, otherwise a tuple of \
-        size 2 containing a mixture of Control_Edit_Descriptor and \
-        Format_Item classes depending on what has been matched.
+        :param string: the string to check for conformance with a
+            C1002 format item constraint.
 
-        :rtype: `NoneType` or ( \
-        :py:class:`fparser.two.Control_Edit_Desc`, \
-        :py:class:`fparser.two.Format_Item` ) or \
-        (:py:class:`fparser.two.Format_Item`, \
-        :py:class:`fparser.two.Control_Edit_Desc`) or \
-        (:py:class:`fparser.two.Format_Item`, \
-        :py:class:`fparser.two.Format_Item`)
+        :returns: `None` if there is no match, otherwise a tuple of
+            size 2 containing a mixture of Control_Edit_Descriptor and
+            Format_Item classes depending on what has been matched.
+        :rtype: Optional[Tuple[
+            Union[Control_Edit_Desc, Format_Item],
+            Union[Control_Edit_Desc, Format_Item]]]
 
         """
         if not string:
@@ -10254,7 +10217,7 @@ class Format_Item_C1002(Base):  # pylint: disable=invalid-name
         return None
 
     @staticmethod
-    def _extension_match(string):
+    def _extension_match(string: str):
         """Implements the matching for the 'format-missing-comma'
         extension. Various compilers (e.g. gfortran, ifort, ifx) accept
         a missing comma between a character-string edit descriptor and
@@ -10263,37 +10226,46 @@ class Format_Item_C1002(Base):  # pylint: disable=invalid-name
         boundary of the first character literal and both sides are
         matched separately.
 
-        :param str string: The string to check for conformance with the \
-                           'format-missing-comma' extension.
-        :return: `None` if there is no match, otherwise a tuple of \
-        size 2 containing two Format_Item classes.
-        :rtype: `NoneType` or \
-        (:py:class:`fparser.two.Format_Item`, \
-        :py:class:`fparser.two.Format_Item`)
+        Quote/escape handling is delegated to string_replace_map()
+        (the same helper _standard_match() uses to locate the '/' and
+        ':' edit descriptors), rather than re-implementing it here: it
+        masks character literals - simple ones are left untouched and
+        complex ones (e.g. containing doubled quotes) are replaced
+        with a placeholder - so the masked line can never contain the
+        literal's own quote character before its closing quote.
+
+        :param string: the string to check for conformance with the
+            'format-missing-comma' extension.
+
+        :returns: `None` if there is no match, otherwise a tuple of
+            size 2 containing two Format_Item classes.
+        :rtype: Optional[Tuple[Format_Item, Format_Item]]
 
         """
         if not string:
             return None
         strip_string = string.strip()
-        split = split_leading_char_literal(strip_string)
-        if split:
+        line, repmap = string_replace_map(strip_string)
+        if line and line[0] in "'\"":
             # The item starts with a character literal, e.g. "'a' 1x".
-            literal, rest = split
-            rest = rest.lstrip()
+            quote = line[0]
+            end = line.find(quote, 1)
+            if end == -1:
+                return None
+            literal = repmap(line[: end + 1])
+            rest = repmap(line[end + 1 :]).lstrip()
             if not rest or rest.startswith(","):
                 # Nothing follows the literal, or standard syntax.
                 return None
             return (Format_Item(literal), Format_Item(rest))
-        indices = [
-            strip_string.find(quote) for quote in "'\"" if strip_string.find(quote) > 0
-        ]
+        indices = [line.find(quote) for quote in "'\"" if line.find(quote) > 0]
         if indices:
             # The item contains a character literal preceded by another
             # format item, e.g. "15x'a'". Split at the earliest quote.
             index = min(indices)
             return (
-                Format_Item(strip_string[:index].rstrip()),
-                Format_Item(strip_string[index:]),
+                Format_Item(repmap(line[:index]).rstrip()),
+                Format_Item(repmap(line[index:])),
             )
         return None
 
