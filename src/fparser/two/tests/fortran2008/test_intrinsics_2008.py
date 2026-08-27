@@ -96,3 +96,32 @@ def test_f2008_intrinsic_f2003_parse(f2003_parser):
     partref = walk(tree, Fortran2003.Part_Ref)
     assert len(partref) == 1
     assert str(partref[0]) == "erf(i)"
+
+
+@pytest.mark.parametrize(
+    "dtype, intrinsic, output",
+    [
+        ("integer", "erf(i)", "ERF"),
+        ("integer", "min(i, i)", "MIN"),
+        ("integer", "dshiftl(i, j, 1)", "DSHIFTL"),
+        ("integer", "popcnt(i)", "POPCNT"),
+        ("integer", "maskl(i, kind=8)", "MASKL"),
+        ("integer, dimension(100)", "iparity(i, 1)", "IPARITY"),
+        ("logical, dimension(100)", "parity(i)", "PARITY"),
+        ("real", "acosh(i)", "ACOSH"),
+        ("real", "bessel_j0(i)", "BESSEL_J0"),
+    ],
+)
+def test_f2008_intrinsic_types(dtype, intrinsic, output, f2008_parser):
+    """Test each subtype of f2008 intrinsics are correctly parsed."""
+    reader = FortranStringReader(f"""subroutine test
+
+    {dtype} :: i, j
+
+    i = {intrinsic}
+    end subroutine test""")
+
+    tree = f2008_parser(reader)
+    intrinsic = walk(tree, Fortran2008.Intrinsic_Name)
+    assert len(intrinsic) == 1
+    assert str(intrinsic[0]) == output
