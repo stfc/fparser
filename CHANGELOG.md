@@ -23,6 +23,8 @@ Modifications by (in alphabetical order):
 * P. Vitt, University of Siegen, Germany
 * A. Voysey, UK Met Office
 
+## Release 0.2.5 (01/09/2026) ##
+
 26/08/2026 PR #518. Adds support for the remaining F2008 intrinsics.
 
 26/08/2026 PR #526 for #484. Adds a 'format-missing-comma' extension which
@@ -38,6 +40,8 @@ Modifications by (in alphabetical order):
 16/07/2026 PR #520 for #519. Fix truncation of a character length expression that
            contains a comma (e.g. the arguments to an intrinsic such as
            MAX) when the kind appears before the length in a char-selector.
+
+## Release 0.2.4 (26/06/2026) ##
 
 25/06/2026 PR #514 towards #428. Add some Fortran2008-only intrinsics.
 
