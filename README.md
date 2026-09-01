@@ -1,5 +1,5 @@
 # News #
-  * 27/08/2026 Version 0.2.5 released (extensions for omitting a comma before/
+  * 01/09/2026 Version 0.2.5 released (extensions for omitting a comma before/
     after character edit descriptors in a format specification and for using
     INQUIRY to test for directories) plus finalised support for all F2008
     intrinsic functions.
