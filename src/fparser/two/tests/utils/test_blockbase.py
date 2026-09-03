@@ -1,4 +1,4 @@
-# Copyright (c) 2019-2021, Science and Technology Facilities Council
+# Copyright (c) 2019-2022, Science and Technology Facilities Council
 
 # All rights reserved.
 
@@ -81,20 +81,22 @@ def test_include(f2003_create):
         ),
         ignore_comments=False,
     )
-    result = BlockBase.match(startcls, subclasses, endcls, reader)
+    result = BlockBase.match(
+        startcls, subclasses, endcls, reader, strict_order=True, once_only=True
+    )
     assert (
         "([Include_Stmt(Include_Filename('1')), Comment('! comment1'), "
-        "Program_Stmt('PROGRAM', Name('test')), Specification_Part("
-        "Implicit_Part(Include_Stmt(Include_Filename('2')), "
-        "Comment('! comment2')), Type_Declaration_Stmt(Intrinsic_Type_Spec("
-        "'INTEGER', None), None, Entity_Decl_List(',', (Entity_Decl(Name("
-        "'i'), None, None, None),))), Implicit_Part(Include_Stmt("
-        "Include_Filename('3')), Comment('! comment3'))), Execution_Part("
-        "Assignment_Stmt(Name('i'), '=', Int_Literal_Constant('1', None)), "
-        "Include_Stmt(Include_Filename('4')), Comment('! comment4')), "
+        "Program_Stmt('PROGRAM', Name('test')), Include_Stmt("
+        "Include_Filename('2')), Comment('! comment2'), Specification_Part"
+        "(Type_Declaration_Stmt(Intrinsic_Type_Spec('INTEGER', None), None, "
+        "Entity_Decl_List(',', (Entity_Decl(Name('i'), None, None, None),))), "
+        "Include_Stmt(Include_Filename('3')), Comment('! comment3')), "
+        "Execution_Part(Assignment_Stmt(Name('i'), '=', "
+        "Int_Literal_Constant('1', None)), Include_Stmt("
+        "Include_Filename('4')), Comment('! comment4')), "
         "Internal_Subprogram_Part(Contains_Stmt('CONTAINS'), Include_Stmt("
         "Include_Filename('5')), Comment('! comment5')), End_Program_Stmt("
-        "'PROGRAM', Name('test'))],)" in str(result).replace("u'", "'")
+        "'PROGRAM', Name('test'))],)" in str(result)
     )
     assert "should" not in str(result)
 

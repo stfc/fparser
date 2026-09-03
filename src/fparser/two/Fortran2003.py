@@ -564,6 +564,7 @@ class Specification_Part(BlockBase):  # R204
             [Use_Stmt, Import_Stmt, Implicit_Part, Declaration_Construct],
             None,
             reader,
+            strict_order=True,
         )
 
 
@@ -1753,6 +1754,7 @@ class Derived_Type_Def(BlockBase):  # R429
             End_Type_Stmt,
             reader,
             match_names=True,  # C431
+            strict_order=True,
         )
 
 
@@ -2458,7 +2460,11 @@ class Type_Bound_Procedure_Part(BlockBase):  # pylint: disable=invalid-name
                   `Name`]) or `None`
         """
         return BlockBase.match(
-            Contains_Stmt, [Binding_Private_Stmt, Proc_Binding_Stmt], None, reader
+            Contains_Stmt,
+            [Binding_Private_Stmt, Proc_Binding_Stmt],
+            None,
+            reader,
+            strict_order=True,
         )
 
 
@@ -2870,7 +2876,10 @@ class Enum_Def(BlockBase):  # R460
     @staticmethod
     def match(reader):
         return BlockBase.match(
-            Enum_Def_Stmt, [Enumerator_Def_Stmt], End_Enum_Stmt, reader
+            Enum_Def_Stmt,
+            [Enumerator_Def_Stmt],
+            End_Enum_Stmt,
+            reader,
         )
 
 
@@ -11166,6 +11175,7 @@ class Main_Program(BlockBase):  # R1101 [C1101, C1102, C1103]
             reader,
             match_names=True,
             strict_order=True,
+            once_only=True,
         )
 
 
@@ -11226,6 +11236,8 @@ class Main_Program0(BlockBase):
             [Specification_Part, Execution_Part, Internal_Subprogram_Part],
             End_Program_Stmt,
             reader,
+            strict_order=True,
+            once_only=True,
         )
 
         SYMBOL_TABLES.exit_scope()
@@ -11324,6 +11336,8 @@ class Module(BlockBase):  # R1104
             [Specification_Part, Module_Subprogram_Part],
             End_Module_Stmt,
             reader,
+            strict_order=True,
+            once_only=True,
         )
 
 
@@ -12833,6 +12847,8 @@ class Function_Subprogram(BlockBase):  # R1223
             [Specification_Part, Execution_Part, Internal_Subprogram_Part],
             End_Function_Stmt,
             reader,
+            strict_order=True,
+            once_only=True,
         )
 
 
@@ -13120,6 +13136,8 @@ class Subroutine_Subprogram(BlockBase):  # R1231
             [Specification_Part, Execution_Part, Internal_Subprogram_Part],
             End_Subroutine_Stmt,
             reader,
+            strict_order=True,
+            once_only=True,
         )
 
 
